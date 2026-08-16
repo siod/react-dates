@@ -5,7 +5,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`;
 
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
 export default defineConfig({
-  testDir: './test-modern/browser-fixtures',
+  testDir: './test/browser-fixtures',
   testMatch: '**/*.spec.{js,jsx,mjs}',
   outputDir: 'test-results/playwright',
   fullyParallel: true,

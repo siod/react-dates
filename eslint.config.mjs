@@ -66,7 +66,7 @@ export default [
     },
   },
   {
-    files: ['test-modern/**/*.test.{js,jsx}', 'test-modern/helpers/**/*.{js,jsx}'],
+    files: ['test/**/*.test.{js,jsx}', 'test/helpers/**/*.{js,jsx}'],
     rules: {
       'import-x/no-extraneous-dependencies': 'off',
       'react/prop-types': 'off',

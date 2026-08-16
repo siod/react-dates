@@ -291,6 +291,24 @@ class DayPicker extends React.PureComponent {
     } = this.props;
     const { currentMonth, focusedDate, monthTitleHeight } = this.state;
 
+    if (!this.props.hidden) {
+      const requestedMonth = this.props.initialVisibleMonth?.();
+      const previousRequestedMonth = prevProps.initialVisibleMonth?.();
+      const requestedMonthChanged = isDateTime(requestedMonth)
+        && (!isDateTime(previousRequestedMonth)
+          || !requestedMonth.hasSame(previousRequestedMonth, 'month'));
+      if ((prevProps.hidden || requestedMonthChanged)
+        && isDateTime(requestedMonth)
+        && !isDayVisible(requestedMonth, currentMonth, numberOfMonths)) {
+        const nextMonth = requestedMonth.startOf('month');
+        this.setCalendarMonthWeeks(nextMonth);
+        this.setState({
+          currentMonth: nextMonth,
+          focusedDate: this.getFocusedDay(nextMonth),
+        });
+      }
+    }
+
     if (prevProps.daySize !== daySize
       || prevProps.horizontalMonthPadding !== horizontalMonthPadding) {
       this.setState({

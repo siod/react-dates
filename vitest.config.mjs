@@ -5,22 +5,22 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    include: ['test-modern/**/*.test.{js,jsx}'],
+    include: ['test/**/*.test.{js,jsx}'],
     restoreMocks: true,
-    setupFiles: ['./test-modern/setup.js'],
+    setupFiles: ['./test/setup.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary', 'html', 'lcov'],
       reportsDirectory: './coverage',
       include: ['src/**/*.{js,jsx}'],
       exclude: ['src/**/index.{js,jsx}'],
-      // Prevent the modern suite from losing ground while component coverage
-      // is expanded toward the v22 release target (90/90/90/85).
+      // Ratchet coverage after each migration wave while the suite expands
+      // toward the v22 release target (90/85/90/90).
       thresholds: {
-        statements: 55,
-        lines: 58,
-        functions: 46,
-        branches: 42,
+        statements: 90,
+        lines: 90,
+        functions: 90,
+        branches: 85,
       },
     },
   },

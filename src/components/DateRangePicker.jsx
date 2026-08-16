@@ -579,7 +579,8 @@ class DateRangePicker extends React.PureComponent {
           calendarInfoPosition={calendarInfoPosition}
           isFocused={isDayPickerFocused}
           showKeyboardShortcuts={showKeyboardShortcuts}
-          onBlur={this.onDayPickerEscape}
+          onBlur={this.onDayPickerBlur}
+          onEscape={this.onDayPickerEscape}
           phrases={phrases}
           dayAriaLabelFormat={dayAriaLabelFormat}
           isRTL={isRTL}

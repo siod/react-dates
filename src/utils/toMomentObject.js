@@ -1,11 +1,14 @@
 import moment from 'moment';
 
-import { DISPLAY_FORMAT, ISO_FORMAT } from '../constants';
+import {
+  LEGACY_DISPLAY_FORMAT,
+  LEGACY_ISO_FORMAT,
+} from '../internal/legacyDateConstants';
 
 export default function toMomentObject(dateString, customFormat) {
   const dateFormats = customFormat
-    ? [customFormat, DISPLAY_FORMAT, ISO_FORMAT]
-    : [DISPLAY_FORMAT, ISO_FORMAT];
+    ? [customFormat, LEGACY_DISPLAY_FORMAT, LEGACY_ISO_FORMAT]
+    : [LEGACY_DISPLAY_FORMAT, LEGACY_ISO_FORMAT];
 
   const date = moment(dateString, dateFormats, true);
   return date.isValid() ? date.hour(12) : null;

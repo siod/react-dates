@@ -43,9 +43,8 @@ _gh-pages
 
 .nyc_output
 
-# Only apps should have lockfiles
+# Keep npm's lockfile for reproducible library development and releases.
 yarn.lock
-package-lock.json
 
 css/styles.css
 

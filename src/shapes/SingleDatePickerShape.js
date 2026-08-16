@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
+
+import { isoDate } from '../internal/date/isoDatePropType';
+import { mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 
 import { SingleDatePickerPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -15,7 +16,7 @@ import NavPositionShape from './NavPositionShape';
 
 export default {
   // required props for a functional interactive SingleDatePicker
-  date: momentPropTypes.momentObj,
+  date: isoDate,
   onDateChange: PropTypes.func.isRequired,
 
   focused: PropTypes.bool,
@@ -88,13 +89,16 @@ export default {
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   isDayHighlighted: PropTypes.func,
-  minDate: momentPropTypes.momentObj,
-  maxDate: momentPropTypes.momentObj,
+  minDate: isoDate,
+  maxDate: isoDate,
 
   // internationalization props
-  displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  monthFormat: PropTypes.string,
-  weekDayFormat: PropTypes.string,
+  displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   phrases: PropTypes.shape(getPhrasePropTypes(SingleDatePickerPhrases)),
-  dayAriaLabelFormat: PropTypes.string,
+  dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  locale: PropTypes.string,
+  calendar: PropTypes.string,
+  numberingSystem: PropTypes.string,
 };

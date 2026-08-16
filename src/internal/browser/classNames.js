@@ -26,3 +26,5 @@ export function bem(block, element, modifiers) {
 export function rtlClassName(name, rtl = false) {
   return classNames(name, rtl && `${name}--rtl`);
 }
+
+export { classNames };

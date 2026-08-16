@@ -3,18 +3,22 @@ import { describe, expect, it } from 'vitest';
 import {
   addDays,
   addMonths,
+  addWeeks,
   compareDates,
   endOfMonth,
   formatDate,
   getCalendarMonthWeeks,
   getMonthLabel,
+  getFirstDayOfWeek,
   getWeekdayLabels,
   isCanonicalDate,
+  isBetween,
   parseDate,
   parseLocalizedDate,
   projectCalendarParts,
   startOfMonth,
   startOfWeek,
+  setWeekday,
 } from '../../src/internal/date';
 import { isoDate as isoDatePropType } from '../../src/internal/date/isoDatePropType';
 
@@ -30,13 +34,17 @@ describe('private Luxon date foundation', () => {
     expect(addDays('2024-02-28', 1)).toBe('2024-02-29');
     expect(addDays('2024-02-29', 1)).toBe('2024-03-01');
     expect(addMonths('2024-01-31', 1)).toBe('2024-02-29');
+    expect(addWeeks('2024-02-22', 1)).toBe('2024-02-29');
     expect(startOfMonth('2024-02-29')).toBe('2024-02-01');
     expect(endOfMonth('2024-02-01')).toBe('2024-02-29');
     expect(compareDates('2024-01-01', '2023-12-31')).toBe(1);
+    expect(isBetween('2024-02-15', '2024-02-01', '2024-02-29')).toBe(true);
   });
 
   it('projects calendar weeks and locale weekday order', () => {
     expect(startOfWeek('2024-01-03', { firstDayOfWeek: 1 })).toBe('2024-01-01');
+    expect(setWeekday('2024-01-03', 0)).toBe('2023-12-31');
+    expect(getFirstDayOfWeek({ locale: 'en-US' })).toBe(0);
     const weeks = getCalendarMonthWeeks('2024-02-01', {
       firstDayOfWeek: 1,
       enableOutsideDays: true,

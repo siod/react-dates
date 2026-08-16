@@ -187,6 +187,23 @@ export function addMonths(date, amount) {
   return result.isValid ? result.toISODate() : null;
 }
 
+export function addWeeks(date, amount) {
+  const count = asInteger(amount);
+  return count == null ? null : addDays(date, count * 7);
+}
+
+export function addYears(date, amount) {
+  const parsed = dateTimeFor(date);
+  const count = asInteger(amount);
+  if (!parsed || count == null) return null;
+  const result = parsed.plus({ years: count });
+  return result.isValid ? result.toISODate() : null;
+}
+
+export function today() {
+  return DateTime.local().toISODate();
+}
+
 export function startOfMonth(date) {
   const parsed = dateTimeFor(date);
   return parsed ? parsed.startOf('month').toISODate() : null;
@@ -238,6 +255,17 @@ export function getWeekday(date) {
   return parsed ? parsed.weekday % 7 : null;
 }
 
+export function getFirstDayOfWeek(options = {}) {
+  return firstDayFor(options);
+}
+
+export function setWeekday(date, weekday) {
+  const parsed = dateTimeFor(date);
+  const value = asInteger(weekday);
+  if (!parsed || value == null || value < 0 || value > 6) return null;
+  return parsed.plus({ days: value - (parsed.weekday % 7) }).toISODate();
+}
+
 export function setMonth(date, month) {
   const parsed = dateTimeFor(date);
   const value = asInteger(month);
@@ -280,6 +308,13 @@ export function isSameUnit(left, right, unit) {
   if (unit === 'month') return left.slice(0, 7) === right.slice(0, 7);
   if (unit === 'year') return left.slice(0, 4) === right.slice(0, 4);
   return false;
+}
+
+export function isBetween(date, start, end, { inclusive = false } = {}) {
+  const lower = compareDates(date, start);
+  const upper = compareDates(date, end);
+  if (lower == null || upper == null) return false;
+  return inclusive ? lower >= 0 && upper <= 0 : lower > 0 && upper < 0;
 }
 
 export function getCalendarMonthWeeks(month, options = {}) {
@@ -408,6 +443,9 @@ export default {
   compareDates,
   addDays,
   addMonths,
+  addWeeks,
+  addYears,
+  today,
   startOfMonth,
   endOfMonth,
   startOfWeek,
@@ -417,12 +455,15 @@ export default {
   getMonth,
   getYear,
   getWeekday,
+  getFirstDayOfWeek,
+  setWeekday,
   setMonth,
   setDayOfMonth,
   setYear,
   diffDays,
   diffMonths,
   isSameUnit,
+  isBetween,
   getCalendarMonthWeeks,
   formatDate,
   parseLocalizedDate,

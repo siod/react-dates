@@ -1,3 +1,3 @@
-import RightArrow from '../svg/arrow-right.svg';
+import RightArrow from '../svg/arrow-right.jsx';
 
 export default RightArrow;

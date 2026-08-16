@@ -1,12 +1,7 @@
 import React from 'react';
-import moment from 'moment';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import { Portal } from 'react-portal';
-import { forbidExtraProps } from 'airbnb-prop-types';
-import { addEventListener } from 'consolidated-events';
-import isTouchDevice from 'is-touch-device';
-import OutsideClickHandler from 'react-outside-click-handler';
-import { darken } from 'color2k';
+import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
+import { Portal, addEventListener, isTouchDevice, OutsideClickHandler, lockScroll } from '../internal/browser';
+import { forbidExtraProps } from '../internal/propTypes';
 
 import SingleDatePickerShape from '../shapes/SingleDatePickerShape';
 import { SingleDatePickerPhrases } from '../defaultPhrases';
@@ -15,8 +10,7 @@ import getResponsiveContainerStyles from '../utils/getResponsiveContainerStyles'
 import getDetachedContainerStyles from '../utils/getDetachedContainerStyles';
 import getInputHeight from '../utils/getInputHeight';
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import disableScroll from '../utils/disableScroll';
-import noflip from '../utils/noflip';
+import { today } from '../internal/date';
 
 import SingleDatePickerInputController from './SingleDatePickerInputController';
 import DayPickerSingleDateController from './DayPickerSingleDateController';
@@ -116,15 +110,18 @@ const defaultProps = {
   renderMonthElement: null,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
   isDayHighlighted: () => {},
 
   // internationalization props
-  displayFormat: () => moment.localeData().longDateFormat('L'),
-  monthFormat: 'MMMM YYYY',
-  weekDayFormat: 'dd',
+  displayFormat: { dateStyle: 'short' },
+  monthFormat: { month: 'long', year: 'numeric' },
+  weekDayFormat: { weekday: 'short' },
   phrases: SingleDatePickerPhrases,
-  dayAriaLabelFormat: undefined,
+  dayAriaLabelFormat: { dateStyle: 'full' },
+  locale: undefined,
+  calendar: undefined,
+  numberingSystem: undefined,
 };
 
 class SingleDatePicker extends React.PureComponent {
@@ -306,10 +303,7 @@ class SingleDatePicker extends React.PureComponent {
     if (!appendToBody && !propDisableScroll) return;
     if (!focused) return;
 
-    // Disable scroll for every ancestor of this <SingleDatePicker> up to the
-    // document level. This ensures the input and the picker never move. Other
-    // sibling elements or the picker itself can scroll.
-    this.enableScroll = disableScroll(this.container);
+    this.enableScroll = lockScroll();
   }
 
   /* istanbul ignore next */
@@ -431,6 +425,9 @@ class SingleDatePicker extends React.PureComponent {
       customCloseIcon,
       phrases,
       dayAriaLabelFormat,
+      locale,
+      calendar,
+      numberingSystem,
       daySize,
       isRTL,
       isOutsideRange,
@@ -491,6 +488,9 @@ class SingleDatePicker extends React.PureComponent {
           enableOutsideDays={enableOutsideDays}
           numberOfMonths={numberOfMonths}
           monthFormat={monthFormat}
+          locale={locale}
+          calendar={calendar}
+          numberingSystem={numberingSystem}
           withPortal={withAnyPortal}
           focused={focused}
           keepOpenOnDateSelect={keepOpenOnDateSelect}
@@ -567,6 +567,9 @@ class SingleDatePicker extends React.PureComponent {
       date,
       onDateChange,
       displayFormat,
+      locale,
+      calendar,
+      numberingSystem,
       phrases,
       withPortal,
       withFullScreenPortal,
@@ -615,6 +618,9 @@ class SingleDatePicker extends React.PureComponent {
         date={date}
         onDateChange={onDateChange}
         displayFormat={displayFormat}
+        locale={locale}
+        calendar={calendar}
+        numberingSystem={numberingSystem}
         onFocusChange={this.onInputFocus}
         onKeyDownArrowDown={this.onDayPickerFocus}
         onKeyDownQuestionMark={this.showKeyboardShortcutsPanel}
@@ -713,12 +719,12 @@ export default withStyles(({ reactDates: { color, zIndex } }) => ({
     zIndex: zIndex + 2,
 
     ':hover': {
-      color: darken(color.core.grayLighter, 0.1),
+      color: color.core.grayLighter,
       textDecoration: 'none',
     },
 
     ':focus': {
-      color: darken(color.core.grayLighter, 0.1),
+      color: color.core.grayLighter,
       textDecoration: 'none',
     },
   },

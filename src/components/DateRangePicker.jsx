@@ -1,12 +1,7 @@
 import React from 'react';
-import moment from 'moment';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import { Portal } from 'react-portal';
-import { forbidExtraProps } from 'airbnb-prop-types';
-import { addEventListener } from 'consolidated-events';
-import isTouchDevice from 'is-touch-device';
-import OutsideClickHandler from 'react-outside-click-handler';
-import { darken } from 'color2k';
+import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
+import { Portal, addEventListener, isTouchDevice, OutsideClickHandler, lockScroll } from '../internal/browser';
+import { forbidExtraProps } from '../internal/propTypes';
 
 import DateRangePickerShape from '../shapes/DateRangePickerShape';
 import { DateRangePickerPhrases } from '../defaultPhrases';
@@ -15,8 +10,7 @@ import getResponsiveContainerStyles from '../utils/getResponsiveContainerStyles'
 import getDetachedContainerStyles from '../utils/getDetachedContainerStyles';
 import getInputHeight from '../utils/getInputHeight';
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import disableScroll from '../utils/disableScroll';
-import noflip from '../utils/noflip';
+import { today } from '../internal/date';
 
 import DateRangePickerInputController from './DateRangePickerInputController';
 import DayPickerRangeController from './DayPickerRangeController';
@@ -122,17 +116,20 @@ const defaultProps = {
   minimumNights: 1,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
   isDayHighlighted: () => false,
   minDate: undefined,
   maxDate: undefined,
 
   // internationalization
-  displayFormat: () => moment.localeData().longDateFormat('L'),
-  monthFormat: 'MMMM YYYY',
-  weekDayFormat: 'dd',
+  displayFormat: { dateStyle: 'short' },
+  monthFormat: { month: 'long', year: 'numeric' },
+  weekDayFormat: { weekday: 'short' },
   phrases: DateRangePickerPhrases,
-  dayAriaLabelFormat: undefined,
+  dayAriaLabelFormat: { dateStyle: 'full' },
+  locale: undefined,
+  calendar: undefined,
+  numberingSystem: undefined,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -321,10 +318,7 @@ class DateRangePicker extends React.PureComponent {
     if (!appendToBody && !propDisableScroll) return;
     if (!this.isOpened()) return;
 
-    // Disable scroll for every ancestor of this DateRangePicker up to the
-    // document level. This ensures the input and the picker never move. Other
-    // sibling elements or the picker itself can scroll.
-    this.enableScroll = disableScroll(this.container);
+    this.enableScroll = lockScroll();
   }
 
   responsivizePickerPosition() {
@@ -448,6 +442,9 @@ class DateRangePicker extends React.PureComponent {
       onClose,
       phrases,
       dayAriaLabelFormat,
+      locale,
+      calendar,
+      numberingSystem,
       isRTL,
       weekDayFormat,
       css,
@@ -468,7 +465,7 @@ class DateRangePicker extends React.PureComponent {
       ? this.onOutsideClick
       : undefined;
     const initialVisibleMonthThunk = initialVisibleMonth || (
-      () => (startDate || endDate || moment())
+      () => (startDate || endDate || today())
     );
 
     const closeIcon = customCloseIcon || (
@@ -521,6 +518,9 @@ class DateRangePicker extends React.PureComponent {
           minDate={minDate}
           maxDate={maxDate}
           monthFormat={monthFormat}
+          locale={locale}
+          calendar={calendar}
+          numberingSystem={numberingSystem}
           renderMonthText={renderMonthText}
           renderWeekHeaderElement={renderWeekHeaderElement}
           withPortal={withAnyPortal}
@@ -607,6 +607,9 @@ class DateRangePicker extends React.PureComponent {
       withPortal,
       withFullScreenPortal,
       displayFormat,
+      locale,
+      calendar,
+      numberingSystem,
       reopenPickerOnClearDates,
       keepOpenOnDateSelect,
       onDatesChange,
@@ -642,6 +645,9 @@ class DateRangePicker extends React.PureComponent {
         endDateAriaLabel={endDateAriaLabel}
         endDateTitleText={endDateTitleText}
         displayFormat={displayFormat}
+        locale={locale}
+        calendar={calendar}
+        numberingSystem={numberingSystem}
         showClearDates={showClearDates}
         showCaret={!withPortal && !withFullScreenPortal && !hideFang}
         showDefaultInputIcon={showDefaultInputIcon}
@@ -759,12 +765,12 @@ export default withStyles(({ reactDates: { color, zIndex } }) => ({
     zIndex: zIndex + 2,
 
     ':hover': {
-      color: darken(color.core.grayLighter, 0.1),
+      color: color.core.grayLighter,
       textDecoration: 'none',
     },
 
     ':focus': {
-      color: darken(color.core.grayLighter, 0.1),
+      color: color.core.grayLighter,
       textDecoration: 'none',
     },
   },

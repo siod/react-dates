@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 
 import { SingleDatePickerInputPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import noflip from '../utils/noflip';
 
 import DateInput from './DateInput';
 import IconPositionShape from '../shapes/IconPositionShape';

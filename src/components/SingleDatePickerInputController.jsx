@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { formatDate, isoDate, parseLocalizedDate, today } from '../internal/date';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
 import { SingleDatePickerInputPhrases } from '../defaultPhrases';
@@ -13,9 +11,6 @@ import SingleDatePickerInput from './SingleDatePickerInput';
 
 import IconPositionShape from '../shapes/IconPositionShape';
 import DisabledShape from '../shapes/DisabledShape';
-
-import toMomentObject from '../utils/toMomentObject';
-import toLocalizedDateString from '../utils/toLocalizedDateString';
 
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
 
@@ -27,7 +22,7 @@ import {
 const propTypes = forbidExtraProps({
   children: PropTypes.node,
 
-  date: momentPropTypes.momentObj,
+  date: isoDate,
   onDateChange: PropTypes.func.isRequired,
 
   focused: PropTypes.bool,
@@ -57,7 +52,10 @@ const propTypes = forbidExtraProps({
   reopenPickerOnClearDate: PropTypes.bool,
   isOutsideRange: PropTypes.func,
   isDayBlocked: PropTypes.func,
-  displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  locale: PropTypes.string,
+  calendar: PropTypes.string,
+  numberingSystem: PropTypes.string,
 
   onClose: PropTypes.func,
   onKeyDownArrowDown: PropTypes.func,
@@ -102,9 +100,9 @@ const defaultProps = {
 
   keepOpenOnDateSelect: false,
   reopenPickerOnClearDate: false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
   isDayBlocked: () => false,
-  displayFormat: () => moment.localeData().longDateFormat('L'),
+  displayFormat: { dateStyle: 'short' },
 
   onClose() {},
   onKeyDownArrowDown() {},
@@ -120,6 +118,9 @@ const defaultProps = {
   phrases: SingleDatePickerInputPhrases,
 
   isRTL: false,
+  locale: undefined,
+  calendar: undefined,
+  numberingSystem: undefined,
 };
 
 export default class SingleDatePickerInputController extends React.PureComponent {
@@ -141,7 +142,7 @@ export default class SingleDatePickerInputController extends React.PureComponent
       onFocusChange,
       onClose,
     } = this.props;
-    const newDate = toMomentObject(dateString, this.getDisplayFormat());
+    const newDate = this.parseDate(dateString);
 
     const isValid = newDate && !isOutsideRange(newDate) && !isDayBlocked(newDate);
     if (isValid) {
@@ -179,17 +180,28 @@ export default class SingleDatePickerInputController extends React.PureComponent
     onClose({ date });
   }
 
-  getDisplayFormat() {
-    const { displayFormat } = this.props;
-    return typeof displayFormat === 'string' ? displayFormat : displayFormat();
+  parseDate(value) {
+    const { displayFormat, locale, calendar, numberingSystem } = this.props;
+    return parseLocalizedDate(value, {
+      ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
+      locale,
+      calendar,
+      numberingSystem,
+    });
   }
 
   getDateString(date) {
-    const displayFormat = this.getDisplayFormat();
-    if (date && displayFormat) {
-      return date && date.format(displayFormat);
-    }
-    return toLocalizedDateString(date);
+    if (!date) return '';
+    const { displayFormat, locale, calendar, numberingSystem } = this.props;
+    const context = { locale, calendar, numberingSystem };
+    const value = typeof displayFormat === 'function' ? displayFormat(date, context) : null;
+    if (typeof value === 'string') return value;
+    return formatDate(date, {
+      ...(value || displayFormat || { dateStyle: 'short' }),
+      locale,
+      calendar,
+      numberingSystem,
+    });
   }
 
   clearDate() {

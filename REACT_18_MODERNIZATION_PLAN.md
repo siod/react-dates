@@ -87,6 +87,98 @@ Release `react-dates` 22.0.0 as a major modernization:
 - Run Knip in CI to reject unused dependencies and exports.
 - Review the resulting full lockfile for deprecated or archived transitives; replace their owning top-level package until the lock contains no deprecated package entries.
 
+## Agent Implementation Plan
+
+This migration is suitable for a four-agent Codex team only when it is executed as gated waves with exclusive file ownership. Use one `gpt-5.6-sol` lead at high reasoning effort and up to three `gpt-5.6-luna` workers at high reasoning effort. Sol owns architecture, shared integration surfaces, commits, and release decisions; Luna workers receive bounded migrations with explicit inputs and acceptance tests. This follows the model split in the [official GPT-5.6 guidance](https://developers.openai.com/api/docs/guides/latest-model): Sol for frontier capability, Luna for efficient high-volume work, and parallel agents only for workstreams that divide cleanly.
+
+### Coordination rules
+
+- Run at most four active agents: the Sol lead plus three Luna-high workers.
+- The Sol lead is the only agent allowed to edit `package.json`, `package-lock.json`, public entrypoints, package exports, shared constants, the global CSS entrypoint, or release documentation, and is the only agent that commits or pushes.
+- Give every worker an exact file allowlist. Workers must not make opportunistic edits outside it; instead they report required shared-file changes to Sol.
+- Workers run focused tests for their own files and return a handoff containing changed files, commands and results, unresolved risks, and requested integration edits.
+- Sol reviews and integrates each handoff before opening the next wave. Do not let a later wave code against unreviewed worker changes.
+- Keep temporary migration dependencies only while both test systems or build paths must coexist. Sol removes them and regenerates the lockfile before the dependency-audit gate.
+- If a frozen interface proves insufficient, pause the affected worker, let Sol revise the interface, and then restart that bounded task. Workers do not independently redefine cross-workstream contracts.
+
+### Wave 0 — Baseline and contract freeze (Sol, serial)
+
+1. Create the implementation branch from the reviewed plan and record the current commit, dependency tree, build/package output, test status, public exports, generated CSS, and representative rendered states. Mark failures caused by the legacy toolchain as baseline failures rather than silently fixing them.
+2. Freeze the v22 public date contract: canonical `YYYY-MM-DD | null` values, `Intl.DateTimeFormatOptions` or callbacks for formatting, and top-level `locale`, `calendar`, and `numberingSystem` propagation. Add contract tests that reject Moment and Luxon instances at public boundaries.
+3. Define and document narrow internal interfaces for the date adapter, portal/event helpers, class/style merging, and test render helpers. Decide their filenames and exports before delegation.
+4. Add the minimum transitional Vitest/Vite scaffolding needed for foundation tests while retaining legacy tooling only where a test has not yet been migrated.
+
+Gate 0: Sol can run one Vitest smoke test, build both module formats, inspect the packed file list, and give each worker a non-overlapping allowlist against frozen interfaces.
+
+### Wave 1 — Independent foundations (three Luna-high workers)
+
+#### Worker A: date foundation
+
+Own only the new private date-adapter directory, the date-only utilities assigned by Sol, their utility tests, and the local canonical-date PropType validator.
+
+- Implement strict canonical validation, UTC construction, ISO serialization, comparison, arithmetic, month/week generation, locale week data, and `Intl`-based formatting/parsing.
+- Replace Moment utility behavior behind the frozen adapter interface without editing picker components, public exports, shared constants, or manifests.
+- Add leap-year, invalid-date, month-boundary, weekday-index, locale, Persian-display, and real IANA DST-transition cases. Include at least `UTC`, `America/New_York`, `Europe/London`, `Australia/Brisbane`, and `Pacific/Apia`; do not model DST with a fixed UTC offset.
+
+#### Worker B: browser and presentation foundation
+
+Own only new local portal, event, touch, animation-frame, throttle, scroll-lock, class/style helpers, SVG React components, theme CSS variables, component-independent CSS, and their focused tests.
+
+- Make helpers SSR-safe and idempotent under Strict Mode, with stable listener identities and complete cleanup.
+- Establish the deterministic legacy class-name mapping and RTL/noflip rules, but do not edit picker components or the global CSS entrypoint.
+- Provide a mapping report from every removed presentation/runtime package to its local or platform replacement.
+
+#### Worker C: test and build foundation
+
+Own only Vitest/Testing Library helpers and configuration, Playwright configuration and fixtures, Storybook configuration, package-install fixture directories, and CI workflow drafts explicitly assigned by Sol.
+
+- Provide Strict Mode render helpers, console/leak failure handling, browser projects, axe setup, visual snapshot conventions, and CommonJS/ESM package-consumer fixtures.
+- Convert a small representative test from each test category to prove the harness, without editing component implementation files or the manifest.
+- Return the exact dependency and script changes Sol must apply to `package.json`; do not apply them directly.
+
+Gate 1: Sol reviews all foundation APIs, applies shared manifest/configuration edits, runs foundation tests together, verifies SSR import safety, and commits one integrated foundation checkpoint. No component wave starts while either adapter or helper contracts are still changing.
+
+### Wave 2 — Component migration (three Luna-high workers)
+
+Each worker owns its listed component implementations, matching component tests, and matching component CSS partials. Sol owns any change needed in shared shapes, constants, exports, phrases, CSS aggregation, or package metadata.
+
+| Worker | Exclusive component cluster | Required outcome |
+| --- | --- | --- |
+| A | `CalendarDay`, `CustomizableCalendarDay`, `CalendarWeek`, `CalendarMonth`, `CalendarMonthGrid`, and their tests/styles | ISO-only day rendering, month/week math through the adapter, preserved classes/RTL/visual states, and behavioral RTL tests |
+| B | `DayPicker`, `DayPickerNavigation`, `DayPickerKeyboardShortcuts`, `KeyboardShortcutRow`, `DayPickerRangeController`, `DayPickerSingleDateController`, and their tests/styles | Modern lifecycles, Strict Mode-safe effects, ISO callbacks, keyboard/focus/navigation parity, and cleanup tests |
+| C | `DateInput`, all `DateRangePicker*`, all `SingleDatePicker*`, and their tests/styles | Controlled ISO input/output, strict localized parsing, portal/outside-click/scroll behavior, formatter callbacks, null/error handling, and public-boundary tests |
+
+Small icon components are assigned by Sol to exactly one cluster or retained for Sol integration. A worker may import another cluster only through the frozen props contract and must not edit that cluster.
+
+Gate 2: Sol integrates clusters in the order calendar primitives, controllers, then public pickers; resolves shared shape/constant/export changes; aggregates CSS; and removes every remaining direct Moment or `react-with-styles` use. The full migrated unit suite, Strict Mode suite, SSR smoke suite, and production build must pass before cleanup.
+
+### Wave 3 — Toolchain cleanup and packaging (Sol, serial)
+
+1. Remove the legacy test/build/Storybook configurations, compatibility scripts, obsolete source helpers, Moment/Jalaali artifacts, and superseded dependencies.
+2. Finalize Vite preserved-module CommonJS/ESM output, conditional exports, the CSS alias, compatibility wrappers, peer ranges, side-effect metadata, and npm scripts.
+3. Regenerate `package-lock.json`, run Knip, inspect deprecated transitive packages, and confirm that the production dependency allowlist contains only `prop-types` and private `luxon`.
+4. Convert remaining examples and stories, then update migration documentation without introducing Luxon objects or tokens into examples.
+
+Gate 3: a clean checkout can run `npm ci`, lint, unit tests, coverage, production build, Storybook build, and `npm pack`; no removed dependency name appears in runtime source, examples, tests, or published files except migration documentation.
+
+### Wave 4 — Independent verification (three Luna-high reviewers)
+
+- Reviewer A owns date correctness verification: fuzz valid date ranges, leap years, locale parsing, calendar projection, and the five-zone DST matrix. This reviewer adds tests only in a dedicated verification directory.
+- Reviewer B owns UI verification: Chromium/Firefox/WebKit flows, accessibility, keyboard-only behavior, focus restoration, RTL, responsive layouts, portals, and Chromium visual snapshots.
+- Reviewer C owns package verification: React 18/19 consumer fixtures, Node 22/24, CommonJS/ESM/deep imports/CSS, lockfile and Knip audits, Storybook, and tarball contents.
+- Reviewers do not fix implementation code. They report reproducible failures to Sol, who assigns a narrowly scoped fix to the original owner or implements the integration fix directly.
+
+Gate 4: Sol runs the entire CI matrix from a clean checkout, confirms coverage thresholds, reviews the package diff and dependency audit, and publishes `22.0.0-rc.0` only after every reviewer report is resolved.
+
+### Definition of done
+
+- React 18 and 19 pass in Strict Mode on Node 22 and 24 with no lifecycle, unmount-update, listener-leak, or unhandled-console warnings.
+- Every public date value and callback is library-neutral; Moment and Luxon objects and formatting tokens are absent from the public API.
+- Date-only behavior survives the locale, leap-year, calendar, and real timezone/DST matrices without selected-day drift.
+- Existing CSS classes and supported import paths remain compatible, while removed styling interfaces fail only in the documented v22 manner.
+- Unit, SSR, browser, accessibility, visual, Storybook, build, dependency, and packed-consumer checks pass from a clean checkout.
+- The release candidate includes migration guides for dates, formatting, styling, Persian-calendar behavior, imports, and removed APIs.
+
 ## Test, CI, and Release Plan
 
 - Convert utility tests directly to Vitest and rewrite Enzyme component tests around rendered behavior instead of component instances, state, or private methods.

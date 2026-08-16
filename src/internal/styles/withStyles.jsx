@@ -11,8 +11,8 @@ function isStyleObject(value) {
 }
 
 /**
- * Resolve react-with-styles factories to the class names shipped in the
- * legacy static stylesheet. No style tag or CSS rule is created at runtime.
+ * Resolve style factories to the class names shipped in the static
+ * stylesheet. No style tag or CSS rule is created at runtime.
  */
 export function withStyles(stylesFn = () => EMPTY, options = {}) {
   const {

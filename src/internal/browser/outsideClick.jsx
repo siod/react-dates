@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import subscribe from './subscribe';
+import { subscribe } from './subscribe';
 
 export function useOutsideClick(ref, onOutsideClick, {
   disabled = false,

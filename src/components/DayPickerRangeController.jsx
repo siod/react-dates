@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { addDays, addMonths, compareDates, endOfMonth, getWeekday, isoDate, startOfMonth } from '../internal/date';
-import isTouchDevice from '../internal/browser/touch';
+import { isTouchDevice } from '../internal/browser/touch';
 
 import { DayPickerPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';

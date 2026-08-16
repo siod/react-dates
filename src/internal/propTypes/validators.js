@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import PropTypes from 'prop-types';
 
 const EXACT_KEY = 'prop-types-exact: \u200b';
@@ -16,7 +17,7 @@ function withRequired(validator, required) {
   return wrapped;
 }
 
-/** Local replacement for prop-types-exact/airbnb-prop-types forbidExtraProps. */
+/** Reject properties that are not part of a component's declared contract. */
 export function forbidExtraProps(propTypes) {
   if (!propTypes || Object.getPrototypeOf(propTypes) !== Object.prototype) {
     throw new TypeError('given propTypes must be an object');

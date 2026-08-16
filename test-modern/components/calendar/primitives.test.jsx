@@ -8,7 +8,15 @@ import CalendarMonthGrid from '../../../src/components/CalendarMonthGrid.jsx';
 
 describe('modern calendar primitives', () => {
   it('renders ISO day values and modifier classes without date objects', () => {
-    render(<CalendarDay day="2024-02-29" modifiers={new Set(['selected', 'blocked'])} />);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <CalendarDay day="2024-02-29" modifiers={new Set(['selected', 'blocked'])} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     expect(screen.getByRole('button').textContent).toBe('29');
     expect(screen.getByRole('button').className).toContain('CalendarDay__selected');
   });

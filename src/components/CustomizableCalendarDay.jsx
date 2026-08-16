@@ -380,7 +380,7 @@ class CustomizableCalendarDay extends React.PureComponent {
           modifiers.has('selected-end') && getStyles(selectedEndStylesWithHover, isHovered),
           isOutsideRange && getStyles(blockedOutOfRangeStylesWithHover, isHovered),
         )}
-        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
+        role="button"
         ref={this.setButtonRef}
         aria-disabled={modifiers.has('blocked')}
         aria-label={ariaLabel}

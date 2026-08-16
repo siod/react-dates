@@ -6,7 +6,6 @@ const config = {
   },
   stories: [
     '../stories/**/*.stories.@(js|jsx|mjs|cjs|ts|tsx)',
-    '../test-modern/stories/**/*.stories.@(js|jsx|mjs|cjs|ts|tsx)',
   ],
   addons: ['@storybook/addon-a11y'],
   // The legacy root Babel file references removed Storybook-era plugins. CSF

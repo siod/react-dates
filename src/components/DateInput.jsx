@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
+import { noflip, withStyles, withStylesPropTypes } from '../internal/styles';
 import { isTouchDevice, throttle } from '../internal/browser';
 
-import { noflip } from '../internal/styles';
 import getInputHeight from '../utils/getInputHeight';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 

@@ -193,7 +193,7 @@ class CalendarDay extends React.PureComponent {
           isOutsideRange && styles.CalendarDay__blocked_out_of_range,
           daySizeStyles,
         )}
-        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
+        role="button"
         ref={this.setButtonRef}
         aria-disabled={modifiers.has('blocked')}
         {...(modifiers.has('today') ? { 'aria-current': 'date' } : {})}

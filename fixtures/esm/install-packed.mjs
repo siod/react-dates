@@ -3,9 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const tarball = process.env.REACT_DATES_TARBALL;
-if (!tarball) {
-  throw new Error('Set REACT_DATES_TARBALL to an npm pack output before installing the fixture.');
-}
+if (!tarball) throw new Error('Set REACT_DATES_TARBALL to an npm pack output.');
 
 const tarballPath = resolve(process.cwd(), tarball);
 if (!existsSync(tarballPath)) throw new Error(`Tarball does not exist: ${tarballPath}`);

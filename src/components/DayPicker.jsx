@@ -1,10 +1,11 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { addDays, addMonths, endOfWeek, getCalendarMonthWeeks, getMonthLabel, getWeekdayLabels, isCanonicalDate, startOfMonth, startOfWeek } from '../internal/date';
-import isTouchDevice from '../internal/browser/touch';
+import { isTouchDevice } from '../internal/browser/touch';
 import throttle from '../internal/browser/throttle';
-import getActiveElement from '../internal/browser/activeElement';
+import { getActiveElement } from '../internal/browser/activeElement';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
 
 import { DayPickerPhrases } from '../defaultPhrases';

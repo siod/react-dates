@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import subscribe from './subscribe';
+import { subscribe } from './subscribe';
 
 /** Subscribe to an event while keeping the latest callback without churn. */
 export default function useEventListener(target, type, listener, options) {

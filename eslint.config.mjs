@@ -4,9 +4,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
-// The compatibility tree is intentionally left out of the modern lint gate until
-// its component-by-component migration is complete. Generated outputs are
-// ignored as they cannot be edited by hand and are checked by their build jobs.
+// Generated outputs are checked by their build jobs rather than linted.
 export default [
   {
     ignores: [
@@ -20,15 +18,9 @@ export default [
       'test-results/**',
       'fixtures/*/node_modules/**',
       '.storybook-css/**',
-      'src/**',
-      'stories/**',
-      'examples/**',
-      'test/**',
       'index.js',
       'constants.js',
       'initialize.js',
-      'karma.conf.js',
-      'scripts/renderAllComponents.jsx',
     ],
   },
   {
@@ -49,7 +41,9 @@ export default [
       // Explicitly pin the peer baseline: react-plugin 7's automatic detector
       // still calls the pre-ESLint-10 context API when set to "detect".
       react: { version: '19.0' },
-      'import-x/resolver-next': [createNodeResolver()],
+      'import-x/resolver-next': [createNodeResolver({
+        extensions: ['.js', '.jsx', '.mjs', '.cjs', '.json'],
+      })],
     },
   },
   importX.flatConfigs.recommended,
@@ -62,6 +56,13 @@ export default [
       // React 18's automatic JSX transform makes this rule obsolete.
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
+      // Components retain runtime PropTypes, but the plugin cannot follow the
+      // local forbidExtraProps/HOC composition used throughout this library.
+      'react/prop-types': 'off',
+      // These helpers intentionally keep the latest callback in a ref and
+      // lazily create DOM resources in an effect for SSR safety.
+      'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {

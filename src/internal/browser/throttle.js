@@ -1,4 +1,4 @@
-/** A small lodash-compatible throttle with explicit cancellation. */
+/** A small leading/trailing throttle with explicit cancellation. */
 export default function throttle(func, wait = 0, options = {}) {
   if (typeof func !== 'function') throw new TypeError('throttle expects a function');
   const delay = Math.max(0, Number(wait) || 0);

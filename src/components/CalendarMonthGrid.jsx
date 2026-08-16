@@ -9,8 +9,8 @@ import {
   setYear,
   today,
 } from '../internal/date';
-import subscribe from '../internal/browser/subscribe';
-import isTransitionEndSupported from '../internal/browser/transitionEnd';
+import { subscribe } from '../internal/browser/subscribe';
+import { isTransitionEndSupported } from '../internal/browser/transitionEnd';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';

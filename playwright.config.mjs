@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = Number(process.env.PLAYWRIGHT_PORT || 4173);
+const port = Number(process.env.PLAYWRIGHT_PORT || 6006);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`;
 
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
@@ -31,13 +31,11 @@ export default defineConfig({
     timezoneId: 'UTC',
     testIdAttribute: 'data-testid',
   },
-  // The preview script is intentionally configurable so CI can supply the
-  // app server while component migration is still under way.
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
       command: process.env.PLAYWRIGHT_WEB_SERVER_COMMAND
-        || `npm run preview -- --host 127.0.0.1 --port ${port}`,
+        || `npm run storybook -- --ci --host 127.0.0.1 --port ${port}`,
       url: baseURL,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { globSync, readFileSync } from 'node:fs';
+import { extname, relative, resolve } from 'node:path';
 
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -13,6 +13,13 @@ const external = [
   ...Object.keys(packageJson.peerDependencies ?? {}),
 ];
 
+const sourceEntries = Object.fromEntries(
+  globSync(['src/**/*.js', 'src/**/*.jsx']).map((file) => {
+    const name = relative('src', file).slice(0, -extname(file).length);
+    return [name, resolve(import.meta.dirname, file)];
+  }),
+);
+
 export default defineConfig(({ mode }) => {
   const isCommonJS = mode === 'cjs';
 
@@ -21,11 +28,7 @@ export default defineConfig(({ mode }) => {
     build: {
       emptyOutDir: true,
       lib: {
-        entry: {
-          index: resolve(import.meta.dirname, 'src/index.js'),
-          constants: resolve(import.meta.dirname, 'src/constants.js'),
-          initialize: resolve(import.meta.dirname, 'src/initialize.js'),
-        },
+        entry: sourceEntries,
         formats: [isCommonJS ? 'cjs' : 'es'],
       },
       outDir: isCommonJS ? 'lib' : 'esm',

@@ -22,7 +22,7 @@ Release `react-dates` 22.0.0 as a major modernization:
 - Require valid Luxon `DateTime` instances or `null` for `date`, `startDate`, `endDate`, `minDate`, and `maxDate`; return the same representation from `onDateChange`, `onDatesChange`, and `onClose`.
 - Require `initialVisibleMonth` to return a `DateTime`, and pass `DateTime` values to date predicates, formatter callbacks, day/month render callbacks, and custom calendar-day render props.
 - Keep existing formatting prop names, but accept `Intl.DateTimeFormatOptions` or a formatter callback receiving a `DateTime`. Defaults are `{ dateStyle: 'short' }` for inputs, `{ month: 'long', year: 'numeric' }` for month headings, `{ weekday: 'short' }` for weekdays, and `{ dateStyle: 'full' }` for day ARIA labels.
-- Add an optional `locale` prop to top-level pickers/controllers and propagate it to all default formatters; keep arithmetic Gregorian and do not add public calendar, numbering-system, or timezone props. The DateTime itself carries its zone.
+- Preserve the original implicit localization contract without adding a picker-specific `locale` prop: use each DateTime's locale and Luxon's `Settings.defaultLocale` for empty state and parsing. Keep arithmetic Gregorian and do not add public calendar, numbering-system, or timezone props.
 - Use the following final production dependency allowlist:
   - Dependencies: `prop-types@^15.8.1`.
   - Peers: `luxon@^3.7.2`, `react`, and `react-dom`.
@@ -60,8 +60,8 @@ Release `react-dates` 22.0.0 as a major modernization:
 - Normalize Moment's zero-based months and Sunday-based weekdays at the adapter boundary because Luxon months are 1-12 and weekdays are Monday=1 through Sunday=7.
 - Parse typed input strictly with locale-aware `Intl` options implemented through the adapter, with ISO input as an unconditional input-field fallback; return a valid `DateTime` or `null` through the existing controlled-component flow.
 - Remove Moment/Luxon token constants from the public surface and add frozen, library-neutral default `Intl.DateTimeFormatOptions` constants instead.
-- Derive locale week starts and localized labels from Luxon `Info`/`Intl`; consumers configure localization only through public props or formatter callbacks.
-- Remove the old third-party calendar demo integration without promoting it into the public contract. Preserve locale, RTL, and formatter/render callback extension points, but keep built-in formatting and arithmetic Gregorian-only.
+- Derive locale week starts and localized labels from Luxon `Info`/`Intl`; consumers configure localization through DateTime instances or `Settings.defaultLocale`.
+- Remove the old third-party calendar demo integration without promoting it into the public contract. Preserve Luxon locale behavior, RTL, and formatter/render callback extension points, but keep built-in formatting and arithmetic Gregorian-only.
 - Validate public date props with a local valid-`DateTime` PropType validator and test that Luxon instances cross every public callback and render prop unchanged.
 
 ### Dependency and tooling replacement
@@ -103,7 +103,7 @@ This migration is suitable for a four-agent Codex team only when it is executed 
 ### Wave 0 — Baseline and contract freeze (Sol, serial)
 
 1. Create the implementation branch from the reviewed plan and record the current commit, dependency tree, build/package output, test status, public exports, generated CSS, and representative rendered states. Mark failures caused by the legacy toolchain as baseline failures rather than silently fixing them.
-2. Freeze the v22 public date contract: valid Luxon `DateTime | null` values, Gregorian `Intl.DateTimeFormatOptions` or DateTime callbacks for formatting, and top-level `locale` propagation. Add contract tests that reject Moment, strings, native Dates, and invalid DateTimes at public boundaries.
+2. Freeze the v22 public date contract: valid Luxon `DateTime | null` values and Gregorian `Intl.DateTimeFormatOptions` or DateTime callbacks for formatting. Preserve Moment's implicit localization behavior through DateTime locale and `Settings.defaultLocale`; do not add a `locale` prop. Add contract tests that reject Moment, strings, native Dates, and invalid DateTimes at public boundaries.
 3. Define and document narrow internal interfaces for the date adapter, portal/event helpers, class/style merging, and test render helpers. Decide their filenames and exports before delegation.
 4. Add the minimum transitional Vitest/Vite scaffolding needed for foundation tests while retaining legacy tooling only where a test has not yet been migrated.
 

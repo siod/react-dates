@@ -63,7 +63,6 @@ const propTypes = forbidExtraProps({
   isOutsideRange: PropTypes.func,
   isDayBlocked: PropTypes.func,
   displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
 
   onFocusChange: PropTypes.func,
   onClose: PropTypes.func,
@@ -124,7 +123,6 @@ const defaultProps = {
   isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayBlocked: () => false,
   displayFormat: { dateStyle: 'short' },
-  locale: undefined,
 
   onFocusChange() {},
   onClose() {},
@@ -260,22 +258,19 @@ export default class DateRangePickerInputController extends React.PureComponent 
   }
 
   parseDate(value) {
-    const { displayFormat, locale } = this.props;
+    const { displayFormat } = this.props;
     return parseLocalizedDate(value, {
       ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
-      locale,
     });
   }
 
   getDateString(date) {
     if (!date) return '';
-    const { displayFormat, locale } = this.props;
-    const context = { locale };
-    const value = typeof displayFormat === 'function' ? displayFormat(date, context) : null;
+    const { displayFormat } = this.props;
+    const value = typeof displayFormat === 'function' ? displayFormat(date) : null;
     if (typeof value === 'string') return value;
     return formatDate(date, {
       ...(value || displayFormat || { dateStyle: 'short' }),
-      locale,
     });
   }
 

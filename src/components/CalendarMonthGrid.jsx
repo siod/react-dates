@@ -62,7 +62,6 @@ const propTypes = forbidExtraProps({
 
   // i18n
   monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 });
@@ -98,7 +97,6 @@ const defaultProps = {
 
   // i18n
   monthFormat: { month: 'long', year: 'numeric' },
-  locale: undefined,
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
 };
@@ -142,8 +140,7 @@ class CalendarMonthGrid extends React.PureComponent {
   componentDidUpdate(prevProps) {
     if (this.props.initialMonth !== prevProps.initialMonth
       || this.props.numberOfMonths !== prevProps.numberOfMonths
-      || this.props.orientation !== prevProps.orientation
-      || this.props.locale !== prevProps.locale) {
+      || this.props.orientation !== prevProps.orientation) {
       const withoutTransitionMonths = this.props.orientation === VERTICAL_SCROLLABLE;
       this.setState({
         months: getMonths(this.props.initialMonth, this.props.numberOfMonths, withoutTransitionMonths),
@@ -228,7 +225,6 @@ class CalendarMonthGrid extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       setMonthTitleHeight,
-      locale,
     } = this.props;
 
     const { months } = this.state;
@@ -318,7 +314,6 @@ class CalendarMonthGrid extends React.PureComponent {
                 dayAriaLabelFormat={dayAriaLabelFormat}
                 verticalBorderSpacing={verticalBorderSpacing}
                 horizontalMonthPadding={horizontalMonthPadding}
-                locale={locale}
               />
             </div>
           );

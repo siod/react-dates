@@ -109,5 +109,4 @@ export default {
   weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
 };

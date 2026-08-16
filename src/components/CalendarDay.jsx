@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
 import { dateTime, formatDate } from '../internal/date';
@@ -24,14 +25,13 @@ const propTypes = forbidExtraProps({
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
 
   // internationalization
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
 });
 
 const defaultProps = {
-  day: null,
+  day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
   modifiers: new Set(),
@@ -42,7 +42,6 @@ const defaultProps = {
   onDayMouseLeave() {},
   renderDayContents: null,
   ariaLabelFormat: { dateStyle: 'full' },
-  locale: undefined,
 
   // internationalization
   phrases: CalendarDayPhrases,
@@ -56,7 +55,7 @@ function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, forma
   const hoveredSpan = !selected && (modifiers.has('hovered-span')
     || modifiers.has('after-hovered-start') || modifiers.has('before-hovered-end'));
   let date;
-  if (typeof ariaLabelFormat === 'function') date = ariaLabelFormat(day, formatOptions);
+  if (typeof ariaLabelFormat === 'function') date = ariaLabelFormat(day);
   else date = formatDate(day, { ...formatOptions, ...(ariaLabelFormat || {}) });
   const phrase = modifiers.has('selected-start') && phrases.dateIsSelectedAsStartDate
     ? phrases.dateIsSelectedAsStartDate
@@ -141,12 +140,11 @@ class CalendarDay extends React.PureComponent {
       css,
       styles,
       phrases,
-      locale,
     } = this.props;
 
     if (!day) return <td />;
 
-    const formatOptions = { locale };
+    const formatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,

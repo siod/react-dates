@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
 import { dateTime, formatDate, getCalendarMonthWeeks as getMonthWeeks } from '../internal/date';
@@ -53,13 +54,12 @@ const propTypes = forbidExtraProps({
 
   // i18n
   monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 });
 
 const defaultProps = {
-  month: null,
+  month: DateTime.local(),
   horizontalMonthPadding: 13,
   isVisible: true,
   enableOutsideDays: false,
@@ -83,7 +83,6 @@ const defaultProps = {
 
   // i18n
   monthFormat: { month: 'long', year: 'numeric' },
-  locale: undefined,
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
   verticalBorderSpacing: undefined,
@@ -97,7 +96,6 @@ class CalendarMonth extends React.PureComponent {
       weeks: getMonthWeeks(props.month, {
         enableOutsideDays: props.enableOutsideDays,
         firstDayOfWeek: props.firstDayOfWeek,
-        locale: props.locale,
       }),
     };
 
@@ -111,11 +109,16 @@ class CalendarMonth extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     const {
-      setMonthTitleHeight, month, enableOutsideDays, firstDayOfWeek, locale,
+      setMonthTitleHeight, month, enableOutsideDays, firstDayOfWeek,
     } = this.props;
     if (month !== prevProps.month || enableOutsideDays !== prevProps.enableOutsideDays
-      || firstDayOfWeek !== prevProps.firstDayOfWeek || locale !== prevProps.locale) {
-      this.setState({ weeks: getMonthWeeks(month, { enableOutsideDays, firstDayOfWeek, locale }) });
+      || firstDayOfWeek !== prevProps.firstDayOfWeek) {
+      this.setState({
+        weeks: getMonthWeeks(month, {
+          enableOutsideDays,
+          firstDayOfWeek,
+        }),
+      });
     }
 
     if (prevProps.setMonthTitleHeight === null && setMonthTitleHeight !== null) {
@@ -171,15 +174,14 @@ class CalendarMonth extends React.PureComponent {
       css,
       styles,
       verticalBorderSpacing,
-      locale,
     } = this.props;
 
     const { weeks } = this.state;
-    const formatOptions = { locale };
+    const formatOptions = {};
     const monthTitle = renderMonthText
-      ? renderMonthText(month, formatOptions)
+      ? renderMonthText(month)
       : typeof monthFormat === 'function'
-        ? monthFormat(month, formatOptions)
+        ? monthFormat(month)
         : formatDate(month, { ...formatOptions, ...(monthFormat || {}) });
 
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
@@ -239,7 +241,6 @@ class CalendarMonth extends React.PureComponent {
                       phrases,
                       modifiers: (day && modifiers[toISODateString(day)]) || new Set(),
                       ariaLabelFormat: dayAriaLabelFormat,
-                      locale,
                     })}
                   </React.Fragment>
                 ))}

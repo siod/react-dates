@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
-import { compareDates, dateTime } from '../internal/date';
+import { compareDates, dateTime, getFirstDayOfWeek as getLocaleFirstDayOfWeek } from '../internal/date';
 import { isTouchDevice } from '../internal/browser/touch';
 
 import { DayPickerPhrases } from '../defaultPhrases';
@@ -88,7 +88,6 @@ const propTypes = forbidExtraProps({
   weekDayFormat: dateFormatProp,
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
   dayAriaLabelFormat: dateFormatProp,
-  locale: PropTypes.string,
   isRTL: PropTypes.bool,
 });
 
@@ -109,13 +108,8 @@ const defaultProps = {
   calendarInfoPosition: INFO_POSITION_BOTTOM, onBlur() {}, isFocused: false,
   showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT,
   weekDayFormat: DEFAULT_WEEKDAY_FORMAT, phrases: DayPickerPhrases, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT,
-  locale: undefined, isRTL: false,
+  isRTL: false,
 };
-
-function formatOptions(props, value) {
-  const option = typeof value === 'object' && value ? value : {};
-  return { locale: props.locale, ...option };
-}
 
 export default class DayPickerSingleDateController extends React.PureComponent {
   static propTypes = propTypes;
@@ -176,7 +170,7 @@ export default class DayPickerSingleDateController extends React.PureComponent {
   setMonth(month) { const { numberOfMonths, enableOutsideDays, orientation } = this.props; this.setState({ currentMonth: month, visibleDays: this.getModifiers(getVisibleDays(month, numberOfMonths, enableOutsideDays, orientation === VERTICAL_SCROLLABLE)) }); }
   onGetNextScrollableMonths() { const month = this.state.currentMonth.plus({ months: Object.keys(this.state.visibleDays).length }); this.setState(({ visibleDays }) => ({ visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
   onGetPrevScrollableMonths() { const month = this.state.currentMonth.minus({ months: this.props.numberOfMonths }); this.setState(({ visibleDays }) => ({ currentMonth: month, visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
-  getFirstDayOfWeek() { return this.props.firstDayOfWeek == null ? 1 : this.props.firstDayOfWeek; }
+  getFirstDayOfWeek() { return this.props.firstDayOfWeek == null ? getLocaleFirstDayOfWeek({ locale: this.state?.currentMonth?.locale || this.today.locale }) : this.props.firstDayOfWeek; }
   getFirstFocusableDay(month) {
     const { date, numberOfMonths } = this.props; let focused = date || month.startOf('month');
     if (this.isBlocked(focused)) { const end = month.plus({ months: numberOfMonths - 1 }).endOf('month'); let cursor = focused; while (compareDates(cursor, end) <= 0) { cursor = cursor.plus({ days: 1 }); if (!this.isBlocked(cursor)) return cursor; } }
@@ -197,6 +191,6 @@ export default class DayPickerSingleDateController extends React.PureComponent {
 
   render() {
     const p = this.props; const s = this.state;
-    return <DayPicker {...pickComponentProps(DayPicker, p)} {...formatOptions(p, {})} orientation={p.orientation} modifiers={s.visibleDays} initialVisibleMonth={() => s.currentMonth} hidden={!p.focused} disablePrev={s.disablePrev} disableNext={s.disableNext} onDayClick={this.onDayClick} onDayMouseEnter={this.onDayMouseEnter} onDayMouseLeave={this.onDayMouseLeave} onPrevMonthClick={this.onPrevMonthClick} onNextMonthClick={this.onNextMonthClick} onMonthChange={this.onMonthChange} onYearChange={this.onYearChange} onGetNextScrollableMonths={this.onGetNextScrollableMonths} onGetPrevScrollableMonths={this.onGetPrevScrollableMonths} getFirstFocusableDay={this.getFirstFocusableDay} monthFormat={p.monthFormat} weekDayFormat={p.weekDayFormat} dayAriaLabelFormat={p.dayAriaLabelFormat} />;
+    return <DayPicker {...pickComponentProps(DayPicker, p)} orientation={p.orientation} modifiers={s.visibleDays} initialVisibleMonth={() => s.currentMonth} hidden={!p.focused} disablePrev={s.disablePrev} disableNext={s.disableNext} onDayClick={this.onDayClick} onDayMouseEnter={this.onDayMouseEnter} onDayMouseLeave={this.onDayMouseLeave} onPrevMonthClick={this.onPrevMonthClick} onNextMonthClick={this.onNextMonthClick} onMonthChange={this.onMonthChange} onYearChange={this.onYearChange} onGetNextScrollableMonths={this.onGetNextScrollableMonths} onGetPrevScrollableMonths={this.onGetPrevScrollableMonths} getFirstFocusableDay={this.getFirstFocusableDay} monthFormat={p.monthFormat} weekDayFormat={p.weekDayFormat} dayAriaLabelFormat={p.dayAriaLabelFormat} />;
   }
 }

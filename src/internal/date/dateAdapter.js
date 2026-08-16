@@ -24,17 +24,17 @@ function hasDateFormat(options) {
   return Object.keys(options).some((key) => key !== 'calendar');
 }
 
-function localeFor(options = {}) {
-  return options && options.locale ? options.locale : undefined;
+function localeFor(options = {}, date = null) {
+  return options?.locale || date?.locale || DateTime.local().locale;
 }
 
-function firstDayFor(options = {}) {
+function firstDayFor(options = {}, date = null) {
   const explicit = options.firstDayOfWeek == null ? options.weekStartsOn : options.firstDayOfWeek;
   if (explicit != null) {
     return Number.isInteger(explicit) && explicit >= 0 && explicit <= 6 ? explicit : null;
   }
   try {
-    return Info.getStartOfWeek({ locale: options.locale || 'en-US' }) % 7;
+    return Info.getStartOfWeek({ locale: localeFor(options, date) }) % 7;
   } catch (error) {
     return 1;
   }
@@ -97,7 +97,7 @@ export function compareDates(left, right) {
 }
 
 export function startOfWeek(date, options = {}) {
-  const firstDay = firstDayFor(options || {});
+  const firstDay = firstDayFor(options || {}, date);
   if (!isDateTime(date) || firstDay == null) return null;
   const distance = (date.weekday % 7 - firstDay + 7) % 7;
   return date.minus({ days: distance }).startOf('day');
@@ -113,7 +113,7 @@ export function getFirstDayOfWeek(options = {}) {
 }
 
 export function getCalendarMonthWeeks(month, options = {}) {
-  const firstDay = firstDayFor(options || {});
+  const firstDay = firstDayFor(options || {}, month);
   if (!isDateTime(month) || firstDay == null) return [];
   const outside = Boolean(options && options.enableOutsideDays);
   const first = month.startOf('month');
@@ -136,7 +136,7 @@ export function formatDate(date, options = {}) {
   const formatOptions = intlOptions(options);
   if (!hasDateFormat(formatOptions)) formatOptions.dateStyle = 'short';
   return date.toLocaleString(formatOptions, {
-    locale: localeFor(options),
+    locale: localeFor(options, date),
     outputCalendar: 'gregory',
   });
 }
@@ -192,14 +192,14 @@ export function getMonthLabel(date, options = {}) {
 export function getWeekdayLabels(options = {}, formatter = null) {
   const firstDay = firstDayFor(options || {});
   if (firstDay == null) return [];
+  const locale = localeFor(options);
   const formatOptions = { weekday: 'short', ...options };
-  const context = { locale: options.locale };
   if (typeof formatter !== 'function') {
     const length = ['long', 'short', 'narrow'].includes(formatOptions.weekday)
       ? formatOptions.weekday
       : 'short';
     try {
-      const weekdays = Info.weekdaysFormat(length, { locale: options.locale });
+      const weekdays = Info.weekdaysFormat(length, { locale });
       return Array.from({ length: 7 }, (_, index) => {
         const sundayIndex = (firstDay + index) % 7;
         return weekdays[(sundayIndex + 6) % 7];
@@ -209,8 +209,10 @@ export function getWeekdayLabels(options = {}, formatter = null) {
     }
   }
   return Array.from({ length: 7 }, (_, index) => {
-    const sunday = DateTime.local(2021, 8, 1).plus({ days: (firstDay + index) % 7 });
-    return formatter(sunday, context);
+    const sunday = DateTime.local(2021, 8, 1)
+      .setLocale(locale)
+      .plus({ days: (firstDay + index) % 7 });
+    return formatter(sunday);
   });
 }
 

@@ -127,7 +127,6 @@ const defaultProps = {
   weekDayFormat: { weekday: 'short' },
   phrases: DateRangePickerPhrases,
   dayAriaLabelFormat: { dateStyle: 'full' },
-  locale: undefined,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -470,7 +469,6 @@ class DateRangePicker extends React.PureComponent {
       onClose,
       phrases,
       dayAriaLabelFormat,
-      locale,
       isRTL,
       weekDayFormat,
       css,
@@ -544,7 +542,6 @@ class DateRangePicker extends React.PureComponent {
           minDate={minDate}
           maxDate={maxDate}
           monthFormat={monthFormat}
-          locale={locale}
           renderMonthText={renderMonthText}
           renderWeekHeaderElement={renderWeekHeaderElement}
           withPortal={withAnyPortal}
@@ -631,7 +628,6 @@ class DateRangePicker extends React.PureComponent {
       withPortal,
       withFullScreenPortal,
       displayFormat,
-      locale,
       reopenPickerOnClearDates,
       keepOpenOnDateSelect,
       onDatesChange,
@@ -667,7 +663,6 @@ class DateRangePicker extends React.PureComponent {
         endDateAriaLabel={endDateAriaLabel}
         endDateTitleText={endDateTitleText}
         displayFormat={displayFormat}
-        locale={locale}
         showClearDates={showClearDates}
         showCaret={!withPortal && !withFullScreenPortal && !hideFang}
         showDefaultInputIcon={showDefaultInputIcon}

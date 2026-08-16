@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateTime } from 'luxon';
+import { DateTime, Settings } from 'luxon';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,7 +10,10 @@ import DateRangePickerInputController from '../../../src/components/DateRangePic
 import SingleDatePickerInputController from '../../../src/components/SingleDatePickerInputController.jsx';
 import { END_DATE, START_DATE } from '../../../src/constants.js';
 
-afterEach(cleanup);
+afterEach(() => {
+  Settings.defaultLocale = null;
+  cleanup();
+});
 
 function singleProps(overrides = {}) {
   return {
@@ -48,13 +51,12 @@ describe('picker input controllers', () => {
     expect(props.onDateChange).toHaveBeenCalledWith(null);
   });
 
-  it('passes DateTimes and locale context to formatter callbacks', () => {
+  it('passes localized DateTimes directly to formatter callbacks', () => {
     const calls = [];
     const props = singleProps({
-      date: DateTime.fromISO('2099-02-03'),
-      locale: 'en-GB',
-      displayFormat: (dateValue, context) => {
-        calls.push({ dateValue, context });
+      date: DateTime.fromISO('2099-02-03').setLocale('en-GB'),
+      displayFormat: (dateValue) => {
+        calls.push(dateValue);
         return `formatted:${dateValue.toISODate()}`;
       },
     });
@@ -62,10 +64,8 @@ describe('picker input controllers', () => {
     renderStrict(<SingleDatePickerInputController {...props} />);
 
     expect(screen.getByRole('textbox').value).toBe('formatted:2099-02-03');
-    expect(calls[0]).toEqual({
-      dateValue: expect.any(DateTime),
-      context: { locale: 'en-GB' },
-    });
+    expect(calls[0]).toBe(props.date);
+    expect(calls[0].locale).toBe('en-GB');
   });
 
   it('validates range ordering and minimum nights with DateTimes', () => {
@@ -124,7 +124,7 @@ describe('day picker controllers', () => {
     expect(onFocusChange).toHaveBeenCalledWith(END_DATE);
   });
 
-  it('passes DateTimes to formatter callbacks with locale context', () => {
+  it('passes DateTimes with their locale to calendar formatter callbacks', () => {
     const monthFormat = vi.fn((dateValue) => `month:${dateValue.toISODate()}`);
     const weekDayFormat = vi.fn((dateValue) => `weekday:${dateValue.toISODate()}`);
     const dayAriaLabelFormat = vi.fn((dateValue) => `day:${dateValue.toISODate()}`);
@@ -132,22 +132,53 @@ describe('day picker controllers', () => {
       <DayPickerSingleDateController
         focused
         isFocused
-        initialVisibleMonth={() => DateTime.fromISO('2099-02-01')}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01').setLocale('en-AU')}
         isOutsideRange={() => false}
         monthFormat={monthFormat}
         weekDayFormat={weekDayFormat}
         dayAriaLabelFormat={dayAriaLabelFormat}
-        locale="en-AU"
       />,
     );
 
     expect(screen.getByText('month:2099-02-01')).toBeTruthy();
     expect(screen.getByText('weekday:2021-08-01')).toBeTruthy();
-    expect(monthFormat).toHaveBeenCalledWith(expect.any(DateTime), {
-      locale: 'en-AU',
-    });
-    expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(DateTime), {
-      locale: 'en-AU',
-    });
+    expect(monthFormat).toHaveBeenCalledWith(expect.any(DateTime));
+    expect(monthFormat.mock.calls[0][0].locale).toBe('en-AU');
+    expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(DateTime));
+    expect(dayAriaLabelFormat.mock.calls[0][0].locale).toBe('en-AU');
+  });
+
+  it('preserves the visible DateTime locale when range hover state is rebuilt', () => {
+    const isDayHighlighted = vi.fn(() => false);
+    renderStrict(
+      <DayPickerRangeController
+        startDate={null}
+        endDate={null}
+        focusedInput={START_DATE}
+        isFocused
+        onDatesChange={() => {}}
+        onFocusChange={() => {}}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01').setLocale('en-AU')}
+        isOutsideRange={() => false}
+        isDayHighlighted={isDayHighlighted}
+      />,
+    );
+
+    const day = screen.getAllByRole('button').find((element) => element.tagName === 'TD');
+    fireEvent.mouseEnter(day);
+    fireEvent.mouseLeave(day);
+
+    expect(isDayHighlighted.mock.calls.at(-1)[0].locale).toBe('en-AU');
+  });
+
+  it('uses Luxon Settings.defaultLocale when no date exists yet', () => {
+    Settings.defaultLocale = 'en-GB';
+    const props = singleProps({ isOutsideRange: () => false });
+    renderStrict(<SingleDatePickerInputController {...props} />);
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '03/02/2024' } });
+
+    expect(props.onDateChange.mock.calls[0][0].toISODate()).toBe('2024-02-03');
+    expect(props.onDateChange.mock.calls[0][0].locale).toBe('en-GB');
   });
 });

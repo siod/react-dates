@@ -54,7 +54,6 @@ const propTypes = forbidExtraProps({
   isOutsideRange: PropTypes.func,
   isDayBlocked: PropTypes.func,
   displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
 
   onClose: PropTypes.func,
   onKeyDownArrowDown: PropTypes.func,
@@ -117,7 +116,6 @@ const defaultProps = {
   phrases: SingleDatePickerInputPhrases,
 
   isRTL: false,
-  locale: undefined,
 };
 
 export default class SingleDatePickerInputController extends React.PureComponent {
@@ -178,22 +176,19 @@ export default class SingleDatePickerInputController extends React.PureComponent
   }
 
   parseDate(value) {
-    const { displayFormat, locale } = this.props;
+    const { displayFormat } = this.props;
     return parseLocalizedDate(value, {
       ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
-      locale,
     });
   }
 
   getDateString(date) {
     if (!date) return '';
-    const { displayFormat, locale } = this.props;
-    const context = { locale };
-    const value = typeof displayFormat === 'function' ? displayFormat(date, context) : null;
+    const { displayFormat } = this.props;
+    const value = typeof displayFormat === 'function' ? displayFormat(date) : null;
     if (typeof value === 'string') return value;
     return formatDate(date, {
       ...(value || displayFormat || { dateStyle: 'short' }),
-      locale,
     });
   }
 

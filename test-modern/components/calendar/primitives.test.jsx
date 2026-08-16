@@ -1,13 +1,38 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import CalendarDay from '../../../src/components/CalendarDay.jsx';
 import CalendarMonth from '../../../src/components/CalendarMonth.jsx';
 import CalendarMonthGrid from '../../../src/components/CalendarMonthGrid.jsx';
+import CustomizableCalendarDay from '../../../src/components/CustomizableCalendarDay.jsx';
+
+afterEach(cleanup);
 
 describe('modern calendar primitives', () => {
+  it('preserves today defaults when day and month props are omitted', () => {
+    const today = DateTime.local();
+    const { container } = render(
+      <>
+        <table>
+          <tbody>
+            <tr><CalendarDay /></tr>
+            <tr><CustomizableCalendarDay /></tr>
+          </tbody>
+        </table>
+        <CalendarMonth />
+      </>,
+    );
+
+    const dayButtons = screen.getAllByRole('button').filter((button) => button.tagName === 'TD');
+    expect(dayButtons.slice(0, 2).map((button) => button.textContent)).toEqual([
+      String(today.day),
+      String(today.day),
+    ]);
+    expect(container.querySelector('.CalendarMonth')).not.toBeNull();
+  });
+
   it('renders Luxon DateTimes and modifier classes', () => {
     render(
       <table>

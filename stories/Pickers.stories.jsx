@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 
 import '../src/styles/index.css';
 import { DateRangePickerExample, SingleDatePickerExample } from '../examples/PickersExample.jsx';
@@ -21,7 +22,7 @@ export const ArabicRtl = {
   render: () => (
     <div dir="rtl">
       <SingleDatePickerExample
-        locale="ar-EG"
+        initialVisibleMonth={() => DateTime.local().setLocale('ar-EG')}
         isRTL
         numberOfMonths={1}
         isOutsideRange={() => false}

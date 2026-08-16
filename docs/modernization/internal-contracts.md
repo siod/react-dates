@@ -18,8 +18,9 @@ calendar-grid generation, locale week rules, and localized input/output behavior
 - `getMonthLabel(date, options): string`
 - `getWeekdayLabels(options): string[]`
 
-Formatting options use `locale` and Gregorian `Intl.DateTimeFormatOptions`.
-Arithmetic is immutable Luxon arithmetic and preserves the input DateTime's zone.
+Formatting uses each DateTime's locale and Gregorian `Intl.DateTimeFormatOptions`;
+empty-state parsing and labels fall back to `Settings.defaultLocale`. Arithmetic
+is immutable Luxon arithmetic and preserves the input DateTime's zone.
 
 ## Browser helpers
 
@@ -32,7 +33,7 @@ Arithmetic is immutable Luxon arithmetic and preserves the input DateTime's zone
 ## Component boundary
 
 - Public date props, callbacks, predicates, and render props use `DateTime | null` exclusively.
-- Format props accept `Intl.DateTimeFormatOptions` or `(dateTime, context) => string`.
-- The top-level `locale` value flows to every default formatter.
+- Format props accept `Intl.DateTimeFormatOptions` or `(dateTime) => string`.
+- There is no picker-specific locale prop; locale comes from DateTime and Luxon settings.
 - Components may use Luxon directly and depend on the adapter only for shared locale/calendar behavior.
 - Shared shapes, constants, public exports, package metadata, and the global CSS entrypoint remain lead-owned integration surfaces.

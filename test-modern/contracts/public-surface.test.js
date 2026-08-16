@@ -10,8 +10,9 @@ describe('v22 public surface', () => {
     expect(publicApi).not.toHaveProperty('toMomentObject');
   });
 
-  it('keeps calendar and numbering-system overrides out of picker props', () => {
+  it('keeps locale, calendar, and numbering-system overrides out of picker props', () => {
     [DateRangePickerShape, SingleDatePickerShape].forEach((shape) => {
+      expect(shape).not.toHaveProperty('locale');
       expect(shape).not.toHaveProperty('calendar');
       expect(shape).not.toHaveProperty('numberingSystem');
     });

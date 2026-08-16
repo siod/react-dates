@@ -53,19 +53,23 @@ comparisons use each value's local date; Luxon arithmetic preserves its zone.
 ## Formatting and localization
 
 Formatting props accept `Intl.DateTimeFormatOptions` or a callback that receives
-a `DateTime` and localization context:
+a `DateTime`:
 
 ```jsx
+import { Settings } from 'luxon';
+
+Settings.defaultLocale = 'en-AU';
+
 <SingleDatePicker
   displayFormat={{ day: '2-digit', month: 'short', year: 'numeric' }}
   monthFormat={{ month: 'long', year: 'numeric' }}
-  locale="en-AU"
 />
 ```
 
-Formatting always uses the Gregorian calendar. `locale` localizes language and
-digits, while `isRTL` controls layout direction. A value's Luxon zone is
-preserved; there is no separate picker timezone prop.
+Formatting always uses the Gregorian calendar. The picker uses each `DateTime`'s
+locale and falls back to Luxon's `Settings.defaultLocale` for empty state and
+typed-input parsing. `isRTL` controls layout direction. A value's Luxon zone is
+preserved; there are no separate picker locale or timezone props.
 
 ## Styling
 

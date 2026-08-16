@@ -28,9 +28,19 @@ Replace library-specific format tokens with `Intl.DateTimeFormatOptions`:
 + displayFormat={{ day: '2-digit', month: '2-digit', year: 'numeric' }}
 ```
 
-A formatter callback may return a string and receives `(dateTime, context)`, where
-`context` contains `locale`. The picker preserves each DateTime's zone and does
-not add a second timezone prop.
+A formatter callback may return a string and receives the `DateTime`. Read its
+`locale` and `zoneName` properties when needed. The picker does not add separate
+locale or timezone props.
+
+Replace `moment.locale(...)` with Luxon's global default when localizing an empty
+picker or typed input:
+
+```diff
+- moment.locale('en-AU')
++ Settings.defaultLocale = 'en-AU'
+```
+
+Supplied dates may override that default with `dateTime.setLocale(...)`.
 
 ## Styling
 

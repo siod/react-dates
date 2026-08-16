@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger, or } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
 import { dateTime, formatDate } from '../internal/date';
@@ -49,7 +50,6 @@ const propTypes = forbidExtraProps({
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  locale: PropTypes.string,
 
   // style overrides
   defaultStyles: DayStyleShape,
@@ -177,7 +177,7 @@ export const selectedStyles = {
 };
 
 const defaultProps = {
-  day: null,
+  day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
   modifiers: new Set(),
@@ -188,7 +188,6 @@ const defaultProps = {
   onDayMouseLeave() {},
   renderDayContents: null,
   ariaLabelFormat: { dateStyle: 'full' },
-  locale: undefined,
 
   // style defaults
   defaultStyles,
@@ -220,7 +219,7 @@ function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, forma
   const hoveredSpan = !selected && (modifiers.has('hovered-span')
     || modifiers.has('after-hovered-start') || modifiers.has('before-hovered-end'));
   const date = typeof ariaLabelFormat === 'function'
-    ? ariaLabelFormat(day, formatOptions)
+    ? ariaLabelFormat(day)
     : formatDate(day, { ...formatOptions, ...(ariaLabelFormat || {}) });
   const phrase = modifiers.has('selected-start') && phrases.dateIsSelectedAsStartDate
     ? phrases.dateIsSelectedAsStartDate
@@ -313,7 +312,6 @@ class CustomizableCalendarDay extends React.PureComponent {
       css,
       styles,
       phrases,
-      locale,
 
       defaultStyles: defaultStylesWithHover,
       outsideStyles: outsideStylesWithHover,
@@ -339,7 +337,7 @@ class CustomizableCalendarDay extends React.PureComponent {
 
     if (!day) return <td />;
 
-    const formatOptions = { locale };
+    const formatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,

@@ -119,7 +119,6 @@ const defaultProps = {
   weekDayFormat: { weekday: 'short' },
   phrases: SingleDatePickerPhrases,
   dayAriaLabelFormat: { dateStyle: 'full' },
-  locale: undefined,
 };
 
 class SingleDatePicker extends React.PureComponent {
@@ -448,7 +447,6 @@ class SingleDatePicker extends React.PureComponent {
       customCloseIcon,
       phrases,
       dayAriaLabelFormat,
-      locale,
       daySize,
       isRTL,
       isOutsideRange,
@@ -509,7 +507,6 @@ class SingleDatePicker extends React.PureComponent {
           enableOutsideDays={enableOutsideDays}
           numberOfMonths={numberOfMonths}
           monthFormat={monthFormat}
-          locale={locale}
           withPortal={withAnyPortal}
           focused={focused}
           keepOpenOnDateSelect={keepOpenOnDateSelect}
@@ -586,7 +583,6 @@ class SingleDatePicker extends React.PureComponent {
       date,
       onDateChange,
       displayFormat,
-      locale,
       phrases,
       withPortal,
       withFullScreenPortal,
@@ -635,7 +631,6 @@ class SingleDatePicker extends React.PureComponent {
         date={date}
         onDateChange={onDateChange}
         displayFormat={displayFormat}
-        locale={locale}
         onFocusChange={this.onInputFocus}
         onKeyDownArrowDown={this.onDayPickerFocus}
         onKeyDownQuestionMark={this.showKeyboardShortcutsPanel}

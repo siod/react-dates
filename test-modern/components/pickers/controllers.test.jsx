@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,7 +23,7 @@ function singleProps(overrides = {}) {
 }
 
 describe('picker input controllers', () => {
-  it('accepts canonical input and emits only ISO strings', () => {
+  it('accepts localized input and emits Luxon DateTimes', () => {
     const props = singleProps({
       isOutsideRange: () => false,
       date: null,
@@ -31,9 +32,10 @@ describe('picker input controllers', () => {
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '2024-02-03' } });
 
-    expect(props.onDateChange).toHaveBeenCalledWith('2024-02-03');
-    expect(props.onDateChange.mock.calls[0][0]).not.toBeInstanceOf(Date);
-    expect(props.onClose).toHaveBeenCalledWith({ date: '2024-02-03' });
+    const emitted = props.onDateChange.mock.calls[0][0];
+    expect(emitted).toBeInstanceOf(DateTime);
+    expect(emitted.toISODate()).toBe('2024-02-03');
+    expect(props.onClose.mock.calls[0][0].date).toBe(emitted);
   });
 
   it('returns null for malformed or impossible input without throwing', () => {
@@ -46,14 +48,14 @@ describe('picker input controllers', () => {
     expect(props.onDateChange).toHaveBeenCalledWith(null);
   });
 
-  it('passes ISO values and locale context to formatter callbacks', () => {
+  it('passes DateTimes and locale context to formatter callbacks', () => {
     const calls = [];
     const props = singleProps({
-      date: '2099-02-03',
+      date: DateTime.fromISO('2099-02-03'),
       locale: 'en-GB',
-      displayFormat: (isoDate, context) => {
-        calls.push({ isoDate, context });
-        return `formatted:${isoDate}`;
+      displayFormat: (dateValue, context) => {
+        calls.push({ dateValue, context });
+        return `formatted:${dateValue.toISODate()}`;
       },
     });
 
@@ -61,14 +63,15 @@ describe('picker input controllers', () => {
 
     expect(screen.getByRole('textbox').value).toBe('formatted:2099-02-03');
     expect(calls[0]).toEqual({
-      isoDate: '2099-02-03',
-      context: { locale: 'en-GB', numberingSystem: undefined },
+      dateValue: expect.any(DateTime),
+      context: { locale: 'en-GB' },
     });
   });
 
-  it('validates range ordering and minimum nights with canonical dates', () => {
+  it('validates range ordering and minimum nights with DateTimes', () => {
+    const startDate = DateTime.fromISO('2099-02-10');
     const props = {
-      startDate: '2099-02-10',
+      startDate,
       endDate: null,
       onDatesChange: vi.fn(),
       onFocusChange: vi.fn(),
@@ -81,14 +84,14 @@ describe('picker input controllers', () => {
     fireEvent.change(screen.getAllByRole('textbox')[1], { target: { value: '2099-02-11' } });
 
     expect(props.onDatesChange).toHaveBeenCalledWith({
-      startDate: '2099-02-10',
+      startDate,
       endDate: null,
     });
   });
 
   it('clears dates with null values', () => {
     const props = {
-      ...singleProps({ date: '2099-02-03' }),
+      ...singleProps({ date: DateTime.fromISO('2099-02-03') }),
       showClearDate: true,
     };
     renderStrict(<SingleDatePickerInputController {...props} />);
@@ -109,7 +112,7 @@ describe('day picker controllers', () => {
         isFocused
         onDatesChange={onDatesChange}
         onFocusChange={onFocusChange}
-        initialVisibleMonth={() => '2099-02-01'}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01')}
         isOutsideRange={() => false}
       />,
     );
@@ -117,19 +120,19 @@ describe('day picker controllers', () => {
     const day = screen.getAllByRole('button').find((element) => element.tagName === 'TD');
     fireEvent.click(day);
 
-    expect(onDatesChange).toHaveBeenCalledWith({ startDate: expect.any(String), endDate: null });
+    expect(onDatesChange).toHaveBeenCalledWith({ startDate: expect.any(DateTime), endDate: null });
     expect(onFocusChange).toHaveBeenCalledWith(END_DATE);
   });
 
-  it('preserves formatter callbacks and their library-neutral context', () => {
-    const monthFormat = vi.fn((date) => `month:${date}`);
-    const weekDayFormat = vi.fn((date) => `weekday:${date}`);
-    const dayAriaLabelFormat = vi.fn((date) => `day:${date}`);
+  it('passes DateTimes to formatter callbacks with locale context', () => {
+    const monthFormat = vi.fn((dateValue) => `month:${dateValue.toISODate()}`);
+    const weekDayFormat = vi.fn((dateValue) => `weekday:${dateValue.toISODate()}`);
+    const dayAriaLabelFormat = vi.fn((dateValue) => `day:${dateValue.toISODate()}`);
     renderStrict(
       <DayPickerSingleDateController
         focused
         isFocused
-        initialVisibleMonth={() => '2099-02-01'}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01')}
         isOutsideRange={() => false}
         monthFormat={monthFormat}
         weekDayFormat={weekDayFormat}
@@ -140,11 +143,11 @@ describe('day picker controllers', () => {
 
     expect(screen.getByText('month:2099-02-01')).toBeTruthy();
     expect(screen.getByText('weekday:2021-08-01')).toBeTruthy();
-    expect(monthFormat).toHaveBeenCalledWith('2099-02-01', {
-      locale: 'en-AU', numberingSystem: undefined,
+    expect(monthFormat).toHaveBeenCalledWith(expect.any(DateTime), {
+      locale: 'en-AU',
     });
-    expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(String), {
-      locale: 'en-AU', numberingSystem: undefined,
+    expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(DateTime), {
+      locale: 'en-AU',
     });
   });
 });

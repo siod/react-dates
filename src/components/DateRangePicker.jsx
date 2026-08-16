@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 import { Portal, addEventListener, isTouchDevice, OutsideClickHandler, lockScroll } from '../internal/browser';
 import { forbidExtraProps } from '../internal/propTypes';
@@ -10,7 +11,6 @@ import getResponsiveContainerStyles from '../utils/getResponsiveContainerStyles'
 import getDetachedContainerStyles from '../utils/getDetachedContainerStyles';
 import getInputHeight from '../utils/getInputHeight';
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import { today } from '../internal/date';
 
 import DateRangePickerInputController from './DateRangePickerInputController';
 import DayPickerRangeController from './DayPickerRangeController';
@@ -116,7 +116,7 @@ const defaultProps = {
   minimumNights: 1,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayHighlighted: () => false,
   minDate: undefined,
   maxDate: undefined,
@@ -128,7 +128,6 @@ const defaultProps = {
   phrases: DateRangePickerPhrases,
   dayAriaLabelFormat: { dateStyle: 'full' },
   locale: undefined,
-  numberingSystem: undefined,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -472,7 +471,6 @@ class DateRangePicker extends React.PureComponent {
       phrases,
       dayAriaLabelFormat,
       locale,
-      numberingSystem,
       isRTL,
       weekDayFormat,
       css,
@@ -493,7 +491,7 @@ class DateRangePicker extends React.PureComponent {
       ? this.onOutsideClick
       : undefined;
     const initialVisibleMonthThunk = initialVisibleMonth || (
-      () => (startDate || endDate || today())
+      () => (startDate || endDate || DateTime.local())
     );
 
     const closeIcon = customCloseIcon || (
@@ -547,7 +545,6 @@ class DateRangePicker extends React.PureComponent {
           maxDate={maxDate}
           monthFormat={monthFormat}
           locale={locale}
-          numberingSystem={numberingSystem}
           renderMonthText={renderMonthText}
           renderWeekHeaderElement={renderWeekHeaderElement}
           withPortal={withAnyPortal}
@@ -635,7 +632,6 @@ class DateRangePicker extends React.PureComponent {
       withFullScreenPortal,
       displayFormat,
       locale,
-      numberingSystem,
       reopenPickerOnClearDates,
       keepOpenOnDateSelect,
       onDatesChange,
@@ -672,7 +668,6 @@ class DateRangePicker extends React.PureComponent {
         endDateTitleText={endDateTitleText}
         displayFormat={displayFormat}
         locale={locale}
-        numberingSystem={numberingSystem}
         showClearDates={showClearDates}
         showCaret={!withPortal && !withFullScreenPortal && !hideFang}
         showDefaultInputIcon={showDefaultInputIcon}

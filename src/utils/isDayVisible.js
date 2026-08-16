@@ -1,20 +1,17 @@
 import {
-  addMonths,
   compareDates,
-  endOfMonth,
   endOfWeek,
-  startOfMonth,
+  isDateTime,
   startOfWeek,
 } from '../internal/date';
 
 export default function isDayVisible(day, month, numberOfMonths, enableOutsideDays) {
-  if (typeof day !== 'string' || typeof month !== 'string' || !Number.isInteger(numberOfMonths)
+  if (!isDateTime(day) || !isDateTime(month) || !Number.isInteger(numberOfMonths)
     || numberOfMonths < 1) return false;
-  const firstMonth = startOfMonth(month);
-  const lastMonth = addMonths(month, numberOfMonths - 1);
-  if (!firstMonth || !lastMonth) return false;
+  const firstMonth = month.startOf('month');
+  const lastMonth = month.plus({ months: numberOfMonths - 1 });
   const lower = enableOutsideDays ? startOfWeek(firstMonth) : firstMonth;
-  const finalDay = endOfMonth(lastMonth);
+  const finalDay = lastMonth.endOf('month');
   const upper = enableOutsideDays ? endOfWeek(finalDay) : finalDay;
   const left = compareDates(day, lower);
   const right = compareDates(day, upper);

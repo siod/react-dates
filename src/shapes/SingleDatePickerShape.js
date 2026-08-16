@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { isoDate } from '../internal/date/isoDatePropType';
+import { dateTime } from '../internal/date/dateTimePropType';
 import { mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 
 import { SingleDatePickerPhrases } from '../defaultPhrases';
@@ -16,7 +16,7 @@ import NavPositionShape from './NavPositionShape';
 
 export default {
   // required props for a functional interactive SingleDatePicker
-  date: isoDate,
+  date: dateTime,
   onDateChange: PropTypes.func.isRequired,
 
   focused: PropTypes.bool,
@@ -89,8 +89,8 @@ export default {
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   isDayHighlighted: PropTypes.func,
-  minDate: isoDate,
-  maxDate: isoDate,
+  minDate: dateTime,
+  maxDate: dateTime,
 
   // internationalization props
   displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -99,5 +99,4 @@ export default {
   phrases: PropTypes.shape(getPhrasePropTypes(SingleDatePickerPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
 };

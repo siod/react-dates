@@ -1,5 +1,5 @@
-import { isCanonicalDate } from '../internal/date';
+import { isDateTime } from '../internal/date';
 
 export default function toISOMonthString(date) {
-  return isCanonicalDate(date) ? date.slice(0, 7) : null;
+  return isDateTime(date) ? date.toFormat('yyyy-MM') : null;
 }

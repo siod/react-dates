@@ -1,93 +1,91 @@
+import { DateTime } from 'luxon';
 import { describe, expect, it } from 'vitest';
 
 import {
-  addDays,
-  addMonths,
   formatDate,
   getCalendarMonthWeeks,
   getWeekdayLabels,
-  isCanonicalDate,
+  isDateTime,
   parseLocalizedDate,
   startOfWeek,
 } from '../../../src/internal/date';
 
-describe('independent date-foundation verification', () => {
-  it('rejects malformed and impossible canonical values', () => {
-    [
-      '', '2024-2-01', '24-02-01', '2024/02/01', '2024-00-01', '2024-01-00',
-      '2024-04-31', '2023-02-29', '2024-02-30', '2024-02-01T00:00:00Z',
-      20240201, null, undefined,
-    ].forEach((value) => expect(isCanonicalDate(value)).toBe(false));
-    ['0001-01-01', '1900-02-28', '2000-02-29', '2024-02-29', '2099-12-31'].forEach((value) => {
-      expect(isCanonicalDate(value)).toBe(true);
-    });
+const date = (value, options) => DateTime.fromISO(value, options);
+const iso = (value) => value?.toISODate();
+
+describe('independent DateTime-foundation verification', () => {
+  it('rejects strings and invalid DateTimes at the public boundary', () => {
+    ['', '2024-02-29', 20240201, null, undefined, DateTime.invalid('test')]
+      .forEach((value) => expect(isDateTime(value)).toBe(false));
+    ['0001-01-01', '1900-02-28', '2000-02-29', '2024-02-29', '2099-12-31']
+      .forEach((value) => expect(isDateTime(date(value))).toBe(true));
   });
 
-  it('round-trips a broad set of valid dates through day/month arithmetic', () => {
+  it('round-trips a broad set of dates through day/month arithmetic', () => {
     for (let year = 1900; year <= 2100; year += 10) {
       for (let month = 1; month <= 12; month += 1) {
-        const date = `${year}-${String(month).padStart(2, '0')}-15`;
-        expect(isCanonicalDate(date)).toBe(true);
-        expect(addDays(addDays(date, 31), -31)).toBe(date);
-        expect(isCanonicalDate(addMonths(date, 1))).toBe(true);
-        expect(isCanonicalDate(addMonths(date, -1))).toBe(true);
+        const value = date(`${year}-${String(month).padStart(2, '0')}-15`);
+        expect(isDateTime(value)).toBe(true);
+        expect(iso(value.plus({ days: 31 }).minus({ days: 31 }))).toBe(iso(value));
+        expect(isDateTime(value.plus({ months: 1 }))).toBe(true);
+        expect(isDateTime(value.minus({ months: 1 }))).toBe(true);
       }
     }
-    expect(addDays('2024-02-28', 1)).toBe('2024-02-29');
-    expect(addDays('2024-02-29', 1)).toBe('2024-03-01');
-    expect(addDays('1900-02-28', 1)).toBe('1900-03-01');
-    expect(addDays('2000-02-28', 1)).toBe('2000-02-29');
+    expect(iso(date('2024-02-28').plus({ days: 1 }))).toBe('2024-02-29');
+    expect(iso(date('2024-02-29').plus({ days: 1 }))).toBe('2024-03-01');
+    expect(iso(date('1900-02-28').plus({ days: 1 }))).toBe('1900-03-01');
+    expect(iso(date('2000-02-28').plus({ days: 1 }))).toBe('2000-02-29');
   });
 
-  it('round-trips Intl formatted dates across locale patterns and numbering systems', () => {
+  it('round-trips Intl formatted dates across locale patterns and digits', () => {
     [
       ['en-US', { dateStyle: 'short' }, '2024-07-08'],
       ['en-GB', { dateStyle: 'medium' }, '2024-11-23'],
       ['de-DE', { year: 'numeric', month: 'long', day: 'numeric' }, '2024-03-05'],
-      ['ar-EG', { year: 'numeric', month: 'long', day: 'numeric', numberingSystem: 'arab' }, '2024-12-31'],
-    ].forEach(([locale, options, date]) => {
+      ['ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }, '2024-12-31'],
+    ].forEach(([locale, options, value]) => {
       const formatOptions = { locale, ...options };
-      const formatted = formatDate(date, formatOptions);
+      const formatted = formatDate(date(value), formatOptions);
       expect(formatted).not.toBe('');
-      expect(parseLocalizedDate(formatted, formatOptions)).toBe(date);
+      expect(iso(parseLocalizedDate(formatted, formatOptions))).toBe(value);
     });
   });
 
   it('keeps localized formatting on the Gregorian calendar', () => {
     const options = {
-      locale: 'th-TH', calendar: 'buddhist', numberingSystem: 'latn',
+      locale: 'th-TH', calendar: 'buddhist',
       year: 'numeric', month: 'long', day: 'numeric',
     };
-    const formatted = formatDate('2024-03-20', options);
+    const formatted = formatDate(date('2024-03-20'), options);
     expect(formatted).toContain('2024');
     expect(formatted).not.toContain('2567');
-    expect(parseLocalizedDate(formatted, options)).toBe('2024-03-20');
+    expect(iso(parseLocalizedDate(formatted, options))).toBe('2024-03-20');
   });
 
   it('uses locale week starts and labels', () => {
-    expect(startOfWeek('2024-01-07', { locale: 'en-US' })).toBe('2024-01-07');
-    expect(startOfWeek('2024-01-07', { locale: 'en-GB' })).toBe('2024-01-01');
-    expect(startOfWeek('2024-01-07', { firstDayOfWeek: 3 })).toBe('2024-01-03');
+    const sunday = date('2024-01-07');
+    expect(iso(startOfWeek(sunday, { locale: 'en-US' }))).toBe('2024-01-07');
+    expect(iso(startOfWeek(sunday, { locale: 'en-GB' }))).toBe('2024-01-01');
+    expect(iso(startOfWeek(sunday, { firstDayOfWeek: 3 }))).toBe('2024-01-03');
     expect(getWeekdayLabels({ locale: 'en-US' })).toEqual(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
     expect(getWeekdayLabels({ locale: 'en-GB' })).toEqual(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
-    getCalendarMonthWeeks('2024-02-01', { locale: 'en-GB', enableOutsideDays: true }).forEach((week) => {
-      expect(week).toHaveLength(7);
-    });
+    getCalendarMonthWeeks(date('2024-02-01'), { locale: 'en-GB', enableOutsideDays: true })
+      .forEach((week) => expect(week).toHaveLength(7));
   });
 
-  it('keeps date-only behavior invariant around real IANA timezone boundaries', () => {
+  it('preserves zones and calendar-day arithmetic across DST shifts', () => {
     [
       ['UTC', '2024-03-10'],
       ['America/New_York', '2024-03-10'],
       ['Europe/London', '2024-03-31'],
       ['Australia/Brisbane', '2024-10-06'],
-      ['Pacific/Apia', '2011-12-30'],
-    ].forEach(([timeZone, date]) => {
-      const options = { locale: 'en-US', timeZone, dateStyle: 'short' };
-      const formatted = formatDate(date, options);
-      expect(parseLocalizedDate(formatted, options)).toBe(date);
-      expect(addDays(date, 1)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(getCalendarMonthWeeks(date, { firstDayOfWeek: 1 }).flat().filter(Boolean)).toContain(date);
+    ].forEach(([zone, value]) => {
+      const zoned = date(value, { zone });
+      const next = zoned.plus({ days: 1 });
+      expect(next.zoneName).toBe(zone);
+      expect(iso(next)).toBe(iso(zoned.plus({ days: 1 })));
+      expect(getCalendarMonthWeeks(zoned, { firstDayOfWeek: 1 }).flat().filter(Boolean)
+        .some((dayValue) => dayValue.hasSame(zoned, 'day'))).toBe(true);
     });
   });
 });

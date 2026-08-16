@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger, or } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { formatDate, isoDate } from '../internal/date';
+import { dateTime, formatDate } from '../internal/date';
 import scheduleAnimationFrame from '../internal/browser/raf';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
@@ -38,7 +38,7 @@ const DayStyleShape = PropTypes.shape({
 
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
-  day: isoDate,
+  day: dateTime,
   daySize: nonNegativeInteger,
   isOutsideDay: PropTypes.bool,
   modifiers: PropTypes.instanceOf(Set),
@@ -50,7 +50,6 @@ const propTypes = forbidExtraProps({
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
 
   // style overrides
   defaultStyles: DayStyleShape,
@@ -190,7 +189,6 @@ const defaultProps = {
   renderDayContents: null,
   ariaLabelFormat: { dateStyle: 'full' },
   locale: undefined,
-  numberingSystem: undefined,
 
   // style defaults
   defaultStyles,
@@ -316,7 +314,6 @@ class CustomizableCalendarDay extends React.PureComponent {
       styles,
       phrases,
       locale,
-      numberingSystem,
 
       defaultStyles: defaultStylesWithHover,
       outsideStyles: outsideStylesWithHover,
@@ -342,7 +339,7 @@ class CustomizableCalendarDay extends React.PureComponent {
 
     if (!day) return <td />;
 
-    const formatOptions = { locale, numberingSystem };
+    const formatOptions = { locale };
     const {
       daySizeStyles,
       useDefaultCursor,

@@ -22,7 +22,6 @@ export const ArabicRtl = {
     <div dir="rtl">
       <SingleDatePickerExample
         locale="ar-EG"
-        numberingSystem="arab"
         isRTL
         numberOfMonths={1}
         isOutsideRange={() => false}

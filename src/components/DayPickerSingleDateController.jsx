@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
-import { addDays, addMonths, compareDates, endOfMonth, getWeekday, isoDate, startOfMonth, today } from '../internal/date';
+import { compareDates, dateTime } from '../internal/date';
 import { isTouchDevice } from '../internal/browser/touch';
 
 import { DayPickerPhrases } from '../defaultPhrases';
@@ -10,6 +11,7 @@ import isSameDay from '../utils/isSameDay';
 import isAfterDay from '../utils/isAfterDay';
 import isDayVisible from '../utils/isDayVisible';
 import getVisibleDays from '../utils/getVisibleDays';
+import toISODateString from '../utils/toISODateString';
 import { addModifier, deleteModifier } from '../utils/modifiers';
 
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
@@ -33,9 +35,9 @@ const DATE_UNSET_VALUE = null;
 const dateFormatProp = PropTypes.oneOfType([PropTypes.object, PropTypes.func]);
 
 const propTypes = forbidExtraProps({
-  date: isoDate,
-  minDate: isoDate,
-  maxDate: isoDate,
+  date: dateTime,
+  minDate: dateTime,
+  maxDate: dateTime,
   onDateChange: PropTypes.func,
   allowUnselect: PropTypes.bool,
   focused: PropTypes.bool,
@@ -87,7 +89,6 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
   dayAriaLabelFormat: dateFormatProp,
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
   isRTL: PropTypes.bool,
 });
 
@@ -108,12 +109,12 @@ const defaultProps = {
   calendarInfoPosition: INFO_POSITION_BOTTOM, onBlur() {}, isFocused: false,
   showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT,
   weekDayFormat: DEFAULT_WEEKDAY_FORMAT, phrases: DayPickerPhrases, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT,
-  locale: undefined, numberingSystem: undefined, isRTL: false,
+  locale: undefined, isRTL: false,
 };
 
 function formatOptions(props, value) {
   const option = typeof value === 'object' && value ? value : {};
-  return { locale: props.locale, numberingSystem: props.numberingSystem, ...option };
+  return { locale: props.locale, ...option };
 }
 
 export default class DayPickerSingleDateController extends React.PureComponent {
@@ -123,7 +124,7 @@ export default class DayPickerSingleDateController extends React.PureComponent {
   constructor(props) {
     super(props);
     this.isTouchDevice = isTouchDevice();
-    this.today = today();
+    this.today = DateTime.local();
     this.modifiers = {
       today: (day) => this.isToday(day), blocked: (day) => this.isBlocked(day),
       'blocked-calendar': (day) => props.isDayBlocked(day),
@@ -148,8 +149,8 @@ export default class DayPickerSingleDateController extends React.PureComponent {
     if (isOutsideRange !== prevProps.isOutsideRange) this.modifiers['blocked-out-of-range'] = (day) => isOutsideRange(day);
     if (isDayBlocked !== prevProps.isDayBlocked) this.modifiers['blocked-calendar'] = (day) => isDayBlocked(day);
     if (isDayHighlighted !== prevProps.isDayHighlighted) this.modifiers['highlighted-calendar'] = (day) => isDayHighlighted(day);
-    const now = today();
-    if (now !== this.today) this.today = now;
+    const now = DateTime.local();
+    if (!now.hasSame(this.today, 'day')) this.today = now;
   }
 
   onDayClick(day, event) {
@@ -165,25 +166,25 @@ export default class DayPickerSingleDateController extends React.PureComponent {
   onNextMonthClick() { this.changeMonth(1, this.props.onNextMonthClick); }
   changeMonth(amount, callback) {
     const { currentMonth, visibleDays } = this.state; const { numberOfMonths, enableOutsideDays, minDate, maxDate } = this.props;
-    const month = addMonths(currentMonth, amount); if (!month) return;
-    const nextDays = getVisibleDays(addMonths(currentMonth, amount * (amount < 0 ? 1 : numberOfMonths)) || month, 1, enableOutsideDays);
+    const month = currentMonth.plus({ months: amount });
+    const nextDays = getVisibleDays(currentMonth.plus({ months: amount * (amount < 0 ? 1 : numberOfMonths) }), 1, enableOutsideDays);
     const retained = Object.keys(visibleDays).sort().slice(amount < 0 ? 0 : 1).reduce((acc, key) => ({ ...acc, [key]: visibleDays[key] }), {});
     this.setState({ currentMonth: month, disablePrev: this.shouldDisableMonthNavigation(minDate, month), disableNext: this.shouldDisableMonthNavigation(maxDate, month), visibleDays: { ...retained, ...this.getModifiers(nextDays) } }, () => callback(month));
   }
   onMonthChange(month) { this.setMonth(month); }
   onYearChange(month) { this.setMonth(month); }
   setMonth(month) { const { numberOfMonths, enableOutsideDays, orientation } = this.props; this.setState({ currentMonth: month, visibleDays: this.getModifiers(getVisibleDays(month, numberOfMonths, enableOutsideDays, orientation === VERTICAL_SCROLLABLE)) }); }
-  onGetNextScrollableMonths() { const month = addMonths(this.state.currentMonth, Object.keys(this.state.visibleDays).length); this.setState(({ visibleDays }) => ({ visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
-  onGetPrevScrollableMonths() { const month = addMonths(this.state.currentMonth, -this.props.numberOfMonths); this.setState(({ visibleDays }) => ({ currentMonth: month, visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
+  onGetNextScrollableMonths() { const month = this.state.currentMonth.plus({ months: Object.keys(this.state.visibleDays).length }); this.setState(({ visibleDays }) => ({ visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
+  onGetPrevScrollableMonths() { const month = this.state.currentMonth.minus({ months: this.props.numberOfMonths }); this.setState(({ visibleDays }) => ({ currentMonth: month, visibleDays: { ...visibleDays, ...this.getModifiers(getVisibleDays(month, this.props.numberOfMonths, this.props.enableOutsideDays, true)) } })); }
   getFirstDayOfWeek() { return this.props.firstDayOfWeek == null ? 1 : this.props.firstDayOfWeek; }
   getFirstFocusableDay(month) {
-    const { date, numberOfMonths } = this.props; let focused = date || startOfMonth(month);
-    if (this.isBlocked(focused)) { const end = endOfMonth(addMonths(month, numberOfMonths - 1)); let cursor = focused; while (cursor && end && compareDates(cursor, end) <= 0) { cursor = addDays(cursor, 1); if (cursor && !this.isBlocked(cursor)) return cursor; } }
+    const { date, numberOfMonths } = this.props; let focused = date || month.startOf('month');
+    if (this.isBlocked(focused)) { const end = month.plus({ months: numberOfMonths - 1 }).endOf('month'); let cursor = focused; while (compareDates(cursor, end) <= 0) { cursor = cursor.plus({ days: 1 }); if (!this.isBlocked(cursor)) return cursor; } }
     return focused;
   }
-  getModifiers(visibleDays) { return Object.keys(visibleDays).reduce((result, month) => ({ ...result, [month]: visibleDays[month].reduce((days, day) => ({ ...days, [day]: this.getModifiersForDay(day) }), {}) }), {}); }
+  getModifiers(visibleDays) { return Object.keys(visibleDays).reduce((result, month) => ({ ...result, [month]: visibleDays[month].reduce((days, day) => ({ ...days, [toISODateString(day)]: this.getModifiersForDay(day) }), {}) }), {}); }
   getModifiersForDay(day) { return new Set(Object.keys(this.modifiers).filter((modifier) => this.modifiers[modifier](day))); }
-  getStateForNewMonth(props) { const month = (props.initialVisibleMonth || (props.date ? () => props.date : today))(); const currentMonth = startOfMonth(month) || today(); return { currentMonth, visibleDays: this.getModifiers(getVisibleDays(currentMonth, props.numberOfMonths, props.enableOutsideDays, props.orientation === VERTICAL_SCROLLABLE)) }; }
+  getStateForNewMonth(props) { const month = (props.initialVisibleMonth || (props.date ? () => props.date : () => DateTime.local()))(); const currentMonth = month.startOf('month'); return { currentMonth, visibleDays: this.getModifiers(getVisibleDays(currentMonth, props.numberOfMonths, props.enableOutsideDays, props.orientation === VERTICAL_SCROLLABLE)) }; }
   shouldDisableMonthNavigation(date, month) { return Boolean(date && isDayVisible(date, month, this.props.numberOfMonths, this.props.enableOutsideDays)); }
   addModifier(updated, day, modifier) { return day ? addModifier(updated, day, modifier, this.props, this.state) : updated; }
   deleteModifier(updated, day, modifier) { return day ? deleteModifier(updated, day, modifier, this.props, this.state) : updated; }
@@ -191,8 +192,8 @@ export default class DayPickerSingleDateController extends React.PureComponent {
   isHovered(day) { return isSameDay(day, this.state?.hoverDate); }
   isSelected(day) { return isSameDay(day, this.props.date); }
   isToday(day) { return isSameDay(day, this.today); }
-  isFirstDayOfWeek(day) { return getWeekday(day) === this.getFirstDayOfWeek(); }
-  isLastDayOfWeek(day) { return getWeekday(day) === (this.getFirstDayOfWeek() + 6) % 7; }
+  isFirstDayOfWeek(day) { return day.weekday % 7 === this.getFirstDayOfWeek(); }
+  isLastDayOfWeek(day) { return day.weekday % 7 === (this.getFirstDayOfWeek() + 6) % 7; }
 
   render() {
     const p = this.props; const s = this.state;

@@ -1,22 +1,23 @@
 # Migrating to react-dates v22
 
-v22 targets React 18 and React 19 and removes the legacy runtime styling and
-date-object contracts.
+v22 targets React 18 and React 19, replaces Moment with Luxon, and removes the
+legacy runtime styling contract.
 
 ## Dates
 
-Replace public date objects with canonical ISO date strings:
+Replace Moment values with Luxon `DateTime` values:
 
 ```diff
 - date={moment('2026-08-16')}
-+ date="2026-08-16"
++ date={DateTime.fromISO('2026-08-16')}
 ```
 
 The same change applies to `startDate`, `endDate`, `minDate`, `maxDate`, values
 returned by `initialVisibleMonth`, and every date supplied to callbacks,
-predicates, or render props. Invalid dates and non-canonical strings are rejected.
-`toMomentObject` has been removed and no implementation-specific replacement is
-provided.
+predicates, formatter callbacks, or render props. Import `DateTime` from the
+`luxon` peer dependency. Invalid DateTimes and strings are rejected.
+`toMomentObject` has been removed because public values already expose Luxon's
+conversion and formatting APIs.
 
 ## Formatting
 
@@ -27,9 +28,9 @@ Replace library-specific format tokens with `Intl.DateTimeFormatOptions`:
 + displayFormat={{ day: '2-digit', month: '2-digit', year: 'numeric' }}
 ```
 
-A formatter callback may return a string and receives `(isoDate, context)`, where
-`context` contains `locale` and `numberingSystem`. Dates remain
-timezone-free and the API does not accept a timezone.
+A formatter callback may return a string and receives `(dateTime, context)`, where
+`context` contains `locale`. The picker preserves each DateTime's zone and does
+not add a second timezone prop.
 
 ## Styling
 
@@ -41,13 +42,14 @@ theme registration APIs no longer affect components.
 ## Non-Gregorian calendars
 
 v22 does not provide a `calendar` prop, non-Gregorian projection, or custom
-calendar arithmetic. The old `moment-jalaali` Storybook integration was not a
-core picker contract and has been removed with Moment. Applications that need a
-specialized calendar display can implement it through formatter and render
-callbacks while keeping picker values as Gregorian ISO dates.
+calendar arithmetic. The old third-party non-Gregorian Storybook integration
+was not a core picker contract and has been removed with Moment. Applications
+that need a specialized calendar display can implement it through formatter and
+render callbacks while picker arithmetic remains Gregorian.
 
 ## Runtime requirements
 
 - React and React DOM 18 or 19
+- Luxon 3.7 or newer within major version 3
 - Node 22.22.2 or newer for development and package tooling
 - Evergreen browsers (`>0.5%, not dead, not IE 11`)

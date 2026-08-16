@@ -2,10 +2,19 @@ import { describe, expect, it } from 'vitest';
 
 import * as constants from '../../src/constants';
 import * as publicApi from '../../src/index';
+import DateRangePickerShape from '../../src/shapes/DateRangePickerShape';
+import SingleDatePickerShape from '../../src/shapes/SingleDatePickerShape';
 
 describe('v22 public surface', () => {
   it('does not expose a date-library conversion helper', () => {
     expect(publicApi).not.toHaveProperty('toMomentObject');
+  });
+
+  it('keeps calendar and numbering-system overrides out of picker props', () => {
+    [DateRangePickerShape, SingleDatePickerShape].forEach((shape) => {
+      expect(shape).not.toHaveProperty('calendar');
+      expect(shape).not.toHaveProperty('numberingSystem');
+    });
   });
 
   it('uses frozen Intl formatting options instead of date-library tokens', () => {

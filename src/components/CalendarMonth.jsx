@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { formatDate, getCalendarMonthWeeks as getMonthWeeks, isoDate } from '../internal/date';
+import { dateTime, formatDate, getCalendarMonthWeeks as getMonthWeeks } from '../internal/date';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -28,7 +28,7 @@ import {
 
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
-  month: isoDate,
+  month: dateTime,
   horizontalMonthPadding: nonNegativeInteger,
   isVisible: PropTypes.bool,
   enableOutsideDays: PropTypes.bool,
@@ -48,13 +48,12 @@ const propTypes = forbidExtraProps({
   setMonthTitleHeight: PropTypes.func,
   verticalBorderSpacing: nonNegativeInteger,
 
-  focusedDate: isoDate, // indicates focusable day
+  focusedDate: dateTime, // indicates focusable day
   isFocused: PropTypes.bool, // indicates whether or not to move focus to focusable day
 
   // i18n
   monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 });
@@ -85,7 +84,6 @@ const defaultProps = {
   // i18n
   monthFormat: { month: 'long', year: 'numeric' },
   locale: undefined,
-  numberingSystem: undefined,
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
   verticalBorderSpacing: undefined,
@@ -174,11 +172,10 @@ class CalendarMonth extends React.PureComponent {
       styles,
       verticalBorderSpacing,
       locale,
-      numberingSystem,
     } = this.props;
 
     const { weeks } = this.state;
-    const formatOptions = { locale, numberingSystem };
+    const formatOptions = { locale };
     const monthTitle = renderMonthText
       ? renderMonthText(month, formatOptions)
       : typeof monthFormat === 'function'
@@ -228,11 +225,11 @@ class CalendarMonth extends React.PureComponent {
             {weeks.map((week, i) => (
               <CalendarWeek key={i}>
                 {week.map((day, dayOfWeek) => (
-                  <React.Fragment key={day || `empty-${dayOfWeek}`}>
+                  <React.Fragment key={day ? toISODateString(day) : `empty-${dayOfWeek}`}>
                     {renderCalendarDay({
                       day,
                       daySize,
-                      isOutsideDay: !day || day.slice(0, 7) !== month.slice(0, 7),
+                      isOutsideDay: !day || !day.hasSame(month, 'month'),
                       tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
                       isFocused,
                       onDayMouseEnter,
@@ -243,7 +240,6 @@ class CalendarMonth extends React.PureComponent {
                       modifiers: (day && modifiers[toISODateString(day)]) || new Set(),
                       ariaLabelFormat: dayAriaLabelFormat,
                       locale,
-                      numberingSystem,
                     })}
                   </React.Fragment>
                 ))}

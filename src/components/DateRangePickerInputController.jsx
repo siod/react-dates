@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { addDays, formatDate, isoDate, parseLocalizedDate, today } from '../internal/date';
+import { dateTime, formatDate, parseLocalizedDate } from '../internal/date';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
 import { DateRangePickerInputPhrases } from '../defaultPhrases';
@@ -25,14 +26,14 @@ import {
 const propTypes = forbidExtraProps({
   children: PropTypes.node,
 
-  startDate: isoDate,
+  startDate: dateTime,
   startDateId: PropTypes.string,
   startDatePlaceholderText: PropTypes.string,
   isStartDateFocused: PropTypes.bool,
   startDateAriaLabel: PropTypes.string,
   startDateTitleText: PropTypes.string,
 
-  endDate: isoDate,
+  endDate: dateTime,
   endDateId: PropTypes.string,
   endDatePlaceholderText: PropTypes.string,
   isEndDateFocused: PropTypes.bool,
@@ -63,7 +64,6 @@ const propTypes = forbidExtraProps({
   isDayBlocked: PropTypes.func,
   displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
 
   onFocusChange: PropTypes.func,
   onClose: PropTypes.func,
@@ -121,11 +121,10 @@ const defaultProps = {
   reopenPickerOnClearDates: false,
   withFullScreenPortal: false,
   minimumNights: 1,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayBlocked: () => false,
   displayFormat: { dateStyle: 'short' },
   locale: undefined,
-  numberingSystem: undefined,
 
   onFocusChange() {},
   onClose() {},
@@ -186,7 +185,7 @@ export default class DateRangePickerInputController extends React.PureComponent 
 
     const isEndDateValid = endDate
       && !isOutsideRange(endDate) && !isDayBlocked(endDate)
-      && !(startDate && isBeforeDay(endDate, addDays(startDate, minimumNights)));
+      && !(startDate && isBeforeDay(endDate, startDate.plus({ days: minimumNights })));
     if (isEndDateValid) {
       onDatesChange({ startDate, endDate });
       if (!keepOpenOnDateSelect) {
@@ -232,7 +231,7 @@ export default class DateRangePickerInputController extends React.PureComponent 
 
     const startDate = this.parseDate(startDateString);
     const isEndDateBeforeStartDate = startDate
-      && endDate && isBeforeDay(endDate, addDays(startDate, minimumNights));
+      && endDate && isBeforeDay(endDate, startDate.plus({ days: minimumNights }));
     const isStartDateValid = startDate
       && !isOutsideRange(startDate) && !isDayBlocked(startDate)
       && !(disabled === END_DATE && isEndDateBeforeStartDate);
@@ -261,24 +260,22 @@ export default class DateRangePickerInputController extends React.PureComponent 
   }
 
   parseDate(value) {
-    const { displayFormat, locale, numberingSystem } = this.props;
+    const { displayFormat, locale } = this.props;
     return parseLocalizedDate(value, {
       ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
       locale,
-      numberingSystem,
     });
   }
 
   getDateString(date) {
     if (!date) return '';
-    const { displayFormat, locale, numberingSystem } = this.props;
-    const context = { locale, numberingSystem };
+    const { displayFormat, locale } = this.props;
+    const context = { locale };
     const value = typeof displayFormat === 'function' ? displayFormat(date, context) : null;
     if (typeof value === 'string') return value;
     return formatDate(date, {
       ...(value || displayFormat || { dateStyle: 'short' }),
       locale,
-      numberingSystem,
     });
   }
 

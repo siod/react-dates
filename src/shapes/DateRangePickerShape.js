@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { isoDate } from '../internal/date/isoDatePropType';
+import { dateTime } from '../internal/date/dateTimePropType';
 import { mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 
 import { DateRangePickerPhrases } from '../defaultPhrases';
@@ -18,8 +18,8 @@ import NavPositionShape from './NavPositionShape';
 
 export default {
   // required props for a functional interactive DateRangePicker
-  startDate: isoDate,
-  endDate: isoDate,
+  startDate: dateTime,
+  endDate: dateTime,
   onDatesChange: PropTypes.func.isRequired,
 
   focusedInput: FocusedInputShape,
@@ -96,8 +96,8 @@ export default {
   renderCalendarDay: PropTypes.func,
   renderDayContents: PropTypes.func,
   minimumNights: PropTypes.number,
-  minDate: isoDate,
-  maxDate: isoDate,
+  minDate: dateTime,
+  maxDate: dateTime,
   enableOutsideDays: PropTypes.bool,
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
@@ -110,5 +110,4 @@ export default {
   phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
 };

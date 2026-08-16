@@ -1,13 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
 import {
-  addMonths,
-  isoDate,
-  setMonth,
-  setYear,
-  today,
+  dateTime,
 } from '../internal/date';
 import { subscribe } from '../internal/browser/subscribe';
 import { isTransitionEndSupported } from '../internal/browser/transitionEnd';
@@ -38,7 +35,7 @@ const propTypes = forbidExtraProps({
   enableOutsideDays: PropTypes.bool,
   firstVisibleMonthIndex: PropTypes.number,
   horizontalMonthPadding: nonNegativeInteger,
-  initialMonth: isoDate,
+  initialMonth: dateTime,
   isAnimating: PropTypes.bool,
   numberOfMonths: PropTypes.number,
   modifiers: PropTypes.objectOf(PropTypes.objectOf(ModifiersShape)),
@@ -55,7 +52,7 @@ const propTypes = forbidExtraProps({
   translationValue: PropTypes.number,
   renderMonthElement: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'),
   daySize: nonNegativeInteger,
-  focusedDate: isoDate, // indicates focusable day
+  focusedDate: dateTime, // indicates focusable day
   isFocused: PropTypes.bool, // indicates whether or not to move focus to focusable day
   firstDayOfWeek: DayOfWeekShape,
   setMonthTitleHeight: PropTypes.func,
@@ -66,7 +63,6 @@ const propTypes = forbidExtraProps({
   // i18n
   monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 });
@@ -75,7 +71,7 @@ const defaultProps = {
   enableOutsideDays: false,
   firstVisibleMonthIndex: 0,
   horizontalMonthPadding: 13,
-  initialMonth: today(),
+  initialMonth: DateTime.local(),
   isAnimating: false,
   numberOfMonths: 1,
   modifiers: {},
@@ -103,18 +99,17 @@ const defaultProps = {
   // i18n
   monthFormat: { month: 'long', year: 'numeric' },
   locale: undefined,
-  numberingSystem: undefined,
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
 };
 
 function getMonths(initialMonth, numberOfMonths, withoutTransitionMonths) {
-  let month = addMonths(initialMonth, withoutTransitionMonths ? 0 : -1);
+  let month = initialMonth.plus({ months: withoutTransitionMonths ? 0 : -1 });
 
   const months = [];
   for (let i = 0; i < (withoutTransitionMonths ? numberOfMonths : numberOfMonths + 2); i += 1) {
     months.push(month);
-    month = addMonths(month, 1);
+    month = month.plus({ months: 1 });
   }
 
   return months;
@@ -179,8 +174,9 @@ class CalendarMonthGrid extends React.PureComponent {
     }
     const monthValue = Number(newMonthVal) >= 0 && Number(newMonthVal) <= 11
       ? Number(newMonthVal) + 1 : Number(newMonthVal);
-    let newMonth = setMonth(currentMonth, monthValue);
-    newMonth = addMonths(newMonth, -initialMonthSubtraction);
+    const newMonth = currentMonth
+      .set({ month: monthValue })
+      .minus({ months: initialMonthSubtraction });
     onMonthChange(newMonth);
   }
 
@@ -192,8 +188,9 @@ class CalendarMonthGrid extends React.PureComponent {
     if (!withoutTransitionMonths) {
       initialMonthSubtraction -= 1;
     }
-    let newMonth = setYear(currentMonth, Number(newYearVal));
-    newMonth = addMonths(newMonth, -initialMonthSubtraction);
+    const newMonth = currentMonth
+      .set({ year: Number(newYearVal) })
+      .minus({ months: initialMonthSubtraction });
     onYearChange(newMonth);
   }
 
@@ -232,7 +229,6 @@ class CalendarMonthGrid extends React.PureComponent {
       verticalBorderSpacing,
       setMonthTitleHeight,
       locale,
-      numberingSystem,
     } = this.props;
 
     const { months } = this.state;
@@ -323,7 +319,6 @@ class CalendarMonthGrid extends React.PureComponent {
                 verticalBorderSpacing={verticalBorderSpacing}
                 horizontalMonthPadding={horizontalMonthPadding}
                 locale={locale}
-                numberingSystem={numberingSystem}
               />
             </div>
           );

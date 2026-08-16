@@ -1,5 +1,5 @@
-import { parseDate } from '../internal/date';
+import { isDateTime } from '../internal/date';
 
 export default function toISODateString(date) {
-  return parseDate(date);
+  return isDateTime(date) ? date.toISODate() : null;
 }

@@ -1,7 +1,8 @@
 # Dependency audit
 
-The v22 runtime dependency allowlist contains only `prop-types` and `luxon`.
-React and React DOM are peer dependencies and development dependencies.
+The v22 direct runtime dependency allowlist contains only `prop-types`. Luxon,
+React, and React DOM are peer dependencies with development copies for builds
+and tests.
 
 Legacy date, styling, event, portal, object-shim, test, build, and publishing
 packages were removed. Browser behavior is implemented with local native-event,

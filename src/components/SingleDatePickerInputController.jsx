@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { formatDate, isoDate, parseLocalizedDate, today } from '../internal/date';
+import { dateTime, formatDate, parseLocalizedDate } from '../internal/date';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
 import { SingleDatePickerInputPhrases } from '../defaultPhrases';
@@ -22,7 +23,7 @@ import {
 const propTypes = forbidExtraProps({
   children: PropTypes.node,
 
-  date: isoDate,
+  date: dateTime,
   onDateChange: PropTypes.func.isRequired,
 
   focused: PropTypes.bool,
@@ -54,7 +55,6 @@ const propTypes = forbidExtraProps({
   isDayBlocked: PropTypes.func,
   displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  numberingSystem: PropTypes.string,
 
   onClose: PropTypes.func,
   onKeyDownArrowDown: PropTypes.func,
@@ -99,7 +99,7 @@ const defaultProps = {
 
   keepOpenOnDateSelect: false,
   reopenPickerOnClearDate: false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayBlocked: () => false,
   displayFormat: { dateStyle: 'short' },
 
@@ -118,7 +118,6 @@ const defaultProps = {
 
   isRTL: false,
   locale: undefined,
-  numberingSystem: undefined,
 };
 
 export default class SingleDatePickerInputController extends React.PureComponent {
@@ -179,24 +178,22 @@ export default class SingleDatePickerInputController extends React.PureComponent
   }
 
   parseDate(value) {
-    const { displayFormat, locale, numberingSystem } = this.props;
+    const { displayFormat, locale } = this.props;
     return parseLocalizedDate(value, {
       ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
       locale,
-      numberingSystem,
     });
   }
 
   getDateString(date) {
     if (!date) return '';
-    const { displayFormat, locale, numberingSystem } = this.props;
-    const context = { locale, numberingSystem };
+    const { displayFormat, locale } = this.props;
+    const context = { locale };
     const value = typeof displayFormat === 'function' ? displayFormat(date, context) : null;
     if (typeof value === 'string') return value;
     return formatDate(date, {
       ...(value || displayFormat || { dateStyle: 'short' }),
       locale,
-      numberingSystem,
     });
   }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 import { cleanup } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,7 +21,7 @@ describe('picker shells', () => {
         withPortal
         disableScroll
         numberOfMonths={1}
-        initialVisibleMonth={() => '2099-02-01'}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01')}
         isOutsideRange={() => false}
       />,
     );

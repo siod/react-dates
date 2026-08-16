@@ -1,6 +1,5 @@
-import { addDays, compareDates } from '../internal/date';
+import { compareDates, isDateTime } from '../internal/date';
 
 export default function isNextDay(a, b) {
-  const nextDay = addDays(a, 1);
-  return nextDay != null && compareDates(nextDay, b) === 0;
+  return isDateTime(a) && compareDates(a.plus({ days: 1 }), b) === 0;
 }

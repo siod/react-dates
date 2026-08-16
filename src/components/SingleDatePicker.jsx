@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 import { Portal, addEventListener, isTouchDevice, OutsideClickHandler, lockScroll } from '../internal/browser';
 import { forbidExtraProps } from '../internal/propTypes';
@@ -10,7 +11,6 @@ import getResponsiveContainerStyles from '../utils/getResponsiveContainerStyles'
 import getDetachedContainerStyles from '../utils/getDetachedContainerStyles';
 import getInputHeight from '../utils/getInputHeight';
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import { today } from '../internal/date';
 
 import SingleDatePickerInputController from './SingleDatePickerInputController';
 import DayPickerSingleDateController from './DayPickerSingleDateController';
@@ -110,7 +110,7 @@ const defaultProps = {
   renderMonthElement: null,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, today()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayHighlighted: () => {},
 
   // internationalization props
@@ -120,7 +120,6 @@ const defaultProps = {
   phrases: SingleDatePickerPhrases,
   dayAriaLabelFormat: { dateStyle: 'full' },
   locale: undefined,
-  numberingSystem: undefined,
 };
 
 class SingleDatePicker extends React.PureComponent {
@@ -450,7 +449,6 @@ class SingleDatePicker extends React.PureComponent {
       phrases,
       dayAriaLabelFormat,
       locale,
-      numberingSystem,
       daySize,
       isRTL,
       isOutsideRange,
@@ -512,7 +510,6 @@ class SingleDatePicker extends React.PureComponent {
           numberOfMonths={numberOfMonths}
           monthFormat={monthFormat}
           locale={locale}
-          numberingSystem={numberingSystem}
           withPortal={withAnyPortal}
           focused={focused}
           keepOpenOnDateSelect={keepOpenOnDateSelect}
@@ -590,7 +587,6 @@ class SingleDatePicker extends React.PureComponent {
       onDateChange,
       displayFormat,
       locale,
-      numberingSystem,
       phrases,
       withPortal,
       withFullScreenPortal,
@@ -640,7 +636,6 @@ class SingleDatePicker extends React.PureComponent {
         onDateChange={onDateChange}
         displayFormat={displayFormat}
         locale={locale}
-        numberingSystem={numberingSystem}
         onFocusChange={this.onInputFocus}
         onKeyDownArrowDown={this.onDayPickerFocus}
         onKeyDownQuestionMark={this.showKeyboardShortcutsPanel}

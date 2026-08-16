@@ -4,23 +4,22 @@ These interfaces are owned by the Sol lead. Workers may implement them but must 
 
 ## Date adapter
 
-All inputs and outputs are canonical `YYYY-MM-DD` strings or `null`. No Luxon object crosses this boundary.
+Inputs and outputs are valid Luxon `DateTime` instances or `null`. Components use
+Luxon values directly; this module centralizes only shared validation,
+calendar-grid generation, locale week rules, and localized input/output behavior.
 
-- `isCanonicalDate(value): boolean`
-- `parseDate(value): string | null`
+- `isDateTime(value): boolean`
 - `compareDates(left, right): -1 | 0 | 1 | null`
-- `addDays(date, amount): string | null`
-- `addMonths(date, amount): string | null`
-- `startOfMonth(date): string | null`
-- `endOfMonth(date): string | null`
-- `startOfWeek(date, options): string | null`
-- `getCalendarMonthWeeks(month, options): string[][]`
+- `startOfWeek(date, options): DateTime | null`
+- `endOfWeek(date, options): DateTime | null`
+- `getCalendarMonthWeeks(month, options): Array<Array<DateTime | null>>`
 - `formatDate(date, options): string`
-- `parseLocalizedDate(value, options): string | null`
+- `parseLocalizedDate(value, options): DateTime | null`
 - `getMonthLabel(date, options): string`
 - `getWeekdayLabels(options): string[]`
 
-Formatting options use `locale`, `numberingSystem`, and Gregorian `Intl.DateTimeFormatOptions`. Date arithmetic always uses UTC date-only semantics.
+Formatting options use `locale` and Gregorian `Intl.DateTimeFormatOptions`.
+Arithmetic is immutable Luxon arithmetic and preserves the input DateTime's zone.
 
 ## Browser helpers
 
@@ -32,8 +31,8 @@ Formatting options use `locale`, `numberingSystem`, and Gregorian `Intl.DateTime
 
 ## Component boundary
 
-- Public date props, callbacks, predicates, and render props use `YYYY-MM-DD | null` exclusively.
-- Format props accept `Intl.DateTimeFormatOptions` or `(isoDate, context) => string`.
-- Top-level `locale` and `numberingSystem` values flow to every default formatter.
-- Components may depend on the private adapter and browser helpers, never directly on Luxon.
+- Public date props, callbacks, predicates, and render props use `DateTime | null` exclusively.
+- Format props accept `Intl.DateTimeFormatOptions` or `(dateTime, context) => string`.
+- The top-level `locale` value flows to every default formatter.
+- Components may use Luxon directly and depend on the adapter only for shared locale/calendar behavior.
 - Shared shapes, constants, public exports, package metadata, and the global CSS entrypoint remain lead-owned integration surfaces.

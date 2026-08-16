@@ -5,7 +5,7 @@ Accessible, responsive date pickers for React 18 and React 19.
 ## Install
 
 ```sh
-npm install react-dates react react-dom
+npm install react-dates luxon react react-dom
 ```
 
 Import the stylesheet once in your application:
@@ -19,16 +19,18 @@ but v22 no longer needs runtime style initialization.
 
 ## Date values
 
-All public date values are canonical `YYYY-MM-DD` strings or `null`. The library
-does not expose objects from its private date implementation.
+All public date values are valid Luxon `DateTime` instances or `null`. Luxon is a
+peer dependency, so applications construct, inspect, and transform picker values
+with the same API the components use internally.
 
 ```jsx
 import { useState } from 'react';
+import { DateTime } from 'luxon';
 import { SingleDatePicker } from 'react-dates';
 import 'react-dates/css';
 
 export default function BookingDate() {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(DateTime.local());
   const [focused, setFocused] = useState(false);
 
   return (
@@ -44,13 +46,14 @@ export default function BookingDate() {
 ```
 
 `DateRangePicker` uses the same representation for `startDate` and `endDate`.
-Predicates such as `isOutsideRange`, render callbacks, and `initialVisibleMonth`
-also receive or return ISO strings.
+Predicates such as `isOutsideRange`, render callbacks, formatter callbacks, and
+`initialVisibleMonth` also receive or return `DateTime` instances. Calendar-day
+comparisons use each value's local date; Luxon arithmetic preserves its zone.
 
 ## Formatting and localization
 
 Formatting props accept `Intl.DateTimeFormatOptions` or a callback that receives
-an ISO date string and localization context:
+a `DateTime` and localization context:
 
 ```jsx
 <SingleDatePicker
@@ -60,10 +63,9 @@ an ISO date string and localization context:
 />
 ```
 
-Formatting always uses the Gregorian calendar. `locale` and `numberingSystem`
-localize language and digits, while `isRTL` controls layout direction. Dates are
-timezone-free date values; there are intentionally no public calendar or
-timezone props.
+Formatting always uses the Gregorian calendar. `locale` localizes language and
+digits, while `isRTL` controls layout direction. A value's Luxon zone is
+preserved; there is no separate picker timezone prop.
 
 ## Styling
 

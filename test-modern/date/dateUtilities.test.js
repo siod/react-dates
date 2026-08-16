@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon';
-import { describe, expect, it } from 'vitest';
+import {
+  describe, expect, it, vi,
+} from 'vitest';
 
 import compareDates from '../../src/utils/compareDates';
 import getCalendarMonthWeeks from '../../src/utils/getCalendarMonthWeeks';
@@ -9,6 +11,7 @@ import isNextDay from '../../src/utils/isNextDay';
 import isNextMonth from '../../src/utils/isNextMonth';
 import isPreviousDay from '../../src/utils/isPreviousDay';
 import isPrevMonth from '../../src/utils/isPrevMonth';
+import isSameDay from '../../src/utils/isSameDay';
 import isSameMonth from '../../src/utils/isSameMonth';
 import toISODateString from '../../src/utils/toISODateString';
 import toISOMonthString from '../../src/utils/toISOMonthString';
@@ -22,6 +25,27 @@ describe('DateTime-native date utilities', () => {
     expect(compareDates(date('2024-02-29'), date('2024-03-01'))).toBe(-1);
     expect(compareDates(date('2024-02-29'), date('2024-02-29'))).toBe(0);
     expect(compareDates('2024-02-29', date('2024-02-29'))).toBeNull();
+  });
+
+  it('compares local calendar fields without ISO string allocation', () => {
+    const brisbane = date('2024-02-29').setZone('Australia/Brisbane', { keepLocalTime: true });
+    const newYork = date('2024-02-29').setZone('America/New_York', { keepLocalTime: true });
+    const brisbaneToISO = vi.spyOn(brisbane, 'toISODate');
+    const newYorkToISO = vi.spyOn(newYork, 'toISODate');
+
+    expect(isSameDay(brisbane, newYork)).toBe(true);
+    expect(compareDates(brisbane, newYork)).toBe(0);
+    expect(brisbaneToISO).not.toHaveBeenCalled();
+    expect(newYorkToISO).not.toHaveBeenCalled();
+
+    brisbaneToISO.mockRestore();
+    newYorkToISO.mockRestore();
+
+    const instant = DateTime.fromISO('2024-02-29T00:30:00Z');
+    expect(isSameDay(instant, instant.setZone('America/New_York'))).toBe(false);
+    expect(isSameDay(date('2000-01-01'), date('2000-01-08'))).toBe(false);
+    expect(isSameDay(null, brisbane)).toBe(false);
+    expect(isSameDay(brisbane, '2024-02-29')).toBe(false);
   });
 
   it('compares adjacent days and months with Luxon arithmetic', () => {

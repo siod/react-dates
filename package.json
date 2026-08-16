@@ -41,9 +41,10 @@
   ],
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:css",
     "build:cjs": "vite build --mode cjs",
     "build:esm": "vite build --mode esm",
+    "build:css": "node scripts/build-css.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -52,6 +53,7 @@
     "check:deps": "knip",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
+    "preview": "vite preview",
     "prepublishOnly": "npm run lint && npm run test:coverage && npm run build"
   },
   "repository": {

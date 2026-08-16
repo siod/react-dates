@@ -1,9 +1,6 @@
-import moment from 'moment';
-
-import isSameDay from './isSameDay';
+import { addDays, compareDates } from '../internal/date';
 
 export default function isNextDay(a, b) {
-  if (!moment.isMoment(a) || !moment.isMoment(b)) return false;
-  const nextDay = moment(a).add(1, 'day');
-  return isSameDay(nextDay, b);
+  const nextDay = addDays(a, 1);
+  return nextDay != null && compareDates(nextDay, b) === 0;
 }

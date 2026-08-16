@@ -1,10 +1,10 @@
-import moment from 'moment';
+import { parseDate } from '../internal/date';
 
-const momentPool = new Map();
+// Kept under its historical name for internal transition compatibility. The
+// pooled value is now an immutable canonical ISO string, never a Moment object.
+const datePool = new Map();
+
 export default function getPooledMoment(dayString) {
-  if (!momentPool.has(dayString)) {
-    momentPool.set(dayString, moment(dayString));
-  }
-
-  return momentPool.get(dayString);
+  if (!datePool.has(dayString)) datePool.set(dayString, parseDate(dayString));
+  return datePool.get(dayString);
 }

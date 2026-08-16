@@ -1,11 +1,12 @@
-let getPreviousMonthMemoKey;
-let getPreviousMonthMemoValue;
+import { addMonths } from '../internal/date';
+
+let previousMonthKey;
+let previousMonthValue;
 
 export default function getPreviousMonthMemoLast(month) {
-  if (month !== getPreviousMonthMemoKey) {
-    getPreviousMonthMemoKey = month;
-    getPreviousMonthMemoValue = month.clone().subtract(1, 'month');
+  if (month !== previousMonthKey) {
+    previousMonthKey = month;
+    previousMonthValue = addMonths(month, -1);
   }
-
-  return getPreviousMonthMemoValue;
+  return previousMonthValue;
 }

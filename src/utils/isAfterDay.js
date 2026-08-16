@@ -1,9 +1,5 @@
-import moment from 'moment';
-
-import isBeforeDay from './isBeforeDay';
-import isSameDay from './isSameDay';
+import { compareDates } from '../internal/date';
 
 export default function isAfterDay(a, b) {
-  if (!moment.isMoment(a) || !moment.isMoment(b)) return false;
-  return !isBeforeDay(a, b) && !isSameDay(a, b);
+  return compareDates(a, b) === 1;
 }

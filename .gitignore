@@ -40,6 +40,9 @@ test-build
 
 # gh-pages
 _gh-pages
+storybook-static
+playwright-report
+test-results
 
 .nyc_output
 

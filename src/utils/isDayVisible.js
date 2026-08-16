@@ -1,9 +1,9 @@
 import {
-  compareDates,
   endOfWeek,
-  isDateTime,
   startOfWeek,
 } from '../internal/date';
+import compareDates from './compareDates';
+import isDateTime from './isDateTime';
 
 export default function isDayVisible(day, month, numberOfMonths, enableOutsideDays) {
   if (!isDateTime(day) || !isDateTime(month) || !Number.isInteger(numberOfMonths)

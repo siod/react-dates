@@ -1,8 +1,8 @@
-import { DateTime } from 'luxon';
+import isDateTime from '../../utils/isDateTime';
 
 function validateDateTime(props, propName, componentName) {
   const value = props[propName];
-  if (DateTime.isDateTime(value) && value.isValid) return null;
+  if (isDateTime(value)) return null;
   return new TypeError(`${componentName || 'Component'}: ${propName} must be a valid Luxon DateTime.`);
 }
 

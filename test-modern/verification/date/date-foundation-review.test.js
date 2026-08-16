@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   formatDate,
-  getCalendarMonthWeeks,
   getWeekdayLabels,
-  isDateTime,
   parseLocalizedDate,
   startOfWeek,
 } from '../../../src/internal/date';
+import getCalendarMonthWeeks from '../../../src/utils/getCalendarMonthWeeks';
+import isDateTime from '../../../src/utils/isDateTime';
 
 const date = (value, options) => DateTime.fromISO(value, options);
 const iso = (value) => value?.toISODate();

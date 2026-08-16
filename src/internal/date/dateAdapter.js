@@ -1,4 +1,5 @@
 import { DateTime, Info } from 'luxon';
+import isDateTime from '../../utils/isDateTime';
 
 // These are deliberately not forwarded to Intl. Dates stay Gregorian and digit
 // selection follows the locale. The DateTime's own zone remains authoritative.
@@ -85,17 +86,6 @@ function monthNameMap(locale, formatterOptions) {
   return map;
 }
 
-export function isDateTime(value) {
-  return DateTime.isDateTime(value) && value.isValid;
-}
-
-export function compareDates(left, right) {
-  if (!isDateTime(left) || !isDateTime(right)) return null;
-  const a = left.toISODate();
-  const b = right.toISODate();
-  return a < b ? -1 : a > b ? 1 : 0;
-}
-
 export function startOfWeek(date, options = {}) {
   const firstDay = firstDayFor(options || {}, date);
   if (!isDateTime(date) || firstDay == null) return null;
@@ -110,25 +100,6 @@ export function endOfWeek(date, options = {}) {
 
 export function getFirstDayOfWeek(options = {}) {
   return firstDayFor(options || {});
-}
-
-export function getCalendarMonthWeeks(month, options = {}) {
-  const firstDay = firstDayFor(options || {}, month);
-  if (!isDateTime(month) || firstDay == null) return [];
-  const outside = Boolean(options && options.enableOutsideDays);
-  const first = month.startOf('month');
-  const last = month.endOf('month');
-  const before = (first.weekday % 7 - firstDay + 7) % 7;
-  const after = (firstDay + 6 - (last.weekday % 7) + 7) % 7;
-  const start = first.minus({ days: before });
-  const total = before + last.day + after;
-  const weeks = [];
-  for (let index = 0; index < total; index += 1) {
-    if (index % 7 === 0) weeks.push([]);
-    const current = start.plus({ days: index });
-    weeks[weeks.length - 1].push((outside || current.hasSame(first, 'month')) ? current : null);
-  }
-  return weeks;
 }
 
 export function formatDate(date, options = {}) {
@@ -185,10 +156,6 @@ export function parseLocalizedDate(value, options = {}) {
   return candidate.isValid ? candidate : null;
 }
 
-export function getMonthLabel(date, options = {}) {
-  return formatDate(date, { month: 'long', year: 'numeric', ...options });
-}
-
 export function getWeekdayLabels(options = {}, formatter = null) {
   const firstDay = firstDayFor(options || {});
   if (firstDay == null) return [];
@@ -217,14 +184,10 @@ export function getWeekdayLabels(options = {}, formatter = null) {
 }
 
 export default {
-  isDateTime,
-  compareDates,
   startOfWeek,
   endOfWeek,
   getFirstDayOfWeek,
-  getCalendarMonthWeeks,
   formatDate,
   parseLocalizedDate,
-  getMonthLabel,
   getWeekdayLabels,
 };

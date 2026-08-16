@@ -1,4 +1,4 @@
-import { compareDates } from '../internal/date';
+import compareDates from './compareDates';
 
 export default function isInclusivelyAfterDay(a, b) {
   const comparison = compareDates(a, b);

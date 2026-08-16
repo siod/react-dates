@@ -5,10 +5,8 @@ import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import {
   endOfWeek,
-  getCalendarMonthWeeks,
   getFirstDayOfWeek as getLocaleFirstDayOfWeek,
   getWeekdayLabels,
-  isDateTime,
   startOfWeek,
 } from '../internal/date';
 import { isTouchDevice } from '../internal/browser/touch';
@@ -18,6 +16,8 @@ import { withStyles, withStylesPropTypes } from '../internal/styles';
 
 import { DayPickerPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import getCalendarMonthWeeks from '../utils/getCalendarMonthWeeks';
+import isDateTime from '../utils/isDateTime';
 import getCalendarMonthWidth from '../utils/getCalendarMonthWidth';
 import calculateDimension from '../utils/calculateDimension';
 import isDayVisible from '../utils/isDayVisible';

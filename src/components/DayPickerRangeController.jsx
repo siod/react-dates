@@ -2,14 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
-import { compareDates, dateTime, getFirstDayOfWeek as getLocaleFirstDayOfWeek } from '../internal/date';
+import { dateTime, getFirstDayOfWeek as getLocaleFirstDayOfWeek } from '../internal/date';
 import { isTouchDevice } from '../internal/browser/touch';
 
 import { DayPickerPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import compareDates from '../utils/compareDates';
 import isSameDay from '../utils/isSameDay';
-import isAfterDay from '../utils/isAfterDay';
-import isBeforeDay from '../utils/isBeforeDay';
 import isDayVisible from '../utils/isDayVisible';
 import getVisibleDays from '../utils/getVisibleDays';
 import toISODateString from '../utils/toISODateString';

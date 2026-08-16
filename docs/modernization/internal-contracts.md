@@ -5,22 +5,22 @@ These interfaces are owned by the Sol lead. Workers may implement them but must 
 ## Date adapter
 
 Inputs and outputs are valid Luxon `DateTime` instances or `null`. Components use
-Luxon values directly; this module centralizes only shared validation,
-calendar-grid generation, locale week rules, and localized input/output behavior.
+Luxon values directly; this module centralizes only public PropType validation,
+locale week rules, and localized input/output behavior.
 
-- `isDateTime(value): boolean`
-- `compareDates(left, right): -1 | 0 | 1 | null`
 - `startOfWeek(date, options): DateTime | null`
 - `endOfWeek(date, options): DateTime | null`
-- `getCalendarMonthWeeks(month, options): Array<Array<DateTime | null>>`
 - `formatDate(date, options): string`
 - `parseLocalizedDate(value, options): DateTime | null`
-- `getMonthLabel(date, options): string`
 - `getWeekdayLabels(options): string[]`
 
 Formatting uses each DateTime's locale and Gregorian `Intl.DateTimeFormatOptions`;
 empty-state parsing and labels fall back to `Settings.defaultLocale`. Arithmetic
 is immutable Luxon arithmetic and preserves the input DateTime's zone.
+
+Ordinary DateTime validation, calendar-day comparison, ISO serialization, and
+calendar-grid generation live in `src/utils`. Existing utility modules are the
+canonical implementations rather than facades over this adapter.
 
 ## Browser helpers
 
@@ -35,5 +35,5 @@ is immutable Luxon arithmetic and preserves the input DateTime's zone.
 - Public date props, callbacks, predicates, and render props use `DateTime | null` exclusively.
 - Format props accept `Intl.DateTimeFormatOptions` or `(dateTime) => string`.
 - There is no picker-specific locale prop; locale comes from DateTime and Luxon settings.
-- Components may use Luxon directly and depend on the adapter only for shared locale/calendar behavior.
+- Components may use Luxon directly and depend on the adapter only for shared localized parsing, formatting, and week rules.
 - Shared shapes, constants, public exports, package metadata, and the global CSS entrypoint remain lead-owned integration surfaces.

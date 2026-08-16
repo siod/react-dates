@@ -1,4 +1,4 @@
-import { isDateTime } from '../internal/date';
+import isDateTime from './isDateTime';
 import isSameMonth from './isSameMonth';
 
 export default function isPrevMonth(a, b) {

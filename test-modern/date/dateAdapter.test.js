@@ -2,17 +2,16 @@ import { DateTime } from 'luxon';
 import { describe, expect, it } from 'vitest';
 
 import {
-  compareDates,
   formatDate,
-  getCalendarMonthWeeks,
   getFirstDayOfWeek,
-  getMonthLabel,
   getWeekdayLabels,
-  isDateTime,
   parseLocalizedDate,
   startOfWeek,
 } from '../../src/internal/date';
 import { dateTime as dateTimePropType } from '../../src/internal/date/dateTimePropType';
+import compareDates from '../../src/utils/compareDates';
+import getCalendarMonthWeeks from '../../src/utils/getCalendarMonthWeeks';
+import isDateTime from '../../src/utils/isDateTime';
 
 const date = (value, options) => DateTime.fromISO(value, options);
 const iso = (value) => value?.toISODate();
@@ -55,7 +54,9 @@ describe('Luxon DateTime foundation', () => {
     const formatted = formatDate(date('2024-07-08'), { locale: 'en-US', dateStyle: 'short' });
     expect(iso(parseLocalizedDate(formatted, { locale: 'en-US', dateStyle: 'short' })))
       .toBe('2024-07-08');
-    expect(getMonthLabel(date('2024-07-08'), { locale: 'en-US' })).toBe('July 2024');
+    expect(formatDate(date('2024-07-08'), {
+      locale: 'en-US', month: 'long', year: 'numeric',
+    })).toBe('July 2024');
   });
 
   it('forces Gregorian display and preserves DateTime zones across DST', () => {

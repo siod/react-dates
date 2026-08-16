@@ -54,10 +54,10 @@ Release `react-dates` 22.0.0 as a major modernization:
 ### Luxon migration
 
 - Remove Moment, Moment-Jalaali, and `react-moment-proptypes` from runtime, examples, tests, packaging, and current documentation except migration examples; do not ship a dual Moment/Luxon compatibility layer.
-- Use valid Luxon `DateTime` instances at public and internal boundaries. Keep the adapter narrow: shared validation, Gregorian localized parsing/formatting, configurable week rules, and calendar-grid generation.
+- Use valid Luxon `DateTime` instances at public and internal boundaries. Keep the adapter narrow: public PropType validation, Gregorian localized parsing/formatting, and configurable week rules. Keep ordinary comparisons, serialization, and calendar-grid generation in the existing utility layer.
 - Reject strings, invalid DateTimes, and other date-object types at the public boundary. Treat comparisons as calendar-day comparisons while preserving each DateTime's zone through immutable Luxon arithmetic.
 - Replace mutable Moment operations with immutable Luxon operations: `add/subtract` with `plus/minus`, setters with `set`, comparisons with `hasSame` or millisecond comparisons, and formatting with `toFormat`/`toLocaleString`.
-- Normalize Moment's zero-based months and Sunday-based weekdays at the adapter boundary because Luxon months are 1-12 and weekdays are Monday=1 through Sunday=7.
+- Normalize Moment's zero-based months and Sunday-based weekdays in the relevant utility or locale-week helper because Luxon months are 1-12 and weekdays are Monday=1 through Sunday=7.
 - Parse typed input strictly with locale-aware `Intl` options implemented through the adapter, with ISO input as an unconditional input-field fallback; return a valid `DateTime` or `null` through the existing controlled-component flow.
 - Remove Moment/Luxon token constants from the public surface and add frozen, library-neutral default `Intl.DateTimeFormatOptions` constants instead.
 - Derive locale week starts and localized labels from Luxon `Info`/`Intl`; consumers configure localization through DateTime instances or `Settings.defaultLocale`.

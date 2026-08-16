@@ -1,4 +1,5 @@
-import { getCalendarMonthWeeks, isDateTime } from '../internal/date';
+import getCalendarMonthWeeks from './getCalendarMonthWeeks';
+import isDateTime from './isDateTime';
 import toISOMonthString from './toISOMonthString';
 
 export default function getVisibleDays(

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { dateTime, formatDate, getCalendarMonthWeeks as getMonthWeeks } from '../internal/date';
+import { dateTime, formatDate } from '../internal/date';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -14,6 +14,7 @@ import CalendarWeek from './CalendarWeek';
 import CalendarDay from './CalendarDay';
 
 import calculateDimension from '../utils/calculateDimension';
+import getMonthWeeks from '../utils/getCalendarMonthWeeks';
 import isSameDay from '../utils/isSameDay';
 import toISODateString from '../utils/toISODateString';
 

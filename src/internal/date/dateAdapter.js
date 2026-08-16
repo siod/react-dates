@@ -91,18 +91,20 @@ function toLatinDigits(value, map) {
 
 function monthNameMap(locale, options, formatterOptions) {
   const map = new Map();
-  const monthOption = formatterOptions.month || 'numeric';
+  const monthOptions = formatterOptions.month
+    ? [formatterOptions.month]
+    : ['long', 'short', 'narrow'];
   const componentOptions = { ...formatterOptions };
   delete componentOptions.dateStyle;
   delete componentOptions.timeStyle;
   delete componentOptions.timeZone;
-  const textFormatter = new Intl.DateTimeFormat(locale, {
+  const textFormatters = monthOptions.map((month) => new Intl.DateTimeFormat(locale, {
     ...componentOptions,
-    month: monthOption,
+    month,
     day: undefined,
     year: undefined,
     timeZone: 'UTC',
-  });
+  }));
   const numericFormatter = new Intl.DateTimeFormat(locale, {
     ...componentOptions,
     year: 'numeric',
@@ -113,12 +115,16 @@ function monthNameMap(locale, options, formatterOptions) {
   const mapDigits = digitMap(locale, numericFormatter.resolvedOptions().numberingSystem);
   for (let index = 0; index < 370; index += 1) {
     const date = DateTime.utc(2024, 1, 1).plus({ days: index }).toJSDate();
-    const textPart = textFormatter.formatToParts(date).find((item) => item.type === 'month');
     const numericPart = numericFormatter.formatToParts(date).find((item) => item.type === 'month');
-    if (textPart && numericPart) {
-      const month = Number(toLatinDigits(numericPart.value, mapDigits));
-      map.set(normalizeText(textPart.value).toLocaleLowerCase(locale), month);
-    }
+    if (!numericPart) continue;
+    const month = Number(toLatinDigits(numericPart.value, mapDigits));
+    textFormatters.forEach((textFormatter) => {
+      const textPart = textFormatter.formatToParts(date).find((item) => item.type === 'month');
+      if (!textPart) return;
+      const key = normalizeText(textPart.value).toLocaleLowerCase(locale);
+      const existing = map.get(key);
+      map.set(key, existing === undefined || existing === month ? month : null);
+    });
   }
   return map;
 }
@@ -422,13 +428,20 @@ export function getMonthLabel(date, options = {}) {
   return formatDate(date, { month: 'long', year: 'numeric', ...options });
 }
 
-export function getWeekdayLabels(options = {}) {
+export function getWeekdayLabels(options = {}, formatter = null) {
   const firstDay = firstDayFor(options);
   if (firstDay == null) return [];
   const formatOptions = { weekday: 'short', ...options };
+  const context = {
+    locale: options.locale,
+    calendar: options.calendar,
+    numberingSystem: options.numberingSystem,
+  };
   return Array.from({ length: 7 }, (_, index) => {
     const sundayDate = DateTime.utc(2021, 8, 1).plus({ days: (firstDay + index) % 7 }).toISODate();
-    return formatDate(sundayDate, formatOptions);
+    return typeof formatter === 'function'
+      ? formatter(sundayDate, context)
+      : formatDate(sundayDate, formatOptions);
   });
 }
 

@@ -24,8 +24,17 @@ export function withStyles(stylesFn = () => EMPTY, options = {}) {
   const Base = pureComponent ? React.PureComponent : React.Component;
 
   return function withStylesHOC(WrappedComponent) {
+    const wrappedDefaultProps = WrappedComponent.defaultProps || EMPTY;
+    if (!(WrappedComponent.prototype instanceof React.Component)) {
+      delete WrappedComponent.defaultProps;
+    }
+
     function StyledComponent(props, ref) {
-      const theme = props[themePropName] || DefaultTheme;
+      const normalizedProps = { ...props };
+      Object.keys(wrappedDefaultProps).forEach((key) => {
+        if (normalizedProps[key] === undefined) normalizedProps[key] = wrappedDefaultProps[key];
+      });
+      const theme = normalizedProps[themePropName] || DefaultTheme;
       const rawStyles = stylesFn(theme) || EMPTY;
       const styleKeys = Object.keys(rawStyles);
       const styleLookup = new WeakMap();
@@ -72,7 +81,7 @@ export function withStyles(stylesFn = () => EMPTY, options = {}) {
       };
 
       const injected = {
-        ...props,
+        ...normalizedProps,
         [stylesPropName]: styles,
         [themePropName]: theme,
         [cssPropName]: css,
@@ -85,6 +94,7 @@ export function withStyles(stylesFn = () => EMPTY, options = {}) {
     Forwarded.displayName = `withStyles(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
     Forwarded.WrappedComponent = WrappedComponent;
     Forwarded.propTypes = { ...WrappedComponent.propTypes };
+    Forwarded.defaultProps = wrappedDefaultProps;
     // Keep the legacy contract where injected style props are not required
     // from callers, even though wrapped components may declare them required.
     delete Forwarded.propTypes[stylesPropName];

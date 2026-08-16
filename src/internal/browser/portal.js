@@ -38,11 +38,9 @@ export function createPortal(children, container) {
   return reactCreatePortal(children, container);
 }
 
-export function Portal({ children, container }) {
+export function Portal({ children, container = null }) {
   const target = usePortalContainer(container);
   return target ? createPortal(children, target) : null;
 }
-
-Portal.defaultProps = { container: null };
 
 export default Portal;

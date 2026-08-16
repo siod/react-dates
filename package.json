@@ -44,9 +44,10 @@
   ],
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:css",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:metadata && npm run build:css",
     "build:cjs": "vite build --mode cjs",
     "build:esm": "vite build --mode esm",
+    "build:metadata": "node scripts/write-module-metadata.mjs",
     "build:css": "node scripts/build-css.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -149,6 +149,8 @@ class DateRangePicker extends React.PureComponent {
     this.onDayPickerFocus = this.onDayPickerFocus.bind(this);
     this.onDayPickerFocusOut = this.onDayPickerFocusOut.bind(this);
     this.onDayPickerBlur = this.onDayPickerBlur.bind(this);
+    this.onDayPickerEscape = this.onDayPickerEscape.bind(this);
+    this.onDayPickerFocusChange = this.onDayPickerFocusChange.bind(this);
     this.showKeyboardShortcutsPanel = this.showKeyboardShortcutsPanel.bind(this);
 
     this.responsivizePickerPosition = this.responsivizePickerPosition.bind(this);
@@ -187,6 +189,16 @@ class DateRangePicker extends React.PureComponent {
     } else if (prevProps.focusedInput && !focusedInput && !this.isOpened()) {
       // The date picker just changed from being open to being closed.
       if (this.enableScroll) this.enableScroll();
+      if (this.restoreFocusOnClose) {
+        this.restoreFocusOnClose = false;
+        const inputId = prevProps.focusedInput === END_DATE
+          ? this.props.endDateId
+          : this.props.startDateId;
+        const input = Array.from(this.container?.querySelectorAll('input') || [])
+          .find((element) => element.id === inputId);
+        this.suppressRestoredInputFocus = true;
+        input?.focus();
+      }
     }
   }
 
@@ -226,6 +238,11 @@ class DateRangePicker extends React.PureComponent {
       withFullScreenPortal,
       keepFocusOnInput,
     } = this.props;
+
+    if (focusedInput && this.suppressRestoredInputFocus) {
+      this.suppressRestoredInputFocus = false;
+      return;
+    }
 
     if (focusedInput) {
       const withAnyPortal = withPortal || withFullScreenPortal;
@@ -274,6 +291,20 @@ class DateRangePicker extends React.PureComponent {
       isDayPickerFocused: false,
       showKeyboardShortcuts: false,
     });
+  }
+
+  onDayPickerFocusChange(focusedInput) {
+    if (!focusedInput) {
+      this.restoreFocusOnClose = true;
+      this.onDayPickerBlur();
+    }
+    this.props.onFocusChange(focusedInput);
+  }
+
+  onDayPickerEscape() {
+    const { startDate, endDate, onClose } = this.props;
+    this.onDayPickerFocusChange(null);
+    onClose({ startDate, endDate });
   }
 
   setDayPickerContainerRef(ref) {
@@ -416,7 +447,6 @@ class DateRangePicker extends React.PureComponent {
       onPrevMonthClick,
       onNextMonthClick,
       onDatesChange,
-      onFocusChange,
       withPortal,
       withFullScreenPortal,
       daySize,
@@ -508,7 +538,7 @@ class DateRangePicker extends React.PureComponent {
           onPrevMonthClick={onPrevMonthClick}
           onNextMonthClick={onNextMonthClick}
           onDatesChange={onDatesChange}
-          onFocusChange={onFocusChange}
+          onFocusChange={this.onDayPickerFocusChange}
           onClose={onClose}
           focusedInput={focusedInput}
           startDate={startDate}
@@ -545,7 +575,7 @@ class DateRangePicker extends React.PureComponent {
           calendarInfoPosition={calendarInfoPosition}
           isFocused={isDayPickerFocused}
           showKeyboardShortcuts={showKeyboardShortcuts}
-          onBlur={this.onDayPickerBlur}
+          onBlur={this.onDayPickerEscape}
           phrases={phrases}
           dayAriaLabelFormat={dayAriaLabelFormat}
           isRTL={isRTL}

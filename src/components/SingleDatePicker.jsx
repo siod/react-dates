@@ -142,6 +142,8 @@ class SingleDatePicker extends React.PureComponent {
     this.onInputFocus = this.onInputFocus.bind(this);
     this.onDayPickerFocus = this.onDayPickerFocus.bind(this);
     this.onDayPickerBlur = this.onDayPickerBlur.bind(this);
+    this.onDayPickerEscape = this.onDayPickerEscape.bind(this);
+    this.onDayPickerFocusChange = this.onDayPickerFocusChange.bind(this);
     this.showKeyboardShortcutsPanel = this.showKeyboardShortcutsPanel.bind(this);
 
     this.responsivizePickerPosition = this.responsivizePickerPosition.bind(this);
@@ -181,6 +183,11 @@ class SingleDatePicker extends React.PureComponent {
       this.disableScroll();
     } else if (prevProps.focused && !focused) {
       if (this.enableScroll) this.enableScroll();
+      if (this.restoreFocusOnClose) {
+        this.restoreFocusOnClose = false;
+        this.suppressRestoredInputFocus = true;
+        this.container?.querySelector('input')?.focus();
+      }
     }
   }
 
@@ -222,6 +229,11 @@ class SingleDatePicker extends React.PureComponent {
       keepFocusOnInput,
     } = this.props;
 
+    if (focused && this.suppressRestoredInputFocus) {
+      this.suppressRestoredInputFocus = false;
+      return;
+    }
+
     if (focused) {
       const withAnyPortal = withPortal || withFullScreenPortal;
       const moveFocusToDayPicker = withAnyPortal
@@ -252,6 +264,20 @@ class SingleDatePicker extends React.PureComponent {
       isDayPickerFocused: false,
       showKeyboardShortcuts: false,
     });
+  }
+
+  onDayPickerFocusChange({ focused }) {
+    if (!focused) {
+      this.restoreFocusOnClose = true;
+      this.onDayPickerBlur();
+    }
+    this.props.onFocusChange({ focused });
+  }
+
+  onDayPickerEscape() {
+    const { date, onClose } = this.props;
+    this.onDayPickerFocusChange({ focused: false });
+    onClose({ date });
   }
 
   onFocusOut(e) {
@@ -394,7 +420,6 @@ class SingleDatePicker extends React.PureComponent {
       date,
       minDate,
       maxDate,
-      onFocusChange,
       focused,
       enableOutsideDays,
       numberOfMonths,
@@ -483,7 +508,7 @@ class SingleDatePicker extends React.PureComponent {
           minDate={minDate}
           maxDate={maxDate}
           onDateChange={onDateChange}
-          onFocusChange={onFocusChange}
+          onFocusChange={this.onDayPickerFocusChange}
           orientation={orientation}
           enableOutsideDays={enableOutsideDays}
           numberOfMonths={numberOfMonths}
@@ -514,7 +539,7 @@ class SingleDatePicker extends React.PureComponent {
           calendarInfoPosition={calendarInfoPosition}
           isFocused={isDayPickerFocused}
           showKeyboardShortcuts={showKeyboardShortcuts}
-          onBlur={this.onDayPickerBlur}
+          onBlur={this.onDayPickerEscape}
           phrases={phrases}
           dayAriaLabelFormat={dayAriaLabelFormat}
           daySize={daySize}

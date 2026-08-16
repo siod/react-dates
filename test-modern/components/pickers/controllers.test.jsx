@@ -3,8 +3,11 @@ import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { renderStrict } from '../../helpers/index.js';
+import DayPickerRangeController from '../../../src/components/DayPickerRangeController.jsx';
+import DayPickerSingleDateController from '../../../src/components/DayPickerSingleDateController.jsx';
 import DateRangePickerInputController from '../../../src/components/DateRangePickerInputController.jsx';
 import SingleDatePickerInputController from '../../../src/components/SingleDatePickerInputController.jsx';
+import { END_DATE, START_DATE } from '../../../src/constants.js';
 
 afterEach(cleanup);
 
@@ -91,5 +94,57 @@ describe('picker input controllers', () => {
     renderStrict(<SingleDatePickerInputController {...props} />);
     fireEvent.click(screen.getByRole('button', { name: /clear date/i }));
     expect(props.onDateChange).toHaveBeenCalledWith(null);
+  });
+});
+
+describe('day picker controllers', () => {
+  it('emits the established scalar focus value when a range start is selected', () => {
+    const onDatesChange = vi.fn();
+    const onFocusChange = vi.fn();
+    renderStrict(
+      <DayPickerRangeController
+        startDate={null}
+        endDate={null}
+        focusedInput={START_DATE}
+        isFocused
+        onDatesChange={onDatesChange}
+        onFocusChange={onFocusChange}
+        initialVisibleMonth={() => '2099-02-01'}
+        isOutsideRange={() => false}
+      />,
+    );
+
+    const day = screen.getAllByRole('button').find((element) => element.tagName === 'TD');
+    fireEvent.click(day);
+
+    expect(onDatesChange).toHaveBeenCalledWith({ startDate: expect.any(String), endDate: null });
+    expect(onFocusChange).toHaveBeenCalledWith(END_DATE);
+  });
+
+  it('preserves calendar formatter callbacks and their library-neutral context', () => {
+    const monthFormat = vi.fn((date) => `month:${date}`);
+    const weekDayFormat = vi.fn((date) => `weekday:${date}`);
+    const dayAriaLabelFormat = vi.fn((date) => `day:${date}`);
+    renderStrict(
+      <DayPickerSingleDateController
+        focused
+        isFocused
+        initialVisibleMonth={() => '2099-02-01'}
+        isOutsideRange={() => false}
+        monthFormat={monthFormat}
+        weekDayFormat={weekDayFormat}
+        dayAriaLabelFormat={dayAriaLabelFormat}
+        locale="en-AU"
+      />,
+    );
+
+    expect(screen.getByText('month:2099-02-01')).toBeTruthy();
+    expect(screen.getByText('weekday:2021-08-01')).toBeTruthy();
+    expect(monthFormat).toHaveBeenCalledWith('2099-02-01', {
+      locale: 'en-AU', calendar: undefined, numberingSystem: undefined,
+    });
+    expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(String), {
+      locale: 'en-AU', calendar: undefined, numberingSystem: undefined,
+    });
   });
 });

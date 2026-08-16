@@ -38,6 +38,18 @@ jobs:
       - run: npm test -- --reporter=dot
       - run: npm run check:deps
 
+  coverage:
+    name: Coverage ratchet · Node 22 · React 19
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.22.2
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage -- --reporter=dot
+
   build:
     name: Build · Node ${{ matrix.node }} · React ${{ matrix.react }}
     runs-on: ubuntu-latest

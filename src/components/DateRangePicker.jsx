@@ -166,6 +166,8 @@ class DateRangePicker extends React.PureComponent {
   }
 
   componentDidMount() {
+    // React 18 Strict Mode replays lifecycle cleanup without replaying callback refs.
+    this.addDayPickerEventListeners();
     this.removeEventListener = addEventListener(
       window,
       'resize',
@@ -337,6 +339,7 @@ class DateRangePicker extends React.PureComponent {
   }
 
   addDayPickerEventListeners() {
+    this.removeDayPickerEventListeners();
     // NOTE: We are using a manual event listener here, because React doesn't
     // provide FocusOut, while blur and keydown don't provide the information
     // needed in order to know whether we have left focus or not.

@@ -57,9 +57,11 @@ function rangeProps(overrides = {}) {
 }
 
 function visibleDay(day) {
+  const dayOfMonth = String(Number(day.slice(-2)));
   return Array.from(document.querySelectorAll(
     '.CalendarMonth[data-visible="true"] .CalendarDay[role="button"]',
-  )).find((element) => element.getAttribute('aria-label')?.endsWith(day));
+  )).find((element) => element.getAttribute('aria-label')?.endsWith(day)
+    || element.textContent === dayOfMonth);
 }
 
 function forceDesktopPointer() {
@@ -127,19 +129,20 @@ describe('single picker shell callback and focus branches', () => {
   it('distinguishes focus leaving the calendar from focus moving inside it', () => {
     const onClose = vi.fn();
     const onFocusChange = vi.fn();
-    const { container } = renderStrict(
+    renderStrict(
       <SingleDatePicker {...singleProps({ onClose, onFocusChange })} />,
     );
-    const picker = container.querySelector('.SingleDatePicker_picker');
     const day = visibleDay('2099-02-14');
+    const nextDay = visibleDay('2099-02-15');
     const outside = document.createElement('button');
     document.body.appendChild(outside);
+
     onFocusChange.mockClear();
 
-    fireEvent.focusOut(picker, { relatedTarget: day });
+    fireEvent.focusOut(day, { relatedTarget: nextDay });
     expect(onFocusChange).not.toHaveBeenCalled();
 
-    fireEvent.focusOut(picker, { relatedTarget: outside });
+    fireEvent.focusOut(nextDay, { relatedTarget: outside });
     expect(onFocusChange).toHaveBeenCalledWith({ focused: false });
     expect(onClose).not.toHaveBeenCalled();
     outside.remove();
@@ -192,19 +195,20 @@ describe('range picker shell callback and focus branches', () => {
     const startDate = DateTime.fromISO('2099-02-10', { zone: 'UTC' });
     const onClose = vi.fn();
     const onFocusChange = vi.fn();
-    const { container } = renderStrict(
+    renderStrict(
       <DateRangePicker {...rangeProps({ startDate, onClose, onFocusChange })} />,
     );
-    const picker = container.querySelector('.DateRangePicker_picker');
     const day = visibleDay('2099-02-14');
+    const nextDay = visibleDay('2099-02-15');
     const outside = document.createElement('button');
     document.body.appendChild(outside);
+
     onFocusChange.mockClear();
 
-    fireEvent.focusOut(picker, { relatedTarget: day });
+    fireEvent.focusOut(day, { relatedTarget: nextDay });
     expect(onFocusChange).not.toHaveBeenCalled();
 
-    fireEvent.focusOut(picker, { relatedTarget: outside });
+    fireEvent.focusOut(nextDay, { relatedTarget: outside });
     expect(onFocusChange).toHaveBeenCalledWith(null);
     expect(onClose).toHaveBeenCalledWith({ startDate, endDate: null });
     outside.remove();

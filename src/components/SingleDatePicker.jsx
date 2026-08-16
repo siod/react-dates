@@ -160,6 +160,8 @@ class SingleDatePicker extends React.PureComponent {
 
   /* istanbul ignore next */
   componentDidMount() {
+    // React 18 Strict Mode replays lifecycle cleanup without replaying callback refs.
+    this.addEventListeners();
     this.removeResizeEventListener = addEventListener(
       window,
       'resize',
@@ -333,6 +335,7 @@ class SingleDatePicker extends React.PureComponent {
   }
 
   addEventListeners() {
+    this.removeEventListeners();
     // We manually set event because React has not implemented onFocusIn/onFocusOut.
     // Keep an eye on https://github.com/facebook/react/issues/6410 for updates
     // We use "blur w/ useCapture param" vs "onfocusout" for FF browser support

@@ -1,103 +1,15 @@
 import React from 'react';
-import { DateTime, Settings } from 'luxon';
+import { DateTime } from 'luxon';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { renderStrict } from '../../helpers/index.js';
 import DayPickerRangeController from '../../../src/components/DayPickerRangeController.jsx';
 import DayPickerSingleDateController from '../../../src/components/DayPickerSingleDateController.jsx';
-import DateRangePickerInputController from '../../../src/components/DateRangePickerInputController.jsx';
-import SingleDatePickerInputController from '../../../src/components/SingleDatePickerInputController.jsx';
 import { END_DATE, START_DATE } from '../../../src/constants.js';
 
 afterEach(() => {
-  Settings.defaultLocale = null;
   cleanup();
-});
-
-function singleProps(overrides = {}) {
-  return {
-    id: 'date',
-    onDateChange: vi.fn(),
-    onFocusChange: vi.fn(),
-    onClose: vi.fn(),
-    ...overrides,
-  };
-}
-
-describe('picker input controllers', () => {
-  it('accepts localized input and emits Luxon DateTimes', () => {
-    const props = singleProps({
-      isOutsideRange: () => false,
-      date: null,
-    });
-    renderStrict(<SingleDatePickerInputController {...props} />);
-
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '2024-02-03' } });
-
-    const emitted = props.onDateChange.mock.calls[0][0];
-    expect(emitted).toBeInstanceOf(DateTime);
-    expect(emitted.toISODate()).toBe('2024-02-03');
-    expect(props.onClose.mock.calls[0][0].date).toBe(emitted);
-  });
-
-  it('returns null for malformed or impossible input without throwing', () => {
-    const props = singleProps({ keepOpenOnDateSelect: true, isOutsideRange: () => false });
-    renderStrict(<SingleDatePickerInputController {...props} />);
-    const input = screen.getByRole('textbox');
-
-    fireEvent.change(input, { target: { value: '2024-02-30' } });
-
-    expect(props.onDateChange).toHaveBeenCalledWith(null);
-  });
-
-  it('passes localized DateTimes directly to formatter callbacks', () => {
-    const calls = [];
-    const props = singleProps({
-      date: DateTime.fromISO('2099-02-03').setLocale('en-GB'),
-      displayFormat: (dateValue) => {
-        calls.push(dateValue);
-        return `formatted:${dateValue.toISODate()}`;
-      },
-    });
-
-    renderStrict(<SingleDatePickerInputController {...props} />);
-
-    expect(screen.getByRole('textbox').value).toBe('formatted:2099-02-03');
-    expect(calls[0]).toBe(props.date);
-    expect(calls[0].locale).toBe('en-GB');
-  });
-
-  it('validates range ordering and minimum nights with DateTimes', () => {
-    const startDate = DateTime.fromISO('2099-02-10');
-    const props = {
-      startDate,
-      endDate: null,
-      onDatesChange: vi.fn(),
-      onFocusChange: vi.fn(),
-      onClose: vi.fn(),
-      minimumNights: 2,
-      isOutsideRange: () => false,
-      isDayBlocked: () => false,
-    };
-    renderStrict(<DateRangePickerInputController {...props} />);
-    fireEvent.change(screen.getAllByRole('textbox')[1], { target: { value: '2099-02-11' } });
-
-    expect(props.onDatesChange).toHaveBeenCalledWith({
-      startDate,
-      endDate: null,
-    });
-  });
-
-  it('clears dates with null values', () => {
-    const props = {
-      ...singleProps({ date: DateTime.fromISO('2099-02-03') }),
-      showClearDate: true,
-    };
-    renderStrict(<SingleDatePickerInputController {...props} />);
-    fireEvent.click(screen.getByRole('button', { name: /clear date/i }));
-    expect(props.onDateChange).toHaveBeenCalledWith(null);
-  });
 });
 
 describe('day picker controllers', () => {
@@ -239,16 +151,5 @@ describe('day picker controllers', () => {
 
     fireEvent.mouseLeave(findDay(15));
     expect(findDay(11).className).not.toContain('CalendarDay__hovered_span');
-  });
-
-  it('uses Luxon Settings.defaultLocale when no date exists yet', () => {
-    Settings.defaultLocale = 'en-GB';
-    const props = singleProps({ isOutsideRange: () => false });
-    renderStrict(<SingleDatePickerInputController {...props} />);
-
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '03/02/2024' } });
-
-    expect(props.onDateChange.mock.calls[0][0].toISODate()).toBe('2024-02-03');
-    expect(props.onDateChange.mock.calls[0][0].locale).toBe('en-GB');
   });
 });

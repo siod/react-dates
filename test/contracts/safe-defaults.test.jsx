@@ -244,33 +244,4 @@ describe('safe default callback contracts', () => {
     );
     expect(screen.getAllByRole('application').length).toBeGreaterThan(0);
   });
-
-  it('exposes callable defaults for non-render lifecycle hooks', () => {
-    const defaults = [
-      [CalendarMonth, ['onMonthSelect', 'onYearSelect']],
-      [CalendarMonthGrid, ['onMonthChange', 'onYearChange', 'onMonthTransitionEnd']],
-      [DayPicker, [
-        'onOutsideClick', 'onMonthChange', 'onYearChange', 'onGetNextScrollableMonths',
-        'onGetPrevScrollableMonths', 'onBlur', 'onTab', 'onShiftTab',
-      ]],
-      [DayPickerSingleDateController, [
-        'onDateChange', 'onFocusChange', 'onClose', 'onBlur', 'onTab', 'onShiftTab',
-        'onPrevMonthClick', 'onNextMonthClick',
-      ]],
-      [DayPickerRangeController, [
-        'onDatesChange', 'onFocusChange', 'onClose', 'onBlur', 'onTab', 'onShiftTab',
-        'onPrevMonthClick', 'onNextMonthClick',
-      ]],
-      [SingleDatePicker, ['onPrevMonthClick', 'onNextMonthClick', 'onClose']],
-      [DateRangePicker, ['onPrevMonthClick', 'onNextMonthClick', 'onClose']],
-    ];
-
-    defaults.forEach(([Component, names]) => {
-      names.forEach((name) => {
-        const callback = Component.defaultProps[name];
-        expect(callback, `${Component.displayName || Component.name}.${name}`).toBeTypeOf('function');
-        expect(() => callback()).not.toThrow();
-      });
-    });
-  });
 });

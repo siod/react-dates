@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
@@ -124,11 +125,11 @@ const defaultProps = {
   isDayBlocked: () => false,
   displayFormat: { dateStyle: 'short' },
 
-  onFocusChange() {},
-  onClose() {},
-  onDatesChange() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onFocusChange: noop,
+  onClose: noop,
+  onDatesChange: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   customInputIcon: null,
   customArrowIcon: null,

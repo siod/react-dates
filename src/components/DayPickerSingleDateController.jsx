@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
@@ -97,8 +98,8 @@ const propTypes = forbidExtraProps({
 
 const defaultProps = {
   date: DATE_UNSET_VALUE, minDate: null, maxDate: null,
-  onDateChange() {}, allowUnselect: false, focused: false,
-  onFocusChange() {}, onClose() {}, keepOpenOnDateSelect: false,
+  onDateChange: noop, allowUnselect: false, focused: false,
+  onFocusChange: noop, onClose: noop, keepOpenOnDateSelect: false,
   isOutsideRange() { return false; }, isDayBlocked() { return false; }, isDayHighlighted() { return false; },
   renderMonthText: null, renderMonthElement: null, renderWeekHeaderElement: null,
   enableOutsideDays: false, numberOfMonths: 1, orientation: HORIZONTAL_ORIENTATION,
@@ -107,10 +108,10 @@ const defaultProps = {
   verticalBorderSpacing: undefined, transitionDuration: undefined, horizontalMonthPadding: 13,
   dayPickerNavigationInlineStyles: null, navPosition: NAV_POSITION_TOP, navPrev: null, navNext: null,
   renderNavPrevButton: null, renderNavNextButton: null, noNavButtons: false,
-  noNavNextButton: false, noNavPrevButton: false, onPrevMonthClick() {}, onNextMonthClick() {},
-  onOutsideClick() {}, renderCalendarDay: undefined, renderDayContents: null, renderCalendarInfo: null,
-  calendarInfoPosition: INFO_POSITION_BOTTOM, onBlur() {}, isFocused: false,
-  showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT,
+  noNavNextButton: false, noNavPrevButton: false, onPrevMonthClick: noop, onNextMonthClick: noop,
+  onOutsideClick: noop, renderCalendarDay: undefined, renderDayContents: null, renderCalendarInfo: null,
+  calendarInfoPosition: INFO_POSITION_BOTTOM, onBlur: noop, isFocused: false,
+  showKeyboardShortcuts: false, onTab: noop, onShiftTab: noop, monthFormat: DEFAULT_MONTH_FORMAT,
   weekDayFormat: DEFAULT_WEEKDAY_FORMAT, phrases: DayPickerPhrases, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT,
   isRTL: false,
 };

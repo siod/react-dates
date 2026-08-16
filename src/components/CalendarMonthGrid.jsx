@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
@@ -75,12 +76,12 @@ const defaultProps = {
   numberOfMonths: 1,
   modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
-  onMonthChange() {},
-  onYearChange() {},
-  onMonthTransitionEnd() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
+  onMonthChange: noop,
+  onYearChange: noop,
+  onMonthTransitionEnd: noop,
   renderMonthText: null,
   renderCalendarDay: undefined,
   renderDayContents: null,

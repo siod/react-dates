@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
@@ -94,15 +95,15 @@ const defaultProps = {
   endDateTitleText: undefined,
   screenReaderMessage: '',
   autoComplete: 'off',
-  onStartDateFocus() {},
-  onEndDateFocus() {},
-  onStartDateChange() {},
-  onEndDateChange() {},
-  onStartDateShiftTab() {},
-  onEndDateTab() {},
-  onClearDates() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onStartDateFocus: noop,
+  onEndDateFocus: noop,
+  onStartDateChange: noop,
+  onEndDateChange: noop,
+  onStartDateShiftTab: noop,
+  onEndDateTab: noop,
+  onClearDates: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   startDate: '',
   endDate: '',

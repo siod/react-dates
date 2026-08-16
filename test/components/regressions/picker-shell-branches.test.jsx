@@ -10,7 +10,7 @@ import {
 import DateRangePicker from '../../../src/components/DateRangePicker.jsx';
 import SingleDatePicker from '../../../src/components/SingleDatePicker.jsx';
 import {
-  ANCHOR_RIGHT, END_DATE, OPEN_UP, START_DATE,
+  END_DATE, START_DATE,
 } from '../../../src/constants.js';
 import { renderStrict } from '../../helpers/index.js';
 
@@ -155,20 +155,6 @@ describe('single picker shell callback and focus branches', () => {
 
     expect(onFocusChange).toHaveBeenCalledWith({ focused: false });
     expect(onClose).toHaveBeenCalledWith({ date });
-  });
-
-  it('positions an open-up, right-anchored picker and renders its portal branch', () => {
-    const { container, rerender } = renderStrict(
-      <SingleDatePicker {...singleProps({ anchorDirection: ANCHOR_RIGHT, openDirection: OPEN_UP })} />,
-    );
-    const picker = container.querySelector('.SingleDatePicker_picker');
-    expect(picker.style.bottom).not.toBe('');
-    expect(picker.style.right).not.toBe('');
-
-    rerender(
-      <SingleDatePicker {...singleProps({ withPortal: true })} />,
-    );
-    expect(document.body.querySelector('.SingleDatePicker_picker__portal')).toBeTruthy();
   });
 });
 

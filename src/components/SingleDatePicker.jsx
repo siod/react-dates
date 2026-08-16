@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import { DateTime } from 'luxon';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 import {
@@ -103,9 +104,9 @@ const defaultProps = {
   renderNavPrevButton: null,
   renderNavNextButton: null,
 
-  onPrevMonthClick() {},
-  onNextMonthClick() {},
-  onClose() {},
+  onPrevMonthClick: noop,
+  onNextMonthClick: noop,
+  onClose: noop,
 
   // month presentation and interaction related props
   renderMonthText: null,
@@ -118,7 +119,7 @@ const defaultProps = {
   enableOutsideDays: false,
   isDayBlocked: () => false,
   isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
-  isDayHighlighted: () => {},
+  isDayHighlighted: noop,
 
   // internationalization props
   displayFormat: { dateStyle: 'short' },

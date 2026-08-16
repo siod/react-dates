@@ -1,6 +1,7 @@
 /* eslint react/no-array-index-key: 0 */
 
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
@@ -67,11 +68,11 @@ const defaultProps = {
   modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
   daySize: DAY_SIZE,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
-  onMonthSelect() {},
-  onYearSelect() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
+  onMonthSelect: noop,
+  onYearSelect: noop,
   renderMonthText: null,
   renderCalendarDay: (props) => (<CalendarDay {...props} />),
   renderDayContents: null,

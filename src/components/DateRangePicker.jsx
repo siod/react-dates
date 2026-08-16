@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import { DateTime } from 'luxon';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 import {
@@ -111,10 +112,10 @@ const defaultProps = {
   renderNavPrevButton: null,
   renderNavNextButton: null,
 
-  onPrevMonthClick() {},
-  onNextMonthClick() {},
+  onPrevMonthClick: noop,
+  onNextMonthClick: noop,
 
-  onClose() {},
+  onClose: noop,
 
   // day presentation and interaction related props
   renderCalendarDay: undefined,

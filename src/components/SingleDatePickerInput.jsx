@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
@@ -83,13 +84,13 @@ const defaultProps = {
   regular: false,
   verticalSpacing: undefined,
 
-  onChange() {},
-  onClearDate() {},
-  onFocus() {},
-  onKeyDownShiftTab() {},
-  onKeyDownTab() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onChange: noop,
+  onClearDate: noop,
+  onFocus: noop,
+  onKeyDownShiftTab: noop,
+  onKeyDownTab: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   // i18n
   phrases: SingleDatePickerInputPhrases,

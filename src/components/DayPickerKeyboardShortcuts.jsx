@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { forbidExtraProps } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
@@ -30,8 +31,8 @@ const defaultProps = {
   block: false,
   buttonLocation: BOTTOM_RIGHT,
   showKeyboardShortcutsPanel: false,
-  openKeyboardShortcutsPanel() {},
-  closeKeyboardShortcutsPanel() {},
+  openKeyboardShortcutsPanel: noop,
+  closeKeyboardShortcutsPanel: noop,
   phrases: DayPickerKeyboardShortcutsPhrases,
   renderKeyboardShortcutsButton: undefined,
   renderKeyboardShortcutsPanel: undefined,

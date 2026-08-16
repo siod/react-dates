@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { forbidExtraProps } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
@@ -54,8 +55,8 @@ const defaultProps = {
   navNext: null,
   orientation: HORIZONTAL_ORIENTATION,
 
-  onPrevMonthClick() {},
-  onNextMonthClick() {},
+  onPrevMonthClick: noop,
+  onNextMonthClick: noop,
 
   // internationalization
   phrases: DayPickerNavigationPhrases,

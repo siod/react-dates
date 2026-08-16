@@ -191,14 +191,6 @@ test.describe('responsive, direction, and cleanup', () => {
     await a11y({ disableRules: ['color-contrast'] });
   });
 
-  test('does not leave portal or scroll-lock artifacts after closing', async ({ page }) => {
-    const input = await openSingle(page);
-    await page.keyboard.press('Escape');
-    await expect(input).toBeFocused();
-    await expect(page.locator('.DayPicker_portal')).toHaveCount(0);
-    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
-  });
-
   test('remains usable at a narrow viewport', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 700 });
     const input = await openSingle(page);

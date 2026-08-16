@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
 import { noflip, withStyles, withStylesPropTypes } from '../internal/styles';
@@ -71,13 +72,13 @@ const defaultProps = {
   block: false,
   regular: false,
 
-  onChange() {},
-  onFocus() {},
-  onKeyDownShiftTab() {},
-  onKeyDownTab() {},
+  onChange: noop,
+  onFocus: noop,
+  onKeyDownShiftTab: noop,
+  onKeyDownTab: noop,
 
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   // accessibility
   isFocused: false,

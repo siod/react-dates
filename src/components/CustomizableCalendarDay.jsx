@@ -1,4 +1,5 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { forbidExtraProps, nonNegativeInteger, or } from '../internal/propTypes';
@@ -183,9 +184,9 @@ const defaultProps = {
   modifiers: new Set(),
   isFocused: false,
   tabIndex: -1,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
   renderDayContents: null,
   ariaLabelFormat: { dateStyle: 'full' },
 

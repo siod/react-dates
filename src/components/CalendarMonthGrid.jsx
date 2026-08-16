@@ -31,6 +31,9 @@ import {
   DAY_SIZE,
 } from '../constants';
 
+const TRANSITION_DELAY = 100;
+const TRANSITION_FALLBACK_BUFFER = 50;
+
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
   enableOutsideDays: PropTypes.bool,
@@ -123,6 +126,7 @@ class CalendarMonthGrid extends React.PureComponent {
     };
 
     this.isTransitionEndSupported = isTransitionEndSupported();
+    this.finishTransition = this.finishTransition.bind(this);
     this.onTransitionEnd = this.onTransitionEnd.bind(this);
     this.setContainerRef = this.setContainerRef.bind(this);
 
@@ -136,6 +140,8 @@ class CalendarMonthGrid extends React.PureComponent {
       'transitionend',
       this.onTransitionEnd,
     );
+
+    if (this.props.isAnimating) this.startTransition();
   }
 
   componentDidUpdate(prevProps) {
@@ -148,16 +154,47 @@ class CalendarMonthGrid extends React.PureComponent {
       });
     }
 
-    const { isAnimating, transitionDuration, onMonthTransitionEnd } = this.props;
-    if ((!this.isTransitionEndSupported || !transitionDuration)
-      && isAnimating && !prevProps.isAnimating) onMonthTransitionEnd();
+    const { isAnimating } = this.props;
+    if (isAnimating && !prevProps.isAnimating) this.startTransition();
+    if (!isAnimating && prevProps.isAnimating) this.clearTransitionFallback();
   }
 
   componentWillUnmount() {
+    this.clearTransitionFallback();
     if (this.removeEventListener) this.removeEventListener();
   }
 
-  onTransitionEnd() {
+  onTransitionEnd(event) {
+    if (event.target !== this.container) return;
+    if (event.propertyName && event.propertyName !== 'transform') return;
+    this.finishTransition();
+  }
+
+  startTransition() {
+    const { transitionDuration } = this.props;
+    this.clearTransitionFallback();
+    this.transitionPending = true;
+
+    if (!this.isTransitionEndSupported || !transitionDuration) {
+      this.finishTransition();
+      return;
+    }
+
+    this.transitionFallbackTimer = setTimeout(
+      this.finishTransition,
+      transitionDuration + TRANSITION_DELAY + TRANSITION_FALLBACK_BUFFER,
+    );
+  }
+
+  clearTransitionFallback() {
+    if (this.transitionFallbackTimer) clearTimeout(this.transitionFallbackTimer);
+    this.transitionFallbackTimer = null;
+    this.transitionPending = false;
+  }
+
+  finishTransition() {
+    if (!this.transitionPending) return;
+    this.clearTransitionFallback();
     const { onMonthTransitionEnd } = this.props;
     onMonthTransitionEnd();
   }
@@ -254,7 +291,7 @@ class CalendarMonthGrid extends React.PureComponent {
           isVerticalScrollable && styles.CalendarMonthGrid__vertical_scrollable,
           isAnimating && styles.CalendarMonthGrid__animating,
           isAnimating && transitionDuration && {
-            transition: `transform ${transitionDuration}ms ease-in-out 0.1s`,
+            transition: `transform ${transitionDuration}ms ease-in-out ${TRANSITION_DELAY}ms`,
           },
           {
             ...getTransformStyles(transformValue),

@@ -45,17 +45,18 @@ test.describe('picker keyboard flows', () => {
     await start.focus();
     await page.keyboard.press('ArrowDown');
     await expect(page.locator('.DateRangePicker_picker')).toBeVisible();
-    await expect(page.locator('.CalendarDay[tabindex="0"]')).toHaveCount(1);
-    await page.keyboard.press('ArrowRight');
-    await page.keyboard.press('Enter');
+    const focusedDay = page.locator('.CalendarDay[tabindex="0"]');
+    await expect(focusedDay).toBeFocused();
+    await focusedDay.press('ArrowRight');
+    await focusedDay.press('Enter');
     await expect(end).toHaveClass(/DateInput_input__focused/);
-    await expect(page.locator('.CalendarDay[tabindex="0"]')).toBeFocused();
     const focusedEndDay = page.locator('.CalendarDay[tabindex="0"]');
+    await expect(focusedEndDay).toBeFocused();
     const focusedEndDayLabel = await focusedEndDay.getAttribute('aria-label');
-    await page.keyboard.press('ArrowRight');
+    await focusedEndDay.press('ArrowRight');
     await expect(focusedEndDay).not.toHaveAttribute('aria-label', focusedEndDayLabel);
     await expect(focusedEndDay).toBeFocused();
-    await page.keyboard.press('Enter');
+    await focusedEndDay.press('Enter');
     await expect(page.locator('.DateRangePicker_picker')).toBeHidden();
     await a11y();
   });
@@ -132,6 +133,8 @@ test.describe('single picker pointer flows', () => {
     const initialMonth = await visibleMonth.textContent();
     await page.getByRole('button', { name: 'Move forward to switch to the next month.' }).click();
     await expect(visibleMonth).not.toHaveText(initialMonth);
+
+    await expect(picker.locator('.CalendarMonthGrid__animating')).toHaveCount(0);
 
     await picker.locator('.CalendarMonth[data-visible="true"] .CalendarDay[aria-disabled="false"]').first().click();
     await expect(input).not.toHaveValue('');

@@ -10,6 +10,7 @@ import { VERTICAL_SCROLLABLE } from '../../../src/constants';
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -62,6 +63,67 @@ describe('CalendarMonthGrid legacy observable behavior', () => {
     expect(container.querySelectorAll('.CalendarMonth')).toHaveLength(3);
     rerender(<CalendarMonthGrid initialMonth={initialMonth} numberOfMonths={3} />);
     expect(container.querySelectorAll('.CalendarMonth')).toHaveLength(5);
+  });
+
+  it('finishes an animation if the browser misses transitionend', () => {
+    vi.useFakeTimers();
+    const onMonthTransitionEnd = vi.fn();
+    const gridRef = React.createRef();
+    const { rerender } = render(
+      <CalendarMonthGrid
+        ref={gridRef}
+        initialMonth={initialMonth}
+        isAnimating={false}
+        onMonthTransitionEnd={onMonthTransitionEnd}
+        transitionDuration={200}
+      />,
+    );
+    gridRef.current.isTransitionEndSupported = true;
+
+    rerender(
+      <CalendarMonthGrid
+        ref={gridRef}
+        initialMonth={initialMonth}
+        isAnimating
+        onMonthTransitionEnd={onMonthTransitionEnd}
+        transitionDuration={200}
+      />,
+    );
+    vi.advanceTimersByTime(349);
+    expect(onMonthTransitionEnd).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(onMonthTransitionEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels the animation fallback after transitionend', () => {
+    vi.useFakeTimers();
+    const onMonthTransitionEnd = vi.fn();
+    const gridRef = React.createRef();
+    const { container, rerender } = render(
+      <CalendarMonthGrid
+        ref={gridRef}
+        initialMonth={initialMonth}
+        isAnimating={false}
+        onMonthTransitionEnd={onMonthTransitionEnd}
+        transitionDuration={200}
+      />,
+    );
+    gridRef.current.isTransitionEndSupported = true;
+
+    rerender(
+      <CalendarMonthGrid
+        ref={gridRef}
+        initialMonth={initialMonth}
+        isAnimating
+        onMonthTransitionEnd={onMonthTransitionEnd}
+        transitionDuration={200}
+      />,
+    );
+    fireEvent.transitionEnd(container.querySelector('.CalendarMonthGrid'), {
+      propertyName: 'transform',
+    });
+    vi.runAllTimers();
+    expect(onMonthTransitionEnd).toHaveBeenCalledTimes(1);
   });
 
   it('calls onMonthChange with the selected month from a vertical month element', () => {

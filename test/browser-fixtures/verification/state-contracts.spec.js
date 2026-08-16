@@ -83,6 +83,7 @@ test.describe('public picker state contracts', () => {
 
     await expect(page.locator('.SingleDatePicker_picker__portal')).toBeVisible();
     await expect(page.locator('.DayPicker_portal__horizontal')).toBeVisible();
+    await expect(page.locator('.CalendarDay[tabindex="0"]')).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(page.locator('.SingleDatePicker_picker__portal')).toHaveCount(0);
     await expect(input).toBeFocused();

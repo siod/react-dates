@@ -1,7 +1,14 @@
 import React from 'react';
 import { DateTime } from 'luxon';
 import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
-import { Portal, addEventListener, isTouchDevice, OutsideClickHandler, lockScroll } from '../internal/browser';
+import {
+  Portal,
+  addEventListener,
+  getActiveElement,
+  isTouchDevice,
+  OutsideClickHandler,
+  lockScroll,
+} from '../internal/browser';
 import { forbidExtraProps } from '../internal/propTypes';
 
 import SingleDatePickerShape from '../shapes/SingleDatePickerShape';
@@ -242,6 +249,14 @@ class SingleDatePicker extends React.PureComponent {
       } else {
         this.onDayPickerBlur();
       }
+    } else {
+      this.setState({
+        isInputFocused: false,
+        isDayPickerFocused: false,
+        showKeyboardShortcuts: false,
+      });
+      const input = this.container?.querySelector('input');
+      if (typeof document !== 'undefined' && input === document.activeElement) input.blur();
     }
 
     onFocusChange({ focused });
@@ -265,8 +280,18 @@ class SingleDatePicker extends React.PureComponent {
 
   onDayPickerFocusChange({ focused }) {
     if (!focused) {
-      this.restoreFocusOnClose = true;
-      this.onDayPickerBlur();
+      this.restoreFocusOnClose = Boolean(
+        this.dayPickerContainer?.contains(getActiveElement()),
+      );
+      if (this.restoreFocusOnClose) {
+        this.onDayPickerBlur();
+      } else {
+        this.setState({
+          isInputFocused: false,
+          isDayPickerFocused: false,
+          showKeyboardShortcuts: false,
+        });
+      }
     }
     this.props.onFocusChange({ focused });
   }
@@ -351,21 +376,15 @@ class SingleDatePicker extends React.PureComponent {
       return;
     }
 
-    const isAnchoredLeft = anchorDirection === ANCHOR_LEFT;
-
     if (!withPortal && !withFullScreenPortal) {
       const containerRect = this.dayPickerContainer.getBoundingClientRect();
       const currentOffset = dayPickerContainerStyles[anchorDirection] || 0;
-      const containerEdge = isAnchoredLeft
-        ? containerRect[ANCHOR_RIGHT]
-        : containerRect[ANCHOR_LEFT];
-
       this.setState({
         dayPickerContainerStyles: {
           ...getResponsiveContainerStyles(
             anchorDirection,
             currentOffset,
-            containerEdge,
+            containerRect,
             horizontalMargin,
           ),
           ...(appendToBody && getDetachedContainerStyles(
@@ -456,6 +475,7 @@ class SingleDatePicker extends React.PureComponent {
       css,
       styles,
       verticalHeight,
+      noBorder,
       transitionDuration,
       verticalSpacing,
       horizontalMonthPadding,
@@ -478,6 +498,7 @@ class SingleDatePicker extends React.PureComponent {
         ref={this.setDayPickerContainerRef}
         {...css(
           styles.SingleDatePicker_picker,
+          !noBorder && styles.SingleDatePicker_picker__withBorder,
           anchorDirection === ANCHOR_LEFT && styles.SingleDatePicker_picker__directionLeft,
           anchorDirection === ANCHOR_RIGHT && styles.SingleDatePicker_picker__directionRight,
           openDirection === OPEN_DOWN && styles.SingleDatePicker_picker__openDown,
@@ -686,6 +707,12 @@ export default withStyles(({ reactDates: { color, zIndex } }) => ({
     zIndex: zIndex + 1,
     backgroundColor: color.background,
     position: 'absolute',
+    overflowX: 'hidden',
+  },
+
+  SingleDatePicker_picker__withBorder: {
+    boxShadow: noflip('0 2px 6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.07)'),
+    borderRadius: 3,
   },
 
   SingleDatePicker_picker__rtl: {

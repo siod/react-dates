@@ -111,7 +111,12 @@
 .SingleDatePicker_picker {
   z-index: 1;
   background-color: var(--react-dates-white);
-  position: absolute
+  position: absolute;
+  overflow-x: hidden
+}
+.SingleDatePicker_picker__withBorder {
+  box-shadow: 0 2px 6px rgba(0,0,0,.05),0 0 0 1px rgba(0,0,0,.07);
+  border-radius: 3px
 }
 .SingleDatePicker_picker__rtl {
   direction: rtl
@@ -675,6 +680,7 @@
   color: var(--react-dates-border)
 }
 .DateInput_input {
+  box-sizing: border-box;
   font-weight: 200;
   font-size: 19px;
   line-height: 24px;
@@ -696,7 +702,7 @@
   padding: 7px 7px 5px
 }
 .DateInput_input__regular {
-  font-weight: auto
+  font-weight: inherit
 }
 .DateInput_input__readOnly {
   -webkit-user-select: none;
@@ -838,7 +844,12 @@
 .DateRangePicker_picker {
   z-index: 1;
   background-color: var(--react-dates-white);
-  position: absolute
+  position: absolute;
+  overflow-x: hidden
+}
+.DateRangePicker_picker__withBorder {
+  box-shadow: 0 2px 6px rgba(0,0,0,.05),0 0 0 1px rgba(0,0,0,.07);
+  border-radius: 3px
 }
 .DateRangePicker_picker__rtl {
   direction: rtl

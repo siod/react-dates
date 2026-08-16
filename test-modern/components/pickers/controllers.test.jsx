@@ -101,6 +101,37 @@ describe('picker input controllers', () => {
 });
 
 describe('day picker controllers', () => {
+  it('recomputes visible single-picker modifiers when blocking props change', () => {
+    const initialVisibleMonth = () => DateTime.fromISO('2099-02-01');
+    const { container, rerender } = renderStrict(
+      <DayPickerSingleDateController
+        focused
+        isFocused
+        initialVisibleMonth={initialVisibleMonth}
+        isOutsideRange={() => false}
+        isDayBlocked={() => false}
+      />,
+    );
+    const findDay = () => Array.from(container.querySelectorAll(
+      '.CalendarMonth[data-visible="true"] .CalendarDay',
+    )).find((element) => element.textContent === '10');
+
+    expect(findDay().getAttribute('aria-disabled')).toBe('false');
+
+    rerender(
+      <DayPickerSingleDateController
+        focused
+        isFocused
+        initialVisibleMonth={initialVisibleMonth}
+        isOutsideRange={() => false}
+        isDayBlocked={(day) => day.day === 10}
+      />,
+    );
+
+    expect(findDay().getAttribute('aria-disabled')).toBe('true');
+    expect(findDay().className).toContain('CalendarDay__blocked_calendar');
+  });
+
   it('emits the established scalar focus value when a range start is selected', () => {
     const onDatesChange = vi.fn();
     const onFocusChange = vi.fn();
@@ -148,13 +179,15 @@ describe('day picker controllers', () => {
     expect(dayAriaLabelFormat.mock.calls[0][0].locale).toBe('en-AU');
   });
 
-  it('preserves the visible DateTime locale when range hover state is rebuilt', () => {
+  it('updates range hover state without recomputing every visible day', () => {
     const isDayHighlighted = vi.fn(() => false);
-    renderStrict(
+    const controllerRef = React.createRef();
+    const { container } = renderStrict(
       <DayPickerRangeController
-        startDate={null}
+        ref={controllerRef}
+        startDate={DateTime.fromISO('2099-02-10').setLocale('en-AU')}
         endDate={null}
-        focusedInput={START_DATE}
+        focusedInput={END_DATE}
         isFocused
         onDatesChange={() => {}}
         onFocusChange={() => {}}
@@ -163,12 +196,49 @@ describe('day picker controllers', () => {
         isDayHighlighted={isDayHighlighted}
       />,
     );
+    controllerRef.current.isTouchDevice = false;
+    const findDay = (dayOfMonth) => Array.from(container.querySelectorAll(
+      '.CalendarMonth[data-visible="true"] .CalendarDay',
+    )).find((element) => element.textContent === String(dayOfMonth));
+    const callsAfterInitialRender = isDayHighlighted.mock.calls.length;
 
-    const day = screen.getAllByRole('button').find((element) => element.tagName === 'TD');
-    fireEvent.mouseEnter(day);
-    fireEvent.mouseLeave(day);
+    fireEvent.mouseEnter(findDay(15));
+    fireEvent.mouseLeave(findDay(15), { relatedTarget: findDay(16) });
+    fireEvent.mouseEnter(findDay(16), { relatedTarget: findDay(15) });
 
-    expect(isDayHighlighted.mock.calls.at(-1)[0].locale).toBe('en-AU');
+    expect(isDayHighlighted).toHaveBeenCalledTimes(callsAfterInitialRender);
+    expect(findDay(11).className).toContain('CalendarDay__hovered_span');
+    expect(findDay(16).className).toContain('CalendarDay__hovered_span');
+  });
+
+  it('highlights the prospective range while hovering over an end date', () => {
+    const controllerRef = React.createRef();
+    const { container } = renderStrict(
+      <DayPickerRangeController
+        ref={controllerRef}
+        startDate={DateTime.fromISO('2099-02-10')}
+        endDate={null}
+        focusedInput={END_DATE}
+        isFocused
+        onDatesChange={() => {}}
+        onFocusChange={() => {}}
+        initialVisibleMonth={() => DateTime.fromISO('2099-02-01')}
+        isOutsideRange={() => false}
+      />,
+    );
+    controllerRef.current.isTouchDevice = false;
+    const findDay = (dayOfMonth) => Array.from(container.querySelectorAll(
+      '.CalendarMonth[data-visible="true"] .CalendarDay',
+    )).find((element) => element.textContent === String(dayOfMonth));
+
+    fireEvent.mouseEnter(findDay(15));
+
+    expect(findDay(9).className).not.toContain('CalendarDay__hovered_span');
+    expect(findDay(11).className).toContain('CalendarDay__hovered_span');
+    expect(findDay(15).className).toContain('CalendarDay__hovered_span');
+
+    fireEvent.mouseLeave(findDay(15));
+    expect(findDay(11).className).not.toContain('CalendarDay__hovered_span');
   });
 
   it('uses Luxon Settings.defaultLocale when no date exists yet', () => {

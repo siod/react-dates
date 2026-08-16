@@ -252,10 +252,10 @@ class DateInput extends React.PureComponent {
             {...css(
               styles.DateInput_fang,
               openDirection === OPEN_DOWN && {
-                top: inputHeight + verticalSpacing - FANG_HEIGHT_PX - 1,
+                top: inputHeight + verticalSpacing - FANG_HEIGHT_PX,
               },
               openDirection === OPEN_UP && {
-                bottom: inputHeight + verticalSpacing - FANG_HEIGHT_PX - 1,
+                bottom: inputHeight + verticalSpacing - FANG_HEIGHT_PX,
               },
             )}
           >
@@ -312,6 +312,7 @@ export default withStyles(({
   },
 
   DateInput_input: {
+    boxSizing: 'border-box',
     fontWeight: font.input.weight,
     fontSize: font.input.size,
     lineHeight: font.input.lineHeight,

@@ -2,7 +2,8 @@ import React from 'react';
 import { DateTime } from 'luxon';
 
 import '../src/styles/index.css';
-import { DateRangePickerExample, SingleDatePickerExample } from '../examples/PickersExample.jsx';
+import DateRangePickerExample from '../examples/DateRangePickerWrapper.jsx';
+import SingleDatePickerExample from '../examples/SingleDatePickerWrapper.jsx';
 
 export default {
   title: 'Pickers',
@@ -14,8 +15,27 @@ export const SingleDate = {
   render: () => <SingleDatePickerExample numberOfMonths={1} isOutsideRange={() => false} />,
 };
 
+export const SingleDateWithControls = {
+  render: () => (
+    <SingleDatePickerExample
+      numberOfMonths={1}
+      isOutsideRange={() => false}
+      showClearDate
+      showDefaultInputIcon
+      reopenPickerOnClearDate
+    />
+  ),
+};
+
 export const DateRange = {
-  render: () => <DateRangePickerExample numberOfMonths={2} isOutsideRange={() => false} />,
+  render: () => (
+    <DateRangePickerExample
+      endDateId="example-end-date"
+      isOutsideRange={() => false}
+      numberOfMonths={2}
+      startDateId="example-start-date"
+    />
+  ),
 };
 
 export const ArabicRtl = {

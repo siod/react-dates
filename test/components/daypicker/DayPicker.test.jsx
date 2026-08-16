@@ -221,6 +221,20 @@ describe('DayPicker observable behavior', () => {
     expect(visibleDay(container, 2).getAttribute('tabindex')).toBe('0');
   });
 
+  it('accepts navigation immediately after selecting the focused day', () => {
+    const onDayClick = vi.fn();
+    const { container } = renderPicker({ isFocused: true, onDayClick });
+    const application = screen.getByRole('application');
+
+    fireEvent.keyDown(application, { key: 'ArrowRight' });
+    const focusedDay = visibleDay(container, 2);
+    fireEvent.keyDown(focusedDay, { key: 'Enter' });
+    fireEvent.keyDown(application, { key: 'ArrowRight' });
+
+    expect(onDayClick).toHaveBeenCalledTimes(1);
+    expect(visibleDay(container, 3).getAttribute('tabindex')).toBe('0');
+  });
+
   it('implements Home, End, PageUp, and PageDown through rendered focus state', () => {
     const keys = [
       ['Home', 11],

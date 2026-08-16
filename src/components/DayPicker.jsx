@@ -56,6 +56,17 @@ const MONTH_SELECTION_TRANSITION = 'month_selection';
 const YEAR_SELECTION_TRANSITION = 'year_selection';
 const PREV_NAV = 'prev_nav';
 const NEXT_NAV = 'next_nav';
+const NAVIGATION_KEY_NAMES = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+]);
+const IMMEDIATE_KEY_NAMES = new Set(['Enter', ' ', '?', 'Escape', 'Tab']);
 
 const dateFormatProp = PropTypes.oneOfType([PropTypes.object, PropTypes.func]);
 const styleKeys = [
@@ -427,7 +438,13 @@ class DayPicker extends React.PureComponent {
 
   onKeyDown(event) {
     event.stopPropagation();
-    if (!MODIFIER_KEY_NAMES.has(event.key)) this.throttledKeyDown(event);
+    if (MODIFIER_KEY_NAMES.has(event.key)) return;
+    if (NAVIGATION_KEY_NAMES.has(event.key)) {
+      this.throttledKeyDown(event);
+    } else if (IMMEDIATE_KEY_NAMES.has(event.key)) {
+      this.throttledKeyDown.cancel();
+      this.onFinalKeyDown(event);
+    }
   }
 
   onFinalKeyDown(event) {

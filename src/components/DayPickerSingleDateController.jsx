@@ -87,7 +87,6 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
   dayAriaLabelFormat: dateFormatProp,
   locale: PropTypes.string,
-  calendar: PropTypes.string,
   numberingSystem: PropTypes.string,
   isRTL: PropTypes.bool,
 });
@@ -109,12 +108,12 @@ const defaultProps = {
   calendarInfoPosition: INFO_POSITION_BOTTOM, onBlur() {}, isFocused: false,
   showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT,
   weekDayFormat: DEFAULT_WEEKDAY_FORMAT, phrases: DayPickerPhrases, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT,
-  locale: undefined, calendar: undefined, numberingSystem: undefined, isRTL: false,
+  locale: undefined, numberingSystem: undefined, isRTL: false,
 };
 
 function formatOptions(props, value) {
   const option = typeof value === 'object' && value ? value : {};
-  return { locale: props.locale, calendar: props.calendar, numberingSystem: props.numberingSystem, ...option };
+  return { locale: props.locale, numberingSystem: props.numberingSystem, ...option };
 }
 
 export default class DayPickerSingleDateController extends React.PureComponent {

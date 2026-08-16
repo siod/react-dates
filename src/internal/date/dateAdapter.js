@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import { DateTime, Info } from 'luxon';
 
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const CUSTOM_OPTION_NAMES = new Set([
@@ -16,10 +16,16 @@ function intlOptions(options = {}) {
   Object.keys(options || {}).forEach((key) => {
     if (!CUSTOM_OPTION_NAMES.has(key)) result[key] = options[key];
   });
-  if (options.calendar != null) result.calendar = options.calendar;
+  result.calendar = 'gregory';
   if (options.numberingSystem != null) result.numberingSystem = options.numberingSystem;
   result.timeZone = 'UTC';
   return result;
+}
+
+function hasDateFormat(options) {
+  return Object.keys(options).some((key) => ![
+    'calendar', 'numberingSystem', 'timeZone',
+  ].includes(key));
 }
 
 function localeFor(options = {}) {
@@ -28,12 +34,7 @@ function localeFor(options = {}) {
 
 function dateTimeFor(value) {
   if (typeof value !== 'string' || !DATE_RE.test(value)) return null;
-  const [, year, month, day] = DATE_RE.exec(value);
-  const date = DateTime.fromObject({
-    year: Number(year),
-    month: Number(month),
-    day: Number(day),
-  }, { zone: 'utc' });
+  const date = DateTime.fromISO(value, { zone: 'utc' });
   return date.isValid && date.toISODate() === value ? date : null;
 }
 
@@ -51,20 +52,11 @@ function firstDayFor(options = {}) {
     return explicit;
   }
 
-  // Intl.Locale.weekInfo is supported by current browsers and Node. The
-  // fallback is the ISO/Monday convention used by most locales.
   try {
-    const locale = new Intl.Locale(options.locale || 'en-US');
-    const info = locale.weekInfo || locale.getWeekInfo();
-    return info.firstDay % 7;
+    return Info.getStartOfWeek({ locale: options.locale || 'en-US' }) % 7;
   } catch (error) {
     return 1;
   }
-}
-
-function toDate(value) {
-  const date = dateTimeFor(value);
-  return date ? date.toJSDate() : null;
 }
 
 function escapeRegExp(value) {
@@ -89,76 +81,29 @@ function toLatinDigits(value, map) {
   return String(value).split('').map((char) => map.get(char) || char).join('');
 }
 
-function monthNameMap(locale, options, formatterOptions) {
+function monthNameMap(locale, numberingSystem, formatterOptions) {
   const map = new Map();
-  const monthOptions = formatterOptions.month
-    ? [formatterOptions.month]
+  const requested = formatterOptions.month;
+  const lengths = ['long', 'short', 'narrow'].includes(requested)
+    ? [requested]
     : ['long', 'short', 'narrow'];
-  const componentOptions = { ...formatterOptions };
-  delete componentOptions.dateStyle;
-  delete componentOptions.timeStyle;
-  delete componentOptions.timeZone;
-  const textFormatters = monthOptions.map((month) => new Intl.DateTimeFormat(locale, {
-    ...componentOptions,
-    month,
-    day: undefined,
-    year: undefined,
-    timeZone: 'UTC',
-  }));
-  const numericFormatter = new Intl.DateTimeFormat(locale, {
-    ...componentOptions,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
-  const mapDigits = digitMap(locale, numericFormatter.resolvedOptions().numberingSystem);
-  for (let index = 0; index < 370; index += 1) {
-    const date = DateTime.utc(2024, 1, 1).plus({ days: index }).toJSDate();
-    const numericPart = numericFormatter.formatToParts(date).find((item) => item.type === 'month');
-    if (!numericPart) continue;
-    const month = Number(toLatinDigits(numericPart.value, mapDigits));
-    textFormatters.forEach((textFormatter) => {
-      const textPart = textFormatter.formatToParts(date).find((item) => item.type === 'month');
-      if (!textPart) return;
-      const key = normalizeText(textPart.value).toLocaleLowerCase(locale);
-      const existing = map.get(key);
-      map.set(key, existing === undefined || existing === month ? month : null);
+  try {
+    lengths.forEach((length) => {
+      Info.monthsFormat(length, {
+        locale,
+        numberingSystem,
+        outputCalendar: 'gregory',
+      }).forEach((name, index) => {
+        const key = normalizeText(name).toLocaleLowerCase(locale);
+        const month = index + 1;
+        const existing = map.get(key);
+        map.set(key, existing === undefined || existing === month ? month : null);
+      });
     });
+  } catch (error) {
+    return new Map();
   }
   return map;
-}
-
-function projectedCalendarPartsFromDate(date, options = {}) {
-  const projectionOptions = intlOptions(options);
-  delete projectionOptions.year;
-  delete projectionOptions.month;
-  delete projectionOptions.day;
-  delete projectionOptions.dateStyle;
-  delete projectionOptions.timeStyle;
-  const formatter = new Intl.DateTimeFormat(localeFor(options), {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    ...projectionOptions,
-  });
-  const parts = formatter.formatToParts(date);
-  const values = {};
-  parts.forEach(({ type, value }) => {
-    if (type === 'year' || type === 'month' || type === 'day' || type === 'era') {
-      values[type] = value;
-    }
-  });
-  const map = digitMap(localeFor(options), formatter.resolvedOptions().numberingSystem);
-  const year = Number(toLatinDigits(values.year, map));
-  const month = Number(toLatinDigits(values.month, map));
-  const day = Number(toLatinDigits(values.day, map));
-  return {
-    year: Number.isNaN(year) ? values.year : year,
-    month: Number.isNaN(month) ? values.month : month,
-    day: Number.isNaN(day) ? values.day : day,
-    ...(values.era ? { era: values.era } : {}),
-  };
 }
 
 export function isCanonicalDate(value) {
@@ -346,11 +291,15 @@ export function getCalendarMonthWeeks(month, options = {}) {
 }
 
 export function formatDate(date, options = {}) {
-  const jsDate = toDate(date);
-  if (!jsDate) return '';
+  const parsed = dateTimeFor(date);
+  if (!parsed) return '';
   const formatOptions = intlOptions(options);
-  if (Object.keys(formatOptions).length === 1) formatOptions.dateStyle = 'short';
-  return new Intl.DateTimeFormat(localeFor(options), formatOptions).format(jsDate);
+  if (!hasDateFormat(formatOptions)) formatOptions.dateStyle = 'short';
+  return parsed.toLocaleString(formatOptions, {
+    locale: localeFor(options),
+    numberingSystem: options.numberingSystem,
+    outputCalendar: 'gregory',
+  });
 }
 
 export function parseLocalizedDate(value, options = {}) {
@@ -359,7 +308,7 @@ export function parseLocalizedDate(value, options = {}) {
 
   const locale = localeFor(options);
   const formatterOptions = intlOptions(options);
-  if (Object.keys(formatterOptions).length === 1) formatterOptions.dateStyle = 'short';
+  if (!hasDateFormat(formatterOptions)) formatterOptions.dateStyle = 'short';
   let formatter;
   try {
     formatter = new Intl.DateTimeFormat(locale, formatterOptions);
@@ -385,7 +334,7 @@ export function parseLocalizedDate(value, options = {}) {
 
   const resolved = formatter.resolvedOptions();
   const map = digitMap(locale, resolved.numberingSystem);
-  const names = monthNameMap(locale, options, formatterOptions);
+  const names = monthNameMap(locale, resolved.numberingSystem, formatterOptions);
   const projected = {};
   let capture = 1;
   fields.forEach((field) => {
@@ -402,26 +351,9 @@ export function parseLocalizedDate(value, options = {}) {
     return null;
   }
 
-  const calendar = resolved.calendar;
-  if (calendar === 'gregory' || calendar === 'iso8601') {
-    const year = projected.year < 100 ? 2000 + projected.year : projected.year;
-    const candidate = DateTime.fromObject({ year, month: projected.month, day: projected.day }, { zone: 'utc' });
-    return candidate.isValid ? candidate.toISODate() : null;
-  }
-
-  // Intl formats non-Gregorian calendars but does not expose a calendar-date
-  // parser. Search the nearby Gregorian year (calendar eras are short enough
-  // that this remains bounded) and compare the projected parts.
-  const approximateYear = projected.year + (calendar === 'persian' ? 621 : 0);
-  const start = DateTime.utc(approximateYear, 1, 1).minus({ days: 450 });
-  for (let index = 0; index <= 900; index += 1) {
-    const candidate = start.plus({ days: index });
-    const parts = projectedCalendarPartsFromDate(candidate.toJSDate(), options);
-    if (parts.year === projected.year && parts.month === projected.month && parts.day === projected.day) {
-      return candidate.toISODate();
-    }
-  }
-  return null;
+  const year = projected.year < 100 ? 2000 + projected.year : projected.year;
+  const candidate = DateTime.fromObject({ year, month: projected.month, day: projected.day }, { zone: 'utc' });
+  return candidate.isValid ? candidate.toISODate() : null;
 }
 
 export function getMonthLabel(date, options = {}) {
@@ -434,20 +366,29 @@ export function getWeekdayLabels(options = {}, formatter = null) {
   const formatOptions = { weekday: 'short', ...options };
   const context = {
     locale: options.locale,
-    calendar: options.calendar,
     numberingSystem: options.numberingSystem,
   };
+  if (typeof formatter !== 'function') {
+    const length = ['long', 'short', 'narrow'].includes(formatOptions.weekday)
+      ? formatOptions.weekday
+      : 'short';
+    try {
+      const weekdays = Info.weekdaysFormat(length, {
+        locale: options.locale,
+        numberingSystem: options.numberingSystem,
+      });
+      return Array.from({ length: 7 }, (_, index) => {
+        const sundayIndex = (firstDay + index) % 7;
+        return weekdays[(sundayIndex + 6) % 7];
+      });
+    } catch (error) {
+      return [];
+    }
+  }
   return Array.from({ length: 7 }, (_, index) => {
     const sundayDate = DateTime.utc(2021, 8, 1).plus({ days: (firstDay + index) % 7 }).toISODate();
-    return typeof formatter === 'function'
-      ? formatter(sundayDate, context)
-      : formatDate(sundayDate, formatOptions);
+    return formatter(sundayDate, context);
   });
-}
-
-export function projectCalendarParts(date, options = {}) {
-  const jsDate = toDate(date);
-  return jsDate ? projectedCalendarPartsFromDate(jsDate, options) : null;
 }
 
 export default {
@@ -482,5 +423,4 @@ export default {
   parseLocalizedDate,
   getMonthLabel,
   getWeekdayLabels,
-  projectCalendarParts,
 };

@@ -15,7 +15,6 @@ import {
   isBetween,
   parseDate,
   parseLocalizedDate,
-  projectCalendarParts,
   startOfMonth,
   startOfWeek,
   setWeekday,
@@ -60,26 +59,20 @@ describe('private Luxon date foundation', () => {
     const formatted = formatDate('2024-07-08', { locale: 'en-US', dateStyle: 'short' });
     expect(parseLocalizedDate(formatted, { locale: 'en-US', dateStyle: 'short' })).toBe('2024-07-08');
     expect(getMonthLabel('2024-07-08', { locale: 'en-US' })).toBe('July 2024');
-    expect(projectCalendarParts('2024-07-08', { locale: 'en-US' })).toMatchObject({
-      year: 2024,
-      month: 7,
-      day: 8,
-    });
   });
 
-  it('supports Persian display and real timezone-independent dates', () => {
-    const persian = formatDate('2024-03-20', {
-      locale: 'fa-IR', calendar: 'persian', numberingSystem: 'arabext',
+  it('forces Gregorian display and keeps real timezone-independent dates', () => {
+    const localized = formatDate('2024-03-20', {
+      locale: 'th-TH', calendar: 'buddhist', numberingSystem: 'latn',
       year: 'numeric', month: 'long', day: 'numeric',
     });
-    expect(persian).toContain('۱۴۰۳');
-    expect(projectCalendarParts('2024-03-20', { locale: 'fa-IR', calendar: 'persian' }))
-      .toMatchObject({ year: 1403, month: 1, day: 1 });
-    const parsedPersian = parseLocalizedDate(persian, {
-      locale: 'fa-IR', calendar: 'persian', numberingSystem: 'arabext',
+    expect(localized).toContain('2024');
+    expect(localized).not.toContain('2567');
+    const parsed = parseLocalizedDate(localized, {
+      locale: 'th-TH', calendar: 'buddhist', numberingSystem: 'latn',
       year: 'numeric', month: 'long', day: 'numeric',
     });
-    expect(parsedPersian).toBe('2024-03-20');
+    expect(parsed).toBe('2024-03-20');
     [
       ['UTC', '2024-03-10'],
       ['America/New_York', '2024-03-10'],

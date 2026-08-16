@@ -8,7 +8,6 @@ import {
   getWeekdayLabels,
   isCanonicalDate,
   parseLocalizedDate,
-  projectCalendarParts,
   startOfWeek,
 } from '../../../src/internal/date';
 
@@ -54,14 +53,14 @@ describe('independent date-foundation verification', () => {
     });
   });
 
-  it('projects and parses Persian calendar dates', () => {
+  it('keeps localized formatting on the Gregorian calendar', () => {
     const options = {
-      locale: 'fa-IR', calendar: 'persian', numberingSystem: 'arabext',
+      locale: 'th-TH', calendar: 'buddhist', numberingSystem: 'latn',
       year: 'numeric', month: 'long', day: 'numeric',
     };
-    expect(projectCalendarParts('2024-03-20', options)).toMatchObject({ year: 1403, month: 1, day: 1 });
     const formatted = formatDate('2024-03-20', options);
-    expect(formatted).toContain('۱۴۰۳');
+    expect(formatted).toContain('2024');
+    expect(formatted).not.toContain('2567');
     expect(parseLocalizedDate(formatted, options)).toBe('2024-03-20');
   });
 

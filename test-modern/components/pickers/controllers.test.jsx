@@ -62,7 +62,7 @@ describe('picker input controllers', () => {
     expect(screen.getByRole('textbox').value).toBe('formatted:2099-02-03');
     expect(calls[0]).toEqual({
       isoDate: '2099-02-03',
-      context: { locale: 'en-GB', calendar: undefined, numberingSystem: undefined },
+      context: { locale: 'en-GB', numberingSystem: undefined },
     });
   });
 
@@ -121,7 +121,7 @@ describe('day picker controllers', () => {
     expect(onFocusChange).toHaveBeenCalledWith(END_DATE);
   });
 
-  it('preserves calendar formatter callbacks and their library-neutral context', () => {
+  it('preserves formatter callbacks and their library-neutral context', () => {
     const monthFormat = vi.fn((date) => `month:${date}`);
     const weekDayFormat = vi.fn((date) => `weekday:${date}`);
     const dayAriaLabelFormat = vi.fn((date) => `day:${date}`);
@@ -141,10 +141,10 @@ describe('day picker controllers', () => {
     expect(screen.getByText('month:2099-02-01')).toBeTruthy();
     expect(screen.getByText('weekday:2021-08-01')).toBeTruthy();
     expect(monthFormat).toHaveBeenCalledWith('2099-02-01', {
-      locale: 'en-AU', calendar: undefined, numberingSystem: undefined,
+      locale: 'en-AU', numberingSystem: undefined,
     });
     expect(dayAriaLabelFormat).toHaveBeenCalledWith(expect.any(String), {
-      locale: 'en-AU', calendar: undefined, numberingSystem: undefined,
+      locale: 'en-AU', numberingSystem: undefined,
     });
   });
 });

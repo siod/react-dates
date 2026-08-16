@@ -3,7 +3,7 @@ import { expect, test } from '../fixtures.js';
 const stories = {
   single: '/iframe.html?id=pickers--single-date&viewMode=story',
   range: '/iframe.html?id=pickers--date-range&viewMode=story',
-  persian: '/iframe.html?id=pickers--persian-rtl&viewMode=story',
+  rtl: '/iframe.html?id=pickers--arabic-rtl&viewMode=story',
 };
 
 async function openSingle(page) {
@@ -56,8 +56,8 @@ test.describe('picker keyboard flows', () => {
 });
 
 test.describe('responsive, direction, and cleanup', () => {
-  test('renders Persian calendar direction and localized day labels', async ({ page, a11y }) => {
-    await page.goto(stories.persian);
+  test('renders RTL direction and localized day labels', async ({ page, a11y }) => {
+    await page.goto(stories.rtl);
     await expect(page.locator('[dir="rtl"]')).toBeVisible();
     await page.getByRole('textbox').focus();
     await page.keyboard.press('ArrowDown');

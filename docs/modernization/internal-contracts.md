@@ -19,9 +19,8 @@ All inputs and outputs are canonical `YYYY-MM-DD` strings or `null`. No Luxon ob
 - `parseLocalizedDate(value, options): string | null`
 - `getMonthLabel(date, options): string`
 - `getWeekdayLabels(options): string[]`
-- `projectCalendarParts(date, options): object | null`
 
-Formatting options use `locale`, `calendar`, `numberingSystem`, and `Intl.DateTimeFormatOptions`. Date arithmetic always uses UTC date-only semantics.
+Formatting options use `locale`, `numberingSystem`, and Gregorian `Intl.DateTimeFormatOptions`. Date arithmetic always uses UTC date-only semantics.
 
 ## Browser helpers
 
@@ -35,6 +34,6 @@ Formatting options use `locale`, `calendar`, `numberingSystem`, and `Intl.DateTi
 
 - Public date props, callbacks, predicates, and render props use `YYYY-MM-DD | null` exclusively.
 - Format props accept `Intl.DateTimeFormatOptions` or `(isoDate, context) => string`.
-- Top-level `locale`, `calendar`, and `numberingSystem` values flow to every default formatter.
+- Top-level `locale` and `numberingSystem` values flow to every default formatter.
 - Components may depend on the private adapter and browser helpers, never directly on Luxon.
 - Shared shapes, constants, public exports, package metadata, and the global CSS entrypoint remain lead-owned integration surfaces.

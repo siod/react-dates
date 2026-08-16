@@ -40,7 +40,7 @@ const propTypes = forbidExtraProps({
   onPrevMonthClick: PropTypes.func, onNextMonthClick: PropTypes.func, onOutsideClick: PropTypes.func,
   renderCalendarDay: PropTypes.func, renderDayContents: PropTypes.func, renderCalendarInfo: PropTypes.func, renderKeyboardShortcutsButton: PropTypes.func, renderKeyboardShortcutsPanel: PropTypes.func,
   calendarInfoPosition: CalendarInfoPositionShape, firstDayOfWeek: DayOfWeekShape, verticalHeight: nonNegativeInteger, onBlur: PropTypes.func, isFocused: PropTypes.bool, showKeyboardShortcuts: PropTypes.bool, onTab: PropTypes.func, onShiftTab: PropTypes.func,
-  monthFormat: dateFormatProp, weekDayFormat: dateFormatProp, dayAriaLabelFormat: dateFormatProp, phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)), locale: PropTypes.string, calendar: PropTypes.string, numberingSystem: PropTypes.string, isRTL: PropTypes.bool,
+  monthFormat: dateFormatProp, weekDayFormat: dateFormatProp, dayAriaLabelFormat: dateFormatProp, phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)), locale: PropTypes.string, numberingSystem: PropTypes.string, isRTL: PropTypes.bool,
 });
 
 const defaultProps = {
@@ -48,10 +48,10 @@ const defaultProps = {
   focusedInput: null, onFocusChange() {}, onClose() {}, keepOpenOnDateSelect: false, minimumNights: 1, disabled: false,
   isOutsideRange() { return false; }, isDayBlocked() { return false; }, isDayHighlighted() { return false; }, getMinNightsForHoverDate() { return 0; }, daysViolatingMinNightsCanBeClicked: false,
   renderMonthText: null, renderMonthElement: null, renderWeekHeaderElement: null, enableOutsideDays: false, numberOfMonths: 1, orientation: HORIZONTAL_ORIENTATION, withPortal: false, initialVisibleMonth: null, hideKeyboardShortcutsPanel: false, daySize: DAY_SIZE, noBorder: false, verticalBorderSpacing: undefined, horizontalMonthPadding: 13, transitionDuration: undefined,
-  dayPickerNavigationInlineStyles: null, navPosition: NAV_POSITION_TOP, navPrev: null, navNext: null, renderNavPrevButton: null, renderNavNextButton: null, noNavButtons: false, noNavNextButton: false, noNavPrevButton: false, onPrevMonthClick() {}, onNextMonthClick() {}, onOutsideClick() {}, renderCalendarDay: undefined, renderDayContents: null, renderCalendarInfo: null, renderKeyboardShortcutsButton: undefined, renderKeyboardShortcutsPanel: undefined, calendarInfoPosition: INFO_POSITION_BOTTOM, firstDayOfWeek: null, verticalHeight: null, onBlur() {}, isFocused: false, showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT, weekDayFormat: DEFAULT_WEEKDAY_FORMAT, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT, phrases: DayPickerPhrases, locale: undefined, calendar: undefined, numberingSystem: undefined, isRTL: false,
+  dayPickerNavigationInlineStyles: null, navPosition: NAV_POSITION_TOP, navPrev: null, navNext: null, renderNavPrevButton: null, renderNavNextButton: null, noNavButtons: false, noNavNextButton: false, noNavPrevButton: false, onPrevMonthClick() {}, onNextMonthClick() {}, onOutsideClick() {}, renderCalendarDay: undefined, renderDayContents: null, renderCalendarInfo: null, renderKeyboardShortcutsButton: undefined, renderKeyboardShortcutsPanel: undefined, calendarInfoPosition: INFO_POSITION_BOTTOM, firstDayOfWeek: null, verticalHeight: null, onBlur() {}, isFocused: false, showKeyboardShortcuts: false, onTab() {}, onShiftTab() {}, monthFormat: DEFAULT_MONTH_FORMAT, weekDayFormat: DEFAULT_WEEKDAY_FORMAT, dayAriaLabelFormat: DEFAULT_DAY_ARIA_FORMAT, phrases: DayPickerPhrases, locale: undefined, numberingSystem: undefined, isRTL: false,
 };
 
-function formatOptions(props, value) { return { locale: props.locale, calendar: props.calendar, numberingSystem: props.numberingSystem, ...(typeof value === 'object' && value ? value : {}) }; }
+function formatOptions(props, value) { return { locale: props.locale, numberingSystem: props.numberingSystem, ...(typeof value === 'object' && value ? value : {}) }; }
 
 export default class DayPickerRangeController extends React.PureComponent {
   static propTypes = propTypes;

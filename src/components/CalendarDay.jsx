@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
 import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { formatDate, projectCalendarParts, isoDate } from '../internal/date';
+import { formatDate, isoDate } from '../internal/date';
 import scheduleAnimationFrame from '../internal/browser/raf';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
@@ -25,7 +25,6 @@ const propTypes = forbidExtraProps({
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  calendar: PropTypes.string,
   numberingSystem: PropTypes.string,
 
   // internationalization
@@ -45,7 +44,6 @@ const defaultProps = {
   renderDayContents: null,
   ariaLabelFormat: { dateStyle: 'full' },
   locale: undefined,
-  calendar: undefined,
   numberingSystem: undefined,
 
   // internationalization
@@ -146,13 +144,12 @@ class CalendarDay extends React.PureComponent {
       styles,
       phrases,
       locale,
-      calendar,
       numberingSystem,
     } = this.props;
 
     if (!day) return <td />;
 
-    const formatOptions = { locale, calendar, numberingSystem };
+    const formatOptions = { locale, numberingSystem };
     const {
       daySizeStyles,
       useDefaultCursor,
@@ -207,7 +204,7 @@ class CalendarDay extends React.PureComponent {
       >
         {renderDayContents
           ? renderDayContents(day, modifiers)
-          : projectCalendarParts(day, formatOptions).day}
+          : formatDate(day, { ...formatOptions, day: 'numeric' })}
       </td>
     );
   }

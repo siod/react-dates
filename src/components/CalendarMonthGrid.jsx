@@ -66,7 +66,6 @@ const propTypes = forbidExtraProps({
   // i18n
   monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  calendar: PropTypes.string,
   numberingSystem: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -104,7 +103,6 @@ const defaultProps = {
   // i18n
   monthFormat: { month: 'long', year: 'numeric' },
   locale: undefined,
-  calendar: undefined,
   numberingSystem: undefined,
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
@@ -234,7 +232,6 @@ class CalendarMonthGrid extends React.PureComponent {
       verticalBorderSpacing,
       setMonthTitleHeight,
       locale,
-      calendar,
       numberingSystem,
     } = this.props;
 
@@ -326,7 +323,6 @@ class CalendarMonthGrid extends React.PureComponent {
                 verticalBorderSpacing={verticalBorderSpacing}
                 horizontalMonthPadding={horizontalMonthPadding}
                 locale={locale}
-                calendar={calendar}
                 numberingSystem={numberingSystem}
               />
             </div>

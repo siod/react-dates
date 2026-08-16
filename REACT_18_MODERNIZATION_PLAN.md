@@ -22,7 +22,7 @@ Release `react-dates` 22.0.0 as a major modernization:
 - Require canonical `YYYY-MM-DD` strings or `null` for `date`, `startDate`, `endDate`, `minDate`, and `maxDate`; return the same representation from `onDateChange`, `onDatesChange`, and `onClose`.
 - Require `initialVisibleMonth` to return a canonical ISO date string, and pass ISO strings to date predicates, day/month render callbacks, and custom calendar-day render props so consumers can use any date library or none.
 - Keep existing formatting prop names, but accept `Intl.DateTimeFormatOptions` or a formatter callback receiving an ISO date string. Defaults are `{ dateStyle: 'short' }` for inputs, `{ month: 'long', year: 'numeric' }` for month headings, `{ weekday: 'short' }` for weekdays, and `{ dateStyle: 'full' }` for day ARIA labels.
-- Add optional `locale`, `calendar`, and `numberingSystem` props to top-level pickers/controllers and propagate them to all default formatters; keep dates timezone-free and do not add a public timezone prop.
+- Add optional `locale` and `numberingSystem` props to top-level pickers/controllers and propagate them to all default formatters; keep dates Gregorian and timezone-free and do not add public calendar or timezone props.
 - Use the following final production dependency allowlist:
   - Dependencies: `prop-types@^15.8.1` and `luxon@^3.7.2`.
   - Peers: `react` and `react-dom`.
@@ -54,14 +54,14 @@ Release `react-dates` 22.0.0 as a major modernization:
 ### Luxon migration
 
 - Remove Moment, Moment-Jalaali, and `react-moment-proptypes` from runtime, examples, tests, peer dependencies, and documentation; do not ship a dual Moment/Luxon compatibility layer.
-- Introduce an internal Luxon adapter whose inputs and outputs are canonical ISO date strings; use Luxon only for validation, comparison, arithmetic, formatting, locale-week data, and calendar projection.
+- Introduce an internal Luxon adapter whose inputs and outputs are canonical ISO date strings; use Luxon for validation, comparison, arithmetic, Gregorian formatting, and locale-week data.
 - Reject non-canonical strings and impossible dates at the public boundary. Treat values as date-only data, construct internal `DateTime` values in UTC, and always serialize back to `YYYY-MM-DD` so time zones and daylight-saving transitions cannot shift a selected day.
 - Replace mutable Moment operations with immutable Luxon operations: `add/subtract` with `plus/minus`, setters with `set`, comparisons with `hasSame` or millisecond comparisons, and formatting with `toFormat`/`toLocaleString`.
 - Normalize Moment's zero-based months and Sunday-based weekdays at the adapter boundary because Luxon months are 1-12 and weekdays are Monday=1 through Sunday=7.
 - Parse typed input strictly with locale-aware `Intl` options implemented through the adapter, with canonical ISO input as an unconditional fallback; invalid or ambiguous input returns `null` through the existing controlled-component flow.
 - Remove Moment/Luxon token constants from the public surface and add frozen, library-neutral default `Intl.DateTimeFormatOptions` constants instead.
 - Derive locale week starts and localized labels from Luxon `Info`/`Intl`; consumers configure localization only through public props or formatter callbacks.
-- Preserve Persian localization and RTL examples using `calendar="persian"` and `numberingSystem="arabext"`, but explicitly drop Moment-Jalaali object/plugin interoperability and custom Jalaali month arithmetic.
+- Remove the old Moment-Jalaali demo integration without promoting it into the public contract. Preserve locale, numbering-system, RTL, and formatter/render callback extension points, but keep built-in formatting and arithmetic Gregorian-only.
 - Validate public date props with a local canonical-ISO-date PropType validator and test that no Luxon `DateTime` instance is observable through any public callback or render prop.
 - Keep the boundary compatible with a later internal migration to `Temporal.PlainDate`, which models timezone-free calendar dates but is not yet Baseline across major browsers. See [Temporal `PlainDate`](https://tc39.es/proposal-temporal/docs/plaindate.html) and the [MDN compatibility note](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/PlainDate).
 
@@ -104,7 +104,7 @@ This migration is suitable for a four-agent Codex team only when it is executed 
 ### Wave 0 — Baseline and contract freeze (Sol, serial)
 
 1. Create the implementation branch from the reviewed plan and record the current commit, dependency tree, build/package output, test status, public exports, generated CSS, and representative rendered states. Mark failures caused by the legacy toolchain as baseline failures rather than silently fixing them.
-2. Freeze the v22 public date contract: canonical `YYYY-MM-DD | null` values, `Intl.DateTimeFormatOptions` or callbacks for formatting, and top-level `locale`, `calendar`, and `numberingSystem` propagation. Add contract tests that reject Moment and Luxon instances at public boundaries.
+2. Freeze the v22 public date contract: canonical `YYYY-MM-DD | null` values, Gregorian `Intl.DateTimeFormatOptions` or callbacks for formatting, and top-level `locale` and `numberingSystem` propagation. Add contract tests that reject Moment and Luxon instances at public boundaries.
 3. Define and document narrow internal interfaces for the date adapter, portal/event helpers, class/style merging, and test render helpers. Decide their filenames and exports before delegation.
 4. Add the minimum transitional Vitest/Vite scaffolding needed for foundation tests while retaining legacy tooling only where a test has not yet been migrated.
 
@@ -118,7 +118,7 @@ Own only the new private date-adapter directory, the date-only utilities assigne
 
 - Implement strict canonical validation, UTC construction, ISO serialization, comparison, arithmetic, month/week generation, locale week data, and `Intl`-based formatting/parsing.
 - Replace Moment utility behavior behind the frozen adapter interface without editing picker components, public exports, shared constants, or manifests.
-- Add leap-year, invalid-date, month-boundary, weekday-index, locale, Persian-display, and real IANA DST-transition cases. Include at least `UTC`, `America/New_York`, `Europe/London`, `Australia/Brisbane`, and `Pacific/Apia`; do not model DST with a fixed UTC offset.
+- Add leap-year, invalid-date, month-boundary, weekday-index, locale, numbering-system, and real IANA DST-transition cases. Include at least `UTC`, `America/New_York`, `Europe/London`, `Australia/Brisbane`, and `Pacific/Apia`; do not model DST with a fixed UTC offset.
 
 #### Worker B: browser and presentation foundation
 
@@ -163,7 +163,7 @@ Gate 3: a clean checkout can run `npm ci`, lint, unit tests, coverage, productio
 
 ### Wave 4 — Independent verification (three Luna-high reviewers)
 
-- Reviewer A owns date correctness verification: fuzz valid date ranges, leap years, locale parsing, calendar projection, and the five-zone DST matrix. This reviewer adds tests only in a dedicated verification directory.
+- Reviewer A owns date correctness verification: fuzz valid date ranges, leap years, Gregorian locale parsing, numbering systems, and the five-zone DST matrix. This reviewer adds tests only in a dedicated verification directory.
 - Reviewer B owns UI verification: Chromium/Firefox/WebKit flows, accessibility, keyboard-only behavior, focus restoration, RTL, responsive layouts, portals, and Chromium visual snapshots.
 - Reviewer C owns package verification: React 18/19 consumer fixtures, Node 22/24, CommonJS/ESM/deep imports/CSS, lockfile and Knip audits, Storybook, and tarball contents.
 - Reviewers do not fix implementation code. They report reproducible failures to Sol, who assigns a narrowly scoped fix to the original owner or implements the integration fix directly.
@@ -174,15 +174,15 @@ Gate 4: Sol runs the entire CI matrix from a clean checkout, confirms coverage t
 
 - React 18 and 19 pass in Strict Mode on Node 22 and 24 with no lifecycle, unmount-update, listener-leak, or unhandled-console warnings.
 - Every public date value and callback is library-neutral; Moment and Luxon objects and formatting tokens are absent from the public API.
-- Date-only behavior survives the locale, leap-year, calendar, and real timezone/DST matrices without selected-day drift.
+- Date-only behavior survives the locale, leap-year, month-boundary, and real timezone/DST matrices without selected-day drift.
 - Existing CSS classes and supported import paths remain compatible, while removed styling interfaces fail only in the documented v22 manner.
 - Unit, SSR, browser, accessibility, visual, Storybook, build, dependency, and packed-consumer checks pass from a clean checkout.
-- The release candidate includes migration guides for dates, formatting, styling, Persian-calendar behavior, imports, and removed APIs.
+- The release candidate includes migration guides for dates, formatting, styling, removed non-Gregorian integration, imports, and removed APIs.
 
 ## Test, CI, and Release Plan
 
 - Convert utility tests directly to Vitest and rewrite Enzyme component tests around rendered behavior instead of component instances, state, or private methods.
-- Cover controlled ISO-string date selection, null handling, impossible/non-canonical input rejection, range rules, month and weekday index conversion, strict localized parsing, `Intl` formatting and callbacks, leap years, daylight-saving boundaries, month navigation, keyboard navigation, focus restoration, outside clicks, portals, scroll locking, responsive positioning, touch behavior, locale changes, Persian-calendar display, RTL, and all orientation variants.
+- Cover controlled ISO-string date selection, null handling, impossible/non-canonical input rejection, range rules, month and weekday index conversion, strict Gregorian localized parsing, `Intl` formatting and callbacks, numbering systems, leap years, daylight-saving boundaries, month navigation, keyboard navigation, focus restoration, outside clicks, portals, scroll locking, responsive positioning, touch behavior, locale changes, RTL, and all orientation variants.
 - Render the component suite inside `StrictMode`; fail on React lifecycle warnings, state updates after unmount, leaked listeners, or unhandled console errors.
 - Add SSR smoke tests proving root imports and component rendering do not access `window` or `document` during module evaluation.
 - Add Playwright tests in Chromium, Firefox, and WebKit; keep visual snapshots in Chromium for default, portal, RTL, vertical, selected-range, disabled, and responsive states.

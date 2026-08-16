@@ -120,7 +120,6 @@ const defaultProps = {
   phrases: SingleDatePickerPhrases,
   dayAriaLabelFormat: { dateStyle: 'full' },
   locale: undefined,
-  calendar: undefined,
   numberingSystem: undefined,
 };
 
@@ -451,7 +450,6 @@ class SingleDatePicker extends React.PureComponent {
       phrases,
       dayAriaLabelFormat,
       locale,
-      calendar,
       numberingSystem,
       daySize,
       isRTL,
@@ -514,7 +512,6 @@ class SingleDatePicker extends React.PureComponent {
           numberOfMonths={numberOfMonths}
           monthFormat={monthFormat}
           locale={locale}
-          calendar={calendar}
           numberingSystem={numberingSystem}
           withPortal={withAnyPortal}
           focused={focused}
@@ -593,7 +590,6 @@ class SingleDatePicker extends React.PureComponent {
       onDateChange,
       displayFormat,
       locale,
-      calendar,
       numberingSystem,
       phrases,
       withPortal,
@@ -644,7 +640,6 @@ class SingleDatePicker extends React.PureComponent {
         onDateChange={onDateChange}
         displayFormat={displayFormat}
         locale={locale}
-        calendar={calendar}
         numberingSystem={numberingSystem}
         onFocusChange={this.onInputFocus}
         onKeyDownArrowDown={this.onDayPickerFocus}

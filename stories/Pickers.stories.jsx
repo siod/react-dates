@@ -17,13 +17,12 @@ export const DateRange = {
   render: () => <DateRangePickerExample numberOfMonths={2} isOutsideRange={() => false} />,
 };
 
-export const PersianRtl = {
+export const ArabicRtl = {
   render: () => (
     <div dir="rtl">
       <SingleDatePickerExample
-        locale="fa-IR"
-        calendar="persian"
-        numberingSystem="arabext"
+        locale="ar-EG"
+        numberingSystem="arab"
         isRTL
         numberOfMonths={1}
         isOutsideRange={() => false}

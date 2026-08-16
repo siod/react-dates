@@ -60,19 +60,10 @@ an ISO date string and localization context:
 />
 ```
 
-Persian calendar display is configured without changing the underlying ISO date:
-
-```jsx
-<SingleDatePicker
-  locale="fa-IR"
-  calendar="persian"
-  numberingSystem="arabext"
-  isRTL
-/>
-```
-
-Dates are timezone-free calendar values. There is intentionally no public
-timezone prop.
+Formatting always uses the Gregorian calendar. `locale` and `numberingSystem`
+localize language and digits, while `isRTL` controls layout direction. Dates are
+timezone-free date values; there are intentionally no public calendar or
+timezone props.
 
 ## Styling
 

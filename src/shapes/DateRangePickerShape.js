@@ -110,6 +110,5 @@ export default {
   phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
   dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   locale: PropTypes.string,
-  calendar: PropTypes.string,
   numberingSystem: PropTypes.string,
 };

@@ -17,7 +17,6 @@ export default [
       'playwright-report/**',
       'test-results/**',
       'fixtures/*/node_modules/**',
-      '.storybook-css/**',
       'index.js',
       'constants.js',
       'initialize.js',

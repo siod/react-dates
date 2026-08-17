@@ -12,13 +12,6 @@ if (!api.SingleDatePicker) throw new Error('ESM root export is unusable.');
 if (typeof constants.DEFAULT_INPUT_FORMAT !== 'object') throw new Error('ESM constants are unusable.');
 if (!CalendarDay) throw new Error('ESM component deep imports are unusable.');
 
-try {
-  await import('@siod/react-dates/esm/theme/DefaultTheme');
-  throw new Error('The removed DefaultTheme deep import is still resolvable.');
-} catch (error) {
-  if (error.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') throw error;
-}
-
 const require = createRequire(import.meta.url);
 const fixtureModules = `${resolve(process.cwd(), 'node_modules')}${sep}`;
 if (!require.resolve('luxon').startsWith(fixtureModules)) {

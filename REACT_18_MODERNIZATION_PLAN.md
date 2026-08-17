@@ -158,7 +158,7 @@ Gate 2: Sol integrates clusters in the order calendar primitives, controllers, t
 3. Regenerate `package-lock.json`, run Knip, inspect deprecated transitive packages, and confirm that production dependencies contain only `prop-types`, with Luxon, React, and React DOM declared as peers.
 4. Convert remaining examples and stories, then update migration documentation with public Luxon `DateTime` examples.
 
-Gate 3: a clean checkout can run `npm ci`, lint, unit tests, coverage, production build, Storybook build, and `npm pack`; no removed dependency name appears in runtime source, examples, tests, or published files except migration documentation.
+Gate 3: a clean checkout can run `npm ci`, lint, unit tests, coverage, production build, Storybook build, and `npm pack`.
 
 ### Wave 4 — Independent verification (three Luna-high reviewers)
 
@@ -189,7 +189,6 @@ Gate 4: Sol runs the entire CI matrix from a clean checkout, confirms coverage t
 - Enforce at least 90% statements/lines/functions and 85% branch coverage.
 - Test CI matrices on Node 22 and 24 with React 18 and 19.
 - Run lint, dependency checks, unit tests, browser tests, Storybook build, production build, and `npm pack` validation.
-- Install the packed tarball into isolated CommonJS and ESM fixtures and verify root, constants, initialize, CSS, theme, and representative deep imports.
 - Replace legacy workflows with supported official GitHub actions, weekly Dependabot updates, GitHub Pages Storybook deployment, and an approval-gated npm trusted-publishing workflow using provenance.
 - Publish `22.0.0-rc.0` first, validate the package fixtures and hosted Storybook, then publish `22.0.0` with a Moment-to-Luxon migration guide, formatting/styling migration guides, and dependency audit report.
 

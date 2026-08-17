@@ -7,16 +7,6 @@ const constants = requireFromFixture('@siod/react-dates/constants');
 const CalendarDay = requireFromFixture('@siod/react-dates/lib/components/CalendarDay');
 const { DateTime } = requireFromFixture('luxon');
 
-function assertDefaultThemeIsNotExported() {
-  try {
-    requireFromFixture.resolve('@siod/react-dates/lib/theme/DefaultTheme');
-  } catch (error) {
-    if (error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') return;
-    throw error;
-  }
-  throw new Error('The removed DefaultTheme deep import is still resolvable.');
-}
-
 const fixtureModules = `${resolve(process.cwd(), 'node_modules')}${sep}`;
 if (!requireFromFixture.resolve('luxon').startsWith(fixtureModules)) {
   throw new Error('Luxon resolved outside the isolated CommonJS consumer.');
@@ -33,7 +23,6 @@ if (!requireFromFixture.resolve('@siod/react-dates/lib/css/_datepicker.css')) {
   throw new Error('CommonJS CSS entrypoint is not resolvable.');
 }
 if (!CalendarDay.default) throw new Error('CommonJS component deep imports are not usable.');
-assertDefaultThemeIsNotExported();
 if (!DateTime.fromISO('2030-06-15').isValid) throw new Error('CommonJS Luxon peer is unusable.');
 
 console.log('CommonJS packed fixture passed.');

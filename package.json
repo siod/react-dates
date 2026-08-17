@@ -1,6 +1,6 @@
 {
   "name": "@siod/react-dates",
-  "version": "22.0.0-rc.1",
+  "version": "22.0.0",
   "description": "A maintained React 18+ fork of react-dates using Luxon",
   "publishConfig": {
     "access": "public"

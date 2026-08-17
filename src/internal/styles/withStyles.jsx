@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import DefaultTheme from '../../theme/DefaultTheme';
+import defaultStyleTokens from './defaultStyleTokens';
 import mergeInlineStyles from './inlineStyles';
 
 const EMPTY = {};
@@ -34,7 +34,7 @@ export function withStyles(stylesFn = () => EMPTY, options = {}) {
       Object.keys(wrappedDefaultProps).forEach((key) => {
         if (normalizedProps[key] === undefined) normalizedProps[key] = wrappedDefaultProps[key];
       });
-      const theme = normalizedProps[themePropName] || DefaultTheme;
+      const theme = normalizedProps[themePropName] || defaultStyleTokens;
       const rawStyles = stylesFn(theme) || EMPTY;
       const styleKeys = Object.keys(rawStyles);
       const styleLookup = new WeakMap();

@@ -13,7 +13,7 @@ Release `react-dates` 22.0.0 as a major modernization:
 
 ## Public Contract and Packaging
 
-- Preserve root exports plus `react-dates/constants`, `react-dates/initialize`, `react-dates/lib/css/_datepicker.css`, legacy `lib`/`esm` deep imports, `DefaultTheme`, and existing `Pure*` named exports.
+- Preserve root exports plus `react-dates/constants`, `react-dates/initialize`, `react-dates/lib/css/_datepicker.css`, legacy `lib`/`esm` component deep imports, and existing `Pure*` named exports. Remove the `DefaultTheme` deep import because the runtime JavaScript theming API no longer exists.
 - Keep `initialize` as a harmless compatibility module; consumers no longer need to call it.
 - Add conditional package exports for CommonJS and ESM while retaining root compatibility wrappers.
 - Build per-module ESM into `esm/` and CommonJS into `lib/` using Vite 8 with preserved modules and peer dependencies externalized.
@@ -47,7 +47,7 @@ Release `react-dates` 22.0.0 as a major modernization:
 - Replace the complete `react-with-styles` ecosystem with authored global CSS processed by Lightning CSS.
 - Convert every style key into the same deterministic class name currently emitted, preserving consumer override selectors and visual behavior.
 - Keep runtime dimensions, transforms, and measured positions as inline styles; use a local class/style merging helper for conditional modifiers.
-- Express `DefaultTheme` values as documented `--react-dates-*` CSS custom properties while retaining the existing JavaScript theme object as a compatibility reference.
+- Express styling defaults as documented `--react-dates-*` CSS custom properties. Keep any tokens required by the internal static-class adapter private rather than exposing a second, ineffective theming API.
 - Preserve RTL behavior using existing `isRTL` modifiers, `dir="rtl"`, logical CSS properties, and explicit exceptions previously represented by `noflip`.
 - Document that `ThemedStyleSheet.registerInterface/registerTheme` and Aphrodite interfaces no longer affect components. Consumers must import the CSS and override CSS variables or existing selectors.
 

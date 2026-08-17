@@ -37,6 +37,15 @@ const phrases = {
 };
 
 describe('CustomizableCalendarDay legacy observable behavior', () => {
+  it('uses public CSS custom properties for its default inline styles', () => {
+    renderDay(<CustomizableCalendarDay day={day} modifiers={new Set(['selected'])} />);
+    const cell = getDayCell();
+
+    expect(cell.style.background).toBe('var(--react-dates-color-selected-background)');
+    expect(cell.style.border).toBe('1px double var(--react-dates-color-selected-border)');
+    expect(cell.style.color).toBe('var(--react-dates-color-selected-text)');
+  });
+
   it('renders single- and double-digit calendar dates', () => {
     renderDay(<CustomizableCalendarDay day={DateTime.fromISO('2024-02-01')} />);
     expect(getDayCell().textContent).toBe('1');

@@ -365,7 +365,7 @@ Version 22 uses static CSS and `--react-dates-*` custom properties. The old `rea
 }
 ```
 
-The JavaScript `DefaultTheme` deep import remains available as a compatibility reference, but changing it does not change the rendered CSS.
+`CustomizableCalendarDay` uses the same custom properties for its default style props. Explicit values passed through its style props continue to override those defaults.
 
 [package-url]: https://www.npmjs.com/package/react-dates
 [npm-version-svg]: https://img.shields.io/npm/v/react-dates.svg

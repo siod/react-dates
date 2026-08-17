@@ -47,7 +47,11 @@ Supplied dates may override that default with `dateTime.setLocale(...)`.
 Import `react-dates/css` once. Importing `react-dates/initialize` is no longer
 required, although it remains a no-op for compatibility. Override existing CSS
 selectors or `--react-dates-*` custom properties. Runtime style interface and
-theme registration APIs no longer affect components.
+theme registration APIs no longer affect components. The
+`react-dates/lib/theme/DefaultTheme` deep import has been removed; translate
+overrides based on that object to the corresponding CSS custom properties.
+`CustomizableCalendarDay` also uses those properties for its default style
+props, while explicit style-prop values continue to take precedence.
 
 ## Non-Gregorian calendars
 

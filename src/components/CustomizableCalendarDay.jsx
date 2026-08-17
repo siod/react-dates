@@ -11,9 +11,6 @@ import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
 
 import { DAY_SIZE } from '../constants';
-import DefaultTheme from '../theme/DefaultTheme';
-
-const { reactDates: { color } } = DefaultTheme;
 
 function getStyles(stylesObj, isHovered) {
   if (!stylesObj) return null;
@@ -77,103 +74,103 @@ const propTypes = forbidExtraProps({
 });
 
 export const defaultStyles = {
-  border: `1px solid ${color.core.borderLight}`,
-  color: color.text,
-  background: color.background,
+  border: '1px solid var(--react-dates-border-light)',
+  color: 'var(--react-dates-color-text)',
+  background: 'var(--react-dates-color-background)',
 
   hover: {
-    background: color.core.borderLight,
-    border: `1px solid ${color.core.borderLight}`,
+    background: 'var(--react-dates-border-light)',
+    border: '1px solid var(--react-dates-border-light)',
     color: 'inherit',
   },
 };
 
 export const outsideStyles = {
-  background: color.outside.backgroundColor,
+  background: 'var(--react-dates-color-outside-background)',
   border: 0,
-  color: color.outside.color,
+  color: 'var(--react-dates-color-outside-color)',
 };
 
 export const highlightedCalendarStyles = {
-  background: color.highlighted.backgroundColor,
-  color: color.highlighted.color,
+  background: 'var(--react-dates-color-highlighted-background)',
+  color: 'var(--react-dates-color-highlighted-color)',
 
   hover: {
-    background: color.highlighted.backgroundColor_hover,
-    color: color.highlighted.color_active,
+    background: 'var(--react-dates-color-highlighted-background-active)',
+    color: 'var(--react-dates-color-highlighted-color)',
   },
 };
 
 export const blockedMinNightsStyles = {
-  background: color.minimumNights.backgroundColor,
-  border: `1px solid ${color.minimumNights.borderColor}`,
-  color: color.minimumNights.color,
+  background: 'var(--react-dates-color-minimum-nights-background)',
+  border: '1px solid var(--react-dates-color-minimum-nights-border)',
+  color: 'var(--react-dates-color-minimum-nights-color)',
 
   hover: {
-    background: color.minimumNights.backgroundColor_hover,
-    color: color.minimumNights.color_active,
+    background: 'var(--react-dates-color-minimum-nights-background)',
+    color: 'var(--react-dates-color-minimum-nights-color)',
   },
 };
 
 export const blockedCalendarStyles = {
-  background: color.blocked_calendar.backgroundColor,
-  border: `1px solid ${color.blocked_calendar.borderColor}`,
-  color: color.blocked_calendar.color,
+  background: 'var(--react-dates-color-blocked-calendar-background)',
+  border: '1px solid var(--react-dates-color-blocked-calendar-border)',
+  color: 'var(--react-dates-color-blocked-calendar-text)',
 
   hover: {
-    background: color.blocked_calendar.backgroundColor_hover,
-    border: `1px solid ${color.blocked_calendar.borderColor}`,
-    color: color.blocked_calendar.color_active,
+    background: 'var(--react-dates-color-blocked-calendar-background)',
+    border: '1px solid var(--react-dates-color-blocked-calendar-border)',
+    color: 'var(--react-dates-color-blocked-calendar-text)',
   },
 };
 
 export const blockedOutOfRangeStyles = {
-  background: color.blocked_out_of_range.backgroundColor,
-  border: `1px solid ${color.blocked_out_of_range.borderColor}`,
-  color: color.blocked_out_of_range.color,
+  background: 'var(--react-dates-color-blocked-out-of-range-background)',
+  border: '1px solid var(--react-dates-color-blocked-out-of-range-border)',
+  color: 'var(--react-dates-color-blocked-out-of-range-text)',
 
   hover: {
-    background: color.blocked_out_of_range.backgroundColor_hover,
-    border: `1px solid ${color.blocked_out_of_range.borderColor}`,
-    color: color.blocked_out_of_range.color_active,
+    background: 'var(--react-dates-color-blocked-out-of-range-background)',
+    border: '1px solid var(--react-dates-color-blocked-out-of-range-border)',
+    color: 'var(--react-dates-color-blocked-out-of-range-text)',
   },
 };
 
 export const hoveredSpanStyles = {
-  background: color.hoveredSpan.backgroundColor,
-  border: `1px double ${color.hoveredSpan.borderColor}`,
-  color: color.hoveredSpan.color,
+  background: 'var(--react-dates-color-hovered-span-background)',
+  border: '1px double var(--react-dates-color-hovered-span-border)',
+  color: 'var(--react-dates-color-hovered-span-text)',
 
   hover: {
-    background: color.hoveredSpan.backgroundColor_hover,
-    border: `1px double ${color.hoveredSpan.borderColor}`,
-    color: color.hoveredSpan.color_active,
+    background: 'var(--react-dates-color-hovered-span-background)',
+    border: '1px double var(--react-dates-color-hovered-span-border)',
+    color: 'var(--react-dates-color-hovered-span-text)',
   },
 };
 
 export const selectedSpanStyles = {
-  background: color.selectedSpan.backgroundColor,
-  border: `1px double ${color.selectedSpan.borderColor}`,
-  color: color.selectedSpan.color,
+  background: 'var(--react-dates-color-selected-span-background)',
+  border: '1px double var(--react-dates-color-selected-span-border)',
+  color: 'var(--react-dates-color-selected-span-text)',
 
   hover: {
-    background: color.selectedSpan.backgroundColor_hover,
-    border: `1px double ${color.selectedSpan.borderColor}`,
-    color: color.selectedSpan.color_active,
+    background: 'var(--react-dates-color-selected-span-background-active)',
+    border: '1px double var(--react-dates-color-selected-span-border)',
+    color: 'var(--react-dates-color-selected-span-text)',
   },
 };
 
 export const lastInRangeStyles = {};
 
 export const selectedStyles = {
-  background: color.selected.backgroundColor,
-  border: `1px double ${color.selected.borderColor}`,
-  color: color.selected.color,
+  background: 'var(--react-dates-color-selected-background)',
+  border: '1px double var(--react-dates-color-selected-border)',
+  color: 'var(--react-dates-color-selected-text)',
 
   hover: {
-    background: color.selected.backgroundColor_hover,
-    border: `1px double ${color.selected.borderColor}`,
-    color: color.selected.color_active,
+    background: 'var(--react-dates-color-selected-background)',
+    border: '1px double var(--react-dates-color-selected-border)',
+    color: 'var(--react-dates-color-selected-text)',
   },
 };
 
@@ -396,11 +393,10 @@ CustomizableCalendarDay.propTypes = propTypes;
 CustomizableCalendarDay.defaultProps = defaultProps;
 
 export { CustomizableCalendarDay as PureCustomizableCalendarDay };
-export default withStyles(({ reactDates: { font } }) => ({
+export default withStyles(() => ({
   CalendarDay: {
     boxSizing: 'border-box',
     cursor: 'pointer',
-    fontSize: font.size,
     textAlign: 'center',
 
     ':active': {

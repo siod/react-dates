@@ -1,3 +1,6 @@
+// Private compatibility tokens used while legacy style factories are mapped to
+// static class names. Public theming is provided exclusively through CSS custom
+// properties; this object is not a supported consumer API.
 const core = {
   white: '#fff',
   gray: '#484848',

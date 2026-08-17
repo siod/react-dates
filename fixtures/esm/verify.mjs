@@ -4,14 +4,20 @@ import { resolve, sep } from 'node:path';
 import { DateTime } from 'luxon';
 import * as api from 'react-dates';
 import * as constants from 'react-dates/constants';
-import DefaultTheme from 'react-dates/esm/theme/DefaultTheme';
 import CalendarDay from 'react-dates/esm/components/CalendarDay';
 
 await import('react-dates/initialize');
 
 if (!api.SingleDatePicker) throw new Error('ESM root export is unusable.');
 if (typeof constants.DEFAULT_INPUT_FORMAT !== 'object') throw new Error('ESM constants are unusable.');
-if (!DefaultTheme || !CalendarDay) throw new Error('ESM deep imports are unusable.');
+if (!CalendarDay) throw new Error('ESM component deep imports are unusable.');
+
+try {
+  await import('react-dates/esm/theme/DefaultTheme');
+  throw new Error('The removed DefaultTheme deep import is still resolvable.');
+} catch (error) {
+  if (error.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') throw error;
+}
 
 const require = createRequire(import.meta.url);
 const fixtureModules = `${resolve(process.cwd(), 'node_modules')}${sep}`;

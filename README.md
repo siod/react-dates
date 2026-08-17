@@ -6,9 +6,9 @@
 
 > An easily internationalizable, accessible, mobile-friendly datepicker library for the web.
 
-![react-dates in action](https://raw.githubusercontent.com/react-dates/react-dates/HEAD/react-dates-demo.gif)
+![react-dates in action](https://raw.githubusercontent.com/siod/react-dates/HEAD/react-dates-demo.gif)
 
-Version 22 targets React 18 and React 19 and uses Luxon `DateTime` values instead of Moment. See the [v22 migration guide](docs/migration-v22.md) when upgrading.
+This is a maintained fork of Airbnb's [`react-dates`](https://github.com/react-dates/react-dates), published as `@siod/react-dates`. Version 22 targets React 18 and React 19 and uses Luxon `DateTime` values instead of Moment. See the [v22 migration guide](docs/migration-v22.md) when upgrading from the original package.
 
 ## Live Playground
 
@@ -27,7 +27,7 @@ To run that demo on your own computer:
 Install `react-dates` and its Luxon peer dependency:
 
 ```sh
-npm install --save react-dates luxon
+npm install --save @siod/react-dates luxon
 ```
 
 Your application must provide React and React DOM 18 or 19.
@@ -36,31 +36,31 @@ Your application must provide React and React DOM 18 or 19.
 Import the stylesheet once near your application entry point:
 
 ```js
-import 'react-dates/css';
+import '@siod/react-dates/css';
 ```
 
-`react-dates/initialize` remains available as a harmless compatibility import, but v22 no longer requires runtime style initialization.
+The `initialize` compatibility entrypoint in `react-dates` remains available as a harmless no-op, but v22 no longer requires runtime style initialization.
 
 Note: This component assumes `box-sizing: border-box` is set globally in your page's CSS.
 
 ### Include component
 ```js
-import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
+import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from '@siod/react-dates';
 ```
 
 #### Webpack
 Using Webpack with CSS loader, add the following import to your app:
 ```js
-import 'react-dates/css';
+import '@siod/react-dates/css';
 ```
 
 #### Without Webpack:
-Create a CSS file with the contents of `require.resolve('react-dates/css')` and include it in your html `<head>` section.
+Create a CSS file with the contents of `require.resolve('@siod/react-dates/css')` and include it in your html `<head>` section.
 
 To see complete controlled examples, explore the [examples folder](examples).
 
 #### Overriding styles
-The easiest way to tweak `react-dates` to your heart's content is to create another stylesheet to override the default react-dates styles. Import your overrides after the `react-dates` stylesheet. Theme values can also be overridden with CSS variables:
+The easiest way to tweak `react-dates` to your heart's content is to create another stylesheet to override the default react-dates styles. Import your overrides after the react-dates stylesheet. Theme values can also be overridden with CSS variables:
 
 ```css
 :root {
@@ -121,7 +121,7 @@ Here is the minimum *REQUIRED* setup you need to get the `DateRangePicker` worki
 />
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `DateRangePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports in `react-dates/constants`. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
+The following is a list of other *OPTIONAL* props you may provide to the `DateRangePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
 ```js
 // input related props
 startDatePlaceholderText: PropTypes.string,
@@ -213,7 +213,7 @@ Here is the minimum *REQUIRED* setup you need to get the `SingleDatePicker` work
 />
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `SingleDatePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports in `react-dates/constants`. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
+The following is a list of other *OPTIONAL* props you may provide to the `SingleDatePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
 ```js
 // input related props
 placeholder: PropTypes.string,
@@ -356,7 +356,7 @@ Formatting props accept `Intl.DateTimeFormatOptions` or a callback receiving a `
 ## Advanced
 
 ### Theming
-Version 22 uses static CSS and `--react-dates-*` custom properties. The old `react-with-styles` interface and runtime theme registration APIs no longer affect rendered components. Import overrides after `react-dates/css`:
+Version 22 uses static CSS and `--react-dates-*` custom properties. The old `react-with-styles` interface and runtime theme registration APIs no longer affect rendered components. Import overrides after the react-dates stylesheet:
 
 ```css
 :root {
@@ -369,11 +369,11 @@ Version 22 uses static CSS and `--react-dates-*` custom properties. The old `rea
 
 `CustomizableCalendarDay` uses the same custom properties for its default style props. Explicit values passed through its style props continue to override those defaults.
 
-[package-url]: https://www.npmjs.com/package/react-dates
-[npm-version-svg]: https://img.shields.io/npm/v/react-dates.svg
+[package-url]: https://www.npmjs.com/package/@siod/react-dates
+[npm-version-svg]: https://img.shields.io/npm/v/%40siod%2Freact-dates.svg
 [ci-svg]: https://github.com/siod/react-dates/actions/workflows/ci-modernization.yml/badge.svg
 [ci-url]: https://github.com/siod/react-dates/actions/workflows/ci-modernization.yml
 [license-image]: https://img.shields.io/npm/l/react-dates.svg
 [license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/react-dates.svg
-[downloads-url]: https://www.npmjs.com/package/react-dates
+[downloads-image]: https://img.shields.io/npm/dm/%40siod%2Freact-dates.svg
+[downloads-url]: https://www.npmjs.com/package/@siod/react-dates

@@ -21,12 +21,12 @@ function getLink(href, text) {
   return `<a href=${href} rel="noopener noreferrer" target="_blank">${text}</a>`;
 }
 
-const README = getLink('https://github.com/react-dates/react-dates/blob/HEAD/README.md', 'README');
-const wrapperSource = getLink('https://github.com/react-dates/react-dates/tree/HEAD/examples', 'wrapper source');
+const README = getLink('https://github.com/siod/react-dates/blob/HEAD/README.md', 'README');
+const wrapperSource = getLink('https://github.com/siod/react-dates/tree/HEAD/examples', 'wrapper source');
 
 const helperText = `All examples are built using a wrapper component that is not exported by
-  react-dates. Please see the ${README} for more information about minimal setup or explore
-  the ${wrapperSource} to see how to integrate react-dates into your own app.`;
+  @siod/react-dates. Please see the ${README} for more information about minimal setup or explore
+  the ${wrapperSource} to see how to integrate @siod/react-dates into your own app.`;
 
 addDecorator(story => (
   <div>
@@ -51,8 +51,8 @@ addDecorator(story => (
 ));
 
 setOptions({
-  name: 'REACT-DATES',
-  url: 'https://github.com/react-dates/react-dates',
+  name: '@SIOD/REACT-DATES',
+  url: 'https://github.com/siod/react-dates',
 });
 
 function loadStories() {

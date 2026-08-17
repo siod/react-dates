@@ -1,7 +1,25 @@
-# Migrating to react-dates v22
+# Migrating to @siod/react-dates v22
 
-v22 targets React 18 and React 19, replaces Moment with Luxon, and removes the
-legacy runtime styling contract.
+`@siod/react-dates` is a maintained fork of Airbnb's `react-dates`. v22 targets
+React 18 and React 19, replaces Moment with Luxon, and removes the legacy
+runtime styling contract.
+
+## Package name
+
+Replace the original package with the scoped fork:
+
+```sh
+npm uninstall react-dates
+npm install @siod/react-dates luxon
+```
+
+Update JavaScript and stylesheet imports from `react-dates` to
+`@siod/react-dates`. For a transitional installation that preserves existing
+source imports, npm aliases are also supported:
+
+```sh
+npm install react-dates@npm:@siod/react-dates@^22.0.0
+```
 
 ## Dates
 
@@ -45,11 +63,12 @@ An individual Luxon `DateTime` may override that default with, for example,
 
 ## Styling
 
-Import `react-dates/css` once. Importing `react-dates/initialize` is no longer
-required, although it remains a no-op for compatibility. Override existing CSS
-selectors or `--react-dates-*` custom properties. Runtime style interface and
-theme registration APIs no longer affect components. The
-`react-dates/lib/theme/DefaultTheme` deep import has been removed; translate
+Import `@siod/react-dates/css` once. Importing
+`@siod/react-dates/initialize` is no longer required, although it remains a
+no-op for compatibility. Override existing CSS selectors or `--react-dates-*`
+custom properties. Runtime style interface and theme registration APIs no
+longer affect components. The
+`@siod/react-dates/lib/theme/DefaultTheme` deep import has been removed; translate
 overrides based on that object to the corresponding CSS custom properties.
 `CustomizableCalendarDay` also uses those properties for its default style
 props, while explicit style-prop values continue to take precedence.

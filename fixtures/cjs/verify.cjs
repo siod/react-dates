@@ -2,14 +2,14 @@ const { createRequire } = require('node:module');
 const { resolve, sep } = require('node:path');
 
 const requireFromFixture = createRequire(__filename);
-const api = requireFromFixture('react-dates');
-const constants = requireFromFixture('react-dates/constants');
-const CalendarDay = requireFromFixture('react-dates/lib/components/CalendarDay');
+const api = requireFromFixture('@siod/react-dates');
+const constants = requireFromFixture('@siod/react-dates/constants');
+const CalendarDay = requireFromFixture('@siod/react-dates/lib/components/CalendarDay');
 const { DateTime } = requireFromFixture('luxon');
 
 function assertDefaultThemeIsNotExported() {
   try {
-    requireFromFixture.resolve('react-dates/lib/theme/DefaultTheme');
+    requireFromFixture.resolve('@siod/react-dates/lib/theme/DefaultTheme');
   } catch (error) {
     if (error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') return;
     throw error;
@@ -26,10 +26,10 @@ if (!api || typeof api !== 'object') throw new Error('CommonJS root export is no
 if (typeof constants.DEFAULT_INPUT_FORMAT !== 'object') {
   throw new Error('CommonJS constants export is missing DEFAULT_INPUT_FORMAT.');
 }
-if (!requireFromFixture.resolve('react-dates/initialize')) {
+if (!requireFromFixture.resolve('@siod/react-dates/initialize')) {
   throw new Error('CommonJS initialize entrypoint is not resolvable.');
 }
-if (!requireFromFixture.resolve('react-dates/lib/css/_datepicker.css')) {
+if (!requireFromFixture.resolve('@siod/react-dates/lib/css/_datepicker.css')) {
   throw new Error('CommonJS CSS entrypoint is not resolvable.');
 }
 if (!CalendarDay.default) throw new Error('CommonJS component deep imports are not usable.');

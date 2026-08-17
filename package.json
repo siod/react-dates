@@ -1,7 +1,10 @@
 {
-  "name": "react-dates",
+  "name": "@siod/react-dates",
   "version": "22.0.0-rc.0",
-  "description": "A responsive and accessible date range picker component built with React",
+  "description": "A maintained React 18+ fork of react-dates using Luxon",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
   "exports": {

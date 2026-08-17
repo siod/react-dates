@@ -2,7 +2,7 @@
 
 ## Summary
 
-Release `react-dates` 22.0.0 as a major modernization:
+Release `@siod/react-dates` 22.0.0 as a major modernization of the fork:
 
 - Require Node `>=22.22.2`.
 - Support and test React 18 and React 19; declare peers as `^18.0.0 || ^19.0.0`.
@@ -13,11 +13,11 @@ Release `react-dates` 22.0.0 as a major modernization:
 
 ## Public Contract and Packaging
 
-- Preserve root exports plus `react-dates/constants`, `react-dates/initialize`, `react-dates/lib/css/_datepicker.css`, legacy `lib`/`esm` component deep imports, and existing `Pure*` named exports. Remove the `DefaultTheme` deep import because the runtime JavaScript theming API no longer exists.
+- Preserve root exports plus `@siod/react-dates/constants`, `@siod/react-dates/initialize`, `@siod/react-dates/lib/css/_datepicker.css`, legacy `lib`/`esm` component deep imports, and existing `Pure*` named exports. Remove the `DefaultTheme` deep import because the runtime JavaScript theming API no longer exists.
 - Keep `initialize` as a harmless compatibility module; consumers no longer need to call it.
 - Add conditional package exports for CommonJS and ESM while retaining root compatibility wrappers.
 - Build per-module ESM into `esm/` and CommonJS into `lib/` using Vite 8 with preserved modules and peer dependencies externalized.
-- Add `module`, `exports`, `sideEffects`, `files`, and `engines` metadata. Add `react-dates/css` as a supported alias for the existing stylesheet.
+- Add `module`, `exports`, `sideEffects`, `files`, and `engines` metadata. Add `@siod/react-dates/css` as a supported alias for the existing stylesheet.
 - Remove the public `toMomentObject` export; consumers use the `DateTime` values already exposed by every date boundary.
 - Require valid Luxon `DateTime` instances or `null` for `date`, `startDate`, `endDate`, `minDate`, and `maxDate`; return the same representation from `onDateChange`, `onDatesChange`, and `onClose`.
 - Require `initialVisibleMonth` to return a `DateTime`, and pass `DateTime` values to date predicates, formatter callbacks, day/month render callbacks, and custom calendar-day render props.

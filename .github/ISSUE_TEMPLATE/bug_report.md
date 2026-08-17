@@ -7,8 +7,8 @@ assignees: ''
 
 ---
 
-**react-dates version**
-e.g. react-dates@18.3.1
+**@siod/react-dates version**
+e.g. @siod/react-dates@22.0.0
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -26,7 +26,7 @@ Steps to reproduce the behavior:
   onFocusChange={focusedInput => this.setState({ focusedInput })}
 />
 ```
-If you have custom methods that you are passing into a `react-dates` component, e.g. `onDatesChange`, `onFocusChange`, `renderMonth`, `isDayBlocked`, etc., please include the source for those as well.
+If you have custom methods that you are passing into an `@siod/react-dates` component, e.g. `onDatesChange`, `onFocusChange`, `renderMonth`, `isDayBlocked`, etc., please include the source for those as well.
 
 **Screenshots/Gifs**
 If applicable, add screenshots or gifs to help explain your problem.

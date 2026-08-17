@@ -78,8 +78,8 @@ other component selectors. Theme values can be overridden with CSS variables:
 
 ```css
 :root {
-  --react-dates-color-primary: #006c67;
-  --react-dates-color-primary-shade-1: #00514d;
+  --react-dates-primary: #006c67;
+  --react-dates-primary-shade-1: #00514d;
 }
 ```
 

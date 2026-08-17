@@ -111,12 +111,12 @@ behavior, not by mechanically recreating all 1,138 historical test cases.
 - The final legacy disposition matrix reconciles all 1,138 cases: 57 ported
   one-for-one, 1,048 combined into observable behavior tests, 12 obsolete
   Moment-only contracts, and 21 replaced by higher-level public behavior.
-- Vitest now runs 433 cases across 44 files. Enforced coverage is 90% statements,
-  85% branches, 90% functions, and 90% lines; the implemented suite reaches
-  92.85%, 87.08%, 90.97%, and 94.93%, respectively.
-- Playwright runs 66 passing tests across Chromium, Firefox, and WebKit,
-  including focus, keyboard, hover preview, accessibility, RTL, portals,
-  vertical layouts, and narrow responsive layouts.
+- Vitest enforces 90% statements, 85% branches, 90% functions, and 90% lines.
+  Current case counts and coverage are reported by CI rather than duplicated in
+  this plan, so test consolidation cannot leave this result section stale.
+- Playwright covers Chromium, Firefox, and WebKit interactions plus deterministic
+  Chromium snapshots for the planned visual states. Current counts are reported
+  by CI.
 - Controller regressions exposed by the recovered tests were fixed, including
   Luxon date offsets, dynamic minimum nights, hover modifiers, controlled month
   synchronization, prop-driven modifier refresh, and scrollable callbacks.

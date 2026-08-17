@@ -110,8 +110,10 @@ jobs:
           mkdir -p "$RUNNER_TEMP/react-dates-package"
           npm pack --pack-destination "$RUNNER_TEMP/react-dates-package"
           TARBALL="$(find "$RUNNER_TEMP/react-dates-package" -name '*.tgz' -print -quit)"
-          REACT_DATES_TARBALL="$TARBALL" npm --prefix fixtures/cjs run test:packed
-          REACT_DATES_TARBALL="$TARBALL" npm --prefix fixtures/esm run test:packed
+          cp -R fixtures/cjs "$RUNNER_TEMP/react-dates-cjs-consumer"
+          cp -R fixtures/esm "$RUNNER_TEMP/react-dates-esm-consumer"
+          REACT_DATES_TARBALL="$TARBALL" npm --prefix "$RUNNER_TEMP/react-dates-cjs-consumer" run test:packed
+          REACT_DATES_TARBALL="$TARBALL" npm --prefix "$RUNNER_TEMP/react-dates-esm-consumer" run test:packed
 
   browser:
     name: Browser · Node ${{ matrix.node }} · React ${{ matrix.react }}

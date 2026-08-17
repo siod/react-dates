@@ -154,7 +154,7 @@
 }
 .SingleDatePicker_closeButton:focus,
 .SingleDatePicker_closeButton:hover {
-  color: darken(var(--react-dates-gray-lighter),10%);
+  color: var(--react-dates-gray-lighter-dark);
   text-decoration: none
 }
 .SingleDatePicker_closeButton_svg {
@@ -887,7 +887,7 @@
 }
 .DateRangePicker_closeButton:focus,
 .DateRangePicker_closeButton:hover {
-  color: darken(var(--react-dates-gray-lighter),10%);
+  color: var(--react-dates-gray-lighter-dark);
   text-decoration: none
 }
 .DateRangePicker_closeButton_svg {

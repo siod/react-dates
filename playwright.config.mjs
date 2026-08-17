@@ -7,6 +7,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: './test/browser-fixtures',
   testMatch: '**/*.spec.{js,jsx,mjs}',
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}',
   outputDir: 'test-results/playwright',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

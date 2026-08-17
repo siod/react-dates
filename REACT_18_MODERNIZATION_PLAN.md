@@ -68,9 +68,9 @@ Release `react-dates` 22.0.0 as a major modernization:
 
 | Remove | Replacement |
 | --- | --- |
-| Enzyme, adapter helpers, Cheerio | React Testing Library 16 and user-event 14 |
+| Enzyme, adapter helpers, Cheerio | React Testing Library 16 and Playwright interactions |
 | Mocha, Chai, Sinon, mocha-wrap, sinon-sandbox, NYC | Vitest 4, its assertions/mocks, and V8 coverage |
-| Karma, browser launchers, Webpack 4 and loaders | Vitest browser tests and Playwright 1.62 |
+| Karma, browser launchers, Webpack 4 and loaders | Vitest/jsdom tests and Playwright 1.62 |
 | Storybook 5 and obsolete addons | Storybook 10.5 with React/Vite, CSF3, autodocs, and accessibility addon |
 | Babel CLI, Airbnb preset, legacy SVG/object transforms and runtime fallback | Vite 8; convert the six SVGs into normal React components |
 | react-with-styles and all interfaces, Aphrodite, direction provider | Static CSS, CSS variables, and native `dir` handling |

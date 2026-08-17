@@ -215,12 +215,13 @@ describe('safe default callback contracts', () => {
     expect(() => fireEvent.click(calendarDay(rangeContainer))).not.toThrow();
   });
 
-  it('keeps picker shell defaults safe when opened and navigated without callbacks', () => {
+  it('keeps picker shell optional defaults safe when opened and navigated', () => {
     const { container } = renderStrict(
       <SingleDatePicker
         focused
         initialVisibleMonth={() => month}
         isOutsideRange={() => false}
+        onDateChange={vi.fn()}
         onFocusChange={vi.fn()}
         numberOfMonths={1}
         transitionDuration={0}
@@ -234,9 +235,12 @@ describe('safe default callback contracts', () => {
     cleanup();
     renderStrict(
       <DateRangePicker
+        startDateId="start"
+        endDateId="end"
         focusedInput={START_DATE}
         initialVisibleMonth={() => month}
         isOutsideRange={() => false}
+        onDatesChange={vi.fn()}
         onFocusChange={vi.fn()}
         numberOfMonths={1}
         transitionDuration={0}

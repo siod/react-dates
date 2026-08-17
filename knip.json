@@ -21,13 +21,8 @@
     ".storybook/**/*.{js,jsx,mjs}"
   ],
   "ignoreDependencies": [
-    "@vitest/browser-playwright",
-    "@testing-library/user-event",
     "lightningcss",
     "@storybook/addon-a11y"
-  ],
-  "ignoreBinaries": [
-    "playwright"
   ],
   "ignore": [
     ".eslintrc",

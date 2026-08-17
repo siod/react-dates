@@ -1,22 +1,23 @@
-/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps } from 'airbnb-prop-types';
-import moment from 'moment';
-import omit from 'lodash/omit';
+import { DateTime } from 'luxon';
 
 import DayPickerSingleDateController from '../src/components/DayPickerSingleDateController';
 
+import { dateTime } from '../src/internal/date';
+import { forbidExtraProps } from '../src/internal/propTypes';
 import ScrollableOrientationShape from '../src/shapes/ScrollableOrientationShape';
 
 import { HORIZONTAL_ORIENTATION } from '../src/constants';
 import isInclusivelyAfterDay from '../src/utils/isInclusivelyAfterDay';
 
+const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
+const dateFormatProp = PropTypes.oneOfType([PropTypes.object, PropTypes.func]);
+
 const propTypes = forbidExtraProps({
   // example props for the demo
   autoFocus: PropTypes.bool,
-  initialDate: momentPropTypes.momentObj,
+  initialDate: dateTime,
   showInput: PropTypes.bool,
 
   allowUnselect: PropTypes.bool,
@@ -24,11 +25,14 @@ const propTypes = forbidExtraProps({
   isOutsideRange: PropTypes.func,
   isDayBlocked: PropTypes.func,
   isDayHighlighted: PropTypes.func,
+  minDate: dateTime,
+  maxDate: dateTime,
 
   // DayPicker props
   enableOutsideDays: PropTypes.bool,
   numberOfMonths: PropTypes.number,
   orientation: ScrollableOrientationShape,
+  verticalHeight: PropTypes.number,
   withPortal: PropTypes.bool,
   initialVisibleMonth: PropTypes.func,
   renderCalendarInfo: PropTypes.func,
@@ -45,7 +49,7 @@ const propTypes = forbidExtraProps({
   renderDayContents: PropTypes.func,
 
   // i18n
-  monthFormat: PropTypes.string,
+  monthFormat: dateFormatProp,
 
   isRTL: PropTypes.bool,
 });
@@ -61,12 +65,15 @@ const defaultProps = {
   renderCalendarDay: undefined,
   renderDayContents: null,
   isDayBlocked: () => false,
-  isOutsideRange: day => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayHighlighted: () => false,
   enableOutsideDays: false,
+  minDate: null,
+  maxDate: null,
 
   // calendar presentation and interaction related props
   orientation: HORIZONTAL_ORIENTATION,
+  verticalHeight: null,
   withPortal: false,
   initialVisibleMonth: null,
   numberOfMonths: 2,
@@ -84,7 +91,7 @@ const defaultProps = {
   onNextMonthClick() {},
 
   // internationalization
-  monthFormat: 'MMMM YYYY',
+  monthFormat: { month: 'long', year: 'numeric' },
 };
 
 class DayPickerSingleDateControllerWrapper extends React.Component {
@@ -119,7 +126,7 @@ class DayPickerSingleDateControllerWrapper extends React.Component {
       'showInput',
     ]);
 
-    const dateString = date && date.format('YYYY-MM-DD');
+    const dateString = date && date.toFormat('yyyy-MM-dd');
 
     return (
       <div>

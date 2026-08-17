@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 function getPadding(vertical, top, bottom) {
   const isTopDefined = typeof top === 'number';
   const isBottomDefined = typeof bottom === 'number';

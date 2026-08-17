@@ -1,8 +1,6 @@
-import moment from 'moment';
-
+import isDateTime from './isDateTime';
 import isSameMonth from './isSameMonth';
 
 export default function isNextMonth(a, b) {
-  if (!moment.isMoment(a) || !moment.isMoment(b)) return false;
-  return isSameMonth(a.clone().add(1, 'month'), b);
+  return isDateTime(a) && isSameMonth(a.plus({ months: 1 }), b);
 }

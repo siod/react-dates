@@ -1,9 +1,9 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
+import { DateTime } from 'luxon';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { dateTime, formatDate, parseLocalizedDate } from '../internal/date';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
 import { DateRangePickerInputPhrases } from '../defaultPhrases';
@@ -13,9 +13,6 @@ import DateRangePickerInput from './DateRangePickerInput';
 
 import IconPositionShape from '../shapes/IconPositionShape';
 import DisabledShape from '../shapes/DisabledShape';
-
-import toMomentObject from '../utils/toMomentObject';
-import toLocalizedDateString from '../utils/toLocalizedDateString';
 
 import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
 import isBeforeDay from '../utils/isBeforeDay';
@@ -30,14 +27,14 @@ import {
 const propTypes = forbidExtraProps({
   children: PropTypes.node,
 
-  startDate: momentPropTypes.momentObj,
+  startDate: dateTime,
   startDateId: PropTypes.string,
   startDatePlaceholderText: PropTypes.string,
   isStartDateFocused: PropTypes.bool,
   startDateAriaLabel: PropTypes.string,
   startDateTitleText: PropTypes.string,
 
-  endDate: momentPropTypes.momentObj,
+  endDate: dateTime,
   endDateId: PropTypes.string,
   endDatePlaceholderText: PropTypes.string,
   isEndDateFocused: PropTypes.bool,
@@ -66,7 +63,7 @@ const propTypes = forbidExtraProps({
   minimumNights: nonNegativeInteger,
   isOutsideRange: PropTypes.func,
   isDayBlocked: PropTypes.func,
-  displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 
   onFocusChange: PropTypes.func,
   onClose: PropTypes.func,
@@ -124,15 +121,15 @@ const defaultProps = {
   reopenPickerOnClearDates: false,
   withFullScreenPortal: false,
   minimumNights: 1,
-  isOutsideRange: (day) => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: (day) => !isInclusivelyAfterDay(day, DateTime.local()),
   isDayBlocked: () => false,
-  displayFormat: () => moment.localeData().longDateFormat('L'),
+  displayFormat: { dateStyle: 'short' },
 
-  onFocusChange() {},
-  onClose() {},
-  onDatesChange() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onFocusChange: noop,
+  onClose: noop,
+  onDatesChange: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   customInputIcon: null,
   customArrowIcon: null,
@@ -183,11 +180,11 @@ export default class DateRangePickerInputController extends React.PureComponent 
       onFocusChange,
     } = this.props;
 
-    const endDate = toMomentObject(endDateString, this.getDisplayFormat());
+    const endDate = this.parseDate(endDateString);
 
     const isEndDateValid = endDate
       && !isOutsideRange(endDate) && !isDayBlocked(endDate)
-      && !(startDate && isBeforeDay(endDate, startDate.clone().add(minimumNights, 'days')));
+      && !(startDate && isBeforeDay(endDate, startDate.plus({ days: minimumNights })));
     if (isEndDateValid) {
       onDatesChange({ startDate, endDate });
       if (!keepOpenOnDateSelect) {
@@ -231,9 +228,9 @@ export default class DateRangePickerInputController extends React.PureComponent 
       disabled,
     } = this.props;
 
-    const startDate = toMomentObject(startDateString, this.getDisplayFormat());
+    const startDate = this.parseDate(startDateString);
     const isEndDateBeforeStartDate = startDate
-      && isBeforeDay(endDate, startDate.clone().add(minimumNights, 'days'));
+      && endDate && isBeforeDay(endDate, startDate.plus({ days: minimumNights }));
     const isStartDateValid = startDate
       && !isOutsideRange(startDate) && !isDayBlocked(startDate)
       && !(disabled === END_DATE && isEndDateBeforeStartDate);
@@ -261,17 +258,21 @@ export default class DateRangePickerInputController extends React.PureComponent 
     }
   }
 
-  getDisplayFormat() {
+  parseDate(value) {
     const { displayFormat } = this.props;
-    return typeof displayFormat === 'string' ? displayFormat : displayFormat();
+    return parseLocalizedDate(value, {
+      ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
+    });
   }
 
   getDateString(date) {
-    const displayFormat = this.getDisplayFormat();
-    if (date && displayFormat) {
-      return date && date.format(displayFormat);
-    }
-    return toLocalizedDateString(date);
+    if (!date) return '';
+    const { displayFormat } = this.props;
+    const value = typeof displayFormat === 'function' ? displayFormat(date) : null;
+    if (typeof value === 'string') return value;
+    return formatDate(date, {
+      ...(value || displayFormat || { dateStyle: 'short' }),
+    });
   }
 
   clearDates() {

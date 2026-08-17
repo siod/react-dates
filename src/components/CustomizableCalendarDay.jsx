@@ -1,29 +1,26 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps, nonNegativeInteger, or } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import moment from 'moment';
-import raf from 'raf';
+import { DateTime } from 'luxon';
+import { forbidExtraProps, nonNegativeInteger, or } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes } from '../internal/styles';
+import { dateTime, formatDate } from '../internal/date';
+import scheduleAnimationFrame from '../internal/browser/raf';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import getCalendarDaySettings from '../utils/getCalendarDaySettings';
 
 import { DAY_SIZE } from '../constants';
-import DefaultTheme from '../theme/DefaultTheme';
-
-const { reactDates: { color } } = DefaultTheme;
 
 function getStyles(stylesObj, isHovered) {
   if (!stylesObj) return null;
 
-  const { hover } = stylesObj;
+  const { hover, ...baseStyles } = stylesObj;
   if (isHovered && hover) {
     return hover;
   }
 
-  return stylesObj;
+  return baseStyles;
 }
 
 const DayStyleShape = PropTypes.shape({
@@ -40,7 +37,7 @@ const DayStyleShape = PropTypes.shape({
 
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
-  day: momentPropTypes.momentObj,
+  day: dateTime,
   daySize: nonNegativeInteger,
   isOutsideDay: PropTypes.bool,
   modifiers: PropTypes.instanceOf(Set),
@@ -50,7 +47,7 @@ const propTypes = forbidExtraProps({
   onDayMouseEnter: PropTypes.func,
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
-  ariaLabelFormat: PropTypes.string,
+  ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 
   // style overrides
   defaultStyles: DayStyleShape,
@@ -77,118 +74,118 @@ const propTypes = forbidExtraProps({
 });
 
 export const defaultStyles = {
-  border: `1px solid ${color.core.borderLight}`,
-  color: color.text,
-  background: color.background,
+  border: '1px solid var(--react-dates-border-light)',
+  color: 'var(--react-dates-color-text)',
+  background: 'var(--react-dates-color-background)',
 
   hover: {
-    background: color.core.borderLight,
-    border: `1px solid ${color.core.borderLight}`,
+    background: 'var(--react-dates-border-light)',
+    border: '1px solid var(--react-dates-border-light)',
     color: 'inherit',
   },
 };
 
 export const outsideStyles = {
-  background: color.outside.backgroundColor,
+  background: 'var(--react-dates-color-outside-background)',
   border: 0,
-  color: color.outside.color,
+  color: 'var(--react-dates-color-outside-color)',
 };
 
 export const highlightedCalendarStyles = {
-  background: color.highlighted.backgroundColor,
-  color: color.highlighted.color,
+  background: 'var(--react-dates-color-highlighted-background)',
+  color: 'var(--react-dates-color-highlighted-color)',
 
   hover: {
-    background: color.highlighted.backgroundColor_hover,
-    color: color.highlighted.color_active,
+    background: 'var(--react-dates-color-highlighted-background-active)',
+    color: 'var(--react-dates-color-highlighted-color)',
   },
 };
 
 export const blockedMinNightsStyles = {
-  background: color.minimumNights.backgroundColor,
-  border: `1px solid ${color.minimumNights.borderColor}`,
-  color: color.minimumNights.color,
+  background: 'var(--react-dates-color-minimum-nights-background)',
+  border: '1px solid var(--react-dates-color-minimum-nights-border)',
+  color: 'var(--react-dates-color-minimum-nights-color)',
 
   hover: {
-    background: color.minimumNights.backgroundColor_hover,
-    color: color.minimumNights.color_active,
+    background: 'var(--react-dates-color-minimum-nights-background)',
+    color: 'var(--react-dates-color-minimum-nights-color)',
   },
 };
 
 export const blockedCalendarStyles = {
-  background: color.blocked_calendar.backgroundColor,
-  border: `1px solid ${color.blocked_calendar.borderColor}`,
-  color: color.blocked_calendar.color,
+  background: 'var(--react-dates-color-blocked-calendar-background)',
+  border: '1px solid var(--react-dates-color-blocked-calendar-border)',
+  color: 'var(--react-dates-color-blocked-calendar-text)',
 
   hover: {
-    background: color.blocked_calendar.backgroundColor_hover,
-    border: `1px solid ${color.blocked_calendar.borderColor}`,
-    color: color.blocked_calendar.color_active,
+    background: 'var(--react-dates-color-blocked-calendar-background)',
+    border: '1px solid var(--react-dates-color-blocked-calendar-border)',
+    color: 'var(--react-dates-color-blocked-calendar-text)',
   },
 };
 
 export const blockedOutOfRangeStyles = {
-  background: color.blocked_out_of_range.backgroundColor,
-  border: `1px solid ${color.blocked_out_of_range.borderColor}`,
-  color: color.blocked_out_of_range.color,
+  background: 'var(--react-dates-color-blocked-out-of-range-background)',
+  border: '1px solid var(--react-dates-color-blocked-out-of-range-border)',
+  color: 'var(--react-dates-color-blocked-out-of-range-text)',
 
   hover: {
-    background: color.blocked_out_of_range.backgroundColor_hover,
-    border: `1px solid ${color.blocked_out_of_range.borderColor}`,
-    color: color.blocked_out_of_range.color_active,
+    background: 'var(--react-dates-color-blocked-out-of-range-background)',
+    border: '1px solid var(--react-dates-color-blocked-out-of-range-border)',
+    color: 'var(--react-dates-color-blocked-out-of-range-text)',
   },
 };
 
 export const hoveredSpanStyles = {
-  background: color.hoveredSpan.backgroundColor,
-  border: `1px double ${color.hoveredSpan.borderColor}`,
-  color: color.hoveredSpan.color,
+  background: 'var(--react-dates-color-hovered-span-background)',
+  border: '1px double var(--react-dates-color-hovered-span-border)',
+  color: 'var(--react-dates-color-hovered-span-text)',
 
   hover: {
-    background: color.hoveredSpan.backgroundColor_hover,
-    border: `1px double ${color.hoveredSpan.borderColor}`,
-    color: color.hoveredSpan.color_active,
+    background: 'var(--react-dates-color-hovered-span-background)',
+    border: '1px double var(--react-dates-color-hovered-span-border)',
+    color: 'var(--react-dates-color-hovered-span-text)',
   },
 };
 
 export const selectedSpanStyles = {
-  background: color.selectedSpan.backgroundColor,
-  border: `1px double ${color.selectedSpan.borderColor}`,
-  color: color.selectedSpan.color,
+  background: 'var(--react-dates-color-selected-span-background)',
+  border: '1px double var(--react-dates-color-selected-span-border)',
+  color: 'var(--react-dates-color-selected-span-text)',
 
   hover: {
-    background: color.selectedSpan.backgroundColor_hover,
-    border: `1px double ${color.selectedSpan.borderColor}`,
-    color: color.selectedSpan.color_active,
+    background: 'var(--react-dates-color-selected-span-background-active)',
+    border: '1px double var(--react-dates-color-selected-span-border)',
+    color: 'var(--react-dates-color-selected-span-text)',
   },
 };
 
 export const lastInRangeStyles = {};
 
 export const selectedStyles = {
-  background: color.selected.backgroundColor,
-  border: `1px double ${color.selected.borderColor}`,
-  color: color.selected.color,
+  background: 'var(--react-dates-color-selected-background)',
+  border: '1px double var(--react-dates-color-selected-border)',
+  color: 'var(--react-dates-color-selected-text)',
 
   hover: {
-    background: color.selected.backgroundColor_hover,
-    border: `1px double ${color.selected.borderColor}`,
-    color: color.selected.color_active,
+    background: 'var(--react-dates-color-selected-background)',
+    border: '1px double var(--react-dates-color-selected-border)',
+    color: 'var(--react-dates-color-selected-text)',
   },
 };
 
 const defaultProps = {
-  day: moment(),
+  day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
   modifiers: new Set(),
   isFocused: false,
   tabIndex: -1,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
   renderDayContents: null,
-  ariaLabelFormat: 'dddd, LL',
+  ariaLabelFormat: { dateStyle: 'full' },
 
   // style defaults
   defaultStyles,
@@ -214,6 +211,32 @@ const defaultProps = {
   phrases: CalendarDayPhrases,
 };
 
+function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions) {
+  const selected = modifiers.has('selected') || modifiers.has('selected-span')
+    || modifiers.has('selected-start') || modifiers.has('selected-end');
+  const hoveredSpan = !selected && (modifiers.has('hovered-span')
+    || modifiers.has('after-hovered-start') || modifiers.has('before-hovered-end'));
+  const date = typeof ariaLabelFormat === 'function'
+    ? ariaLabelFormat(day)
+    : formatDate(day, { ...formatOptions, ...(ariaLabelFormat || {}) });
+  const phrase = modifiers.has('selected-start') && phrases.dateIsSelectedAsStartDate
+    ? phrases.dateIsSelectedAsStartDate
+    : modifiers.has('selected-end') && phrases.dateIsSelectedAsEndDate
+      ? phrases.dateIsSelectedAsEndDate
+      : selected && phrases.dateIsSelected
+        ? phrases.dateIsSelected
+        : modifiers.has('blocked') ? phrases.dateIsUnavailable : phrases.chooseAvailableDate;
+  return {
+    daySizeStyles: { width: daySize, height: daySize - 1 },
+    useDefaultCursor: modifiers.has('blocked-minimum-nights')
+      || modifiers.has('blocked-calendar') || modifiers.has('blocked-out-of-range'),
+    selected,
+    hoveredSpan,
+    isOutsideRange: modifiers.has('blocked-out-of-range'),
+    ariaLabel: phrase ? phrase({ date }) : date,
+  };
+}
+
 class CustomizableCalendarDay extends React.PureComponent {
   constructor(...args) {
     super(...args);
@@ -229,13 +252,18 @@ class CustomizableCalendarDay extends React.PureComponent {
     const { isFocused, tabIndex } = this.props;
     if (tabIndex === 0) {
       if (isFocused || tabIndex !== prevProps.tabIndex) {
-        raf(() => {
+        if (this.cancelFocus) this.cancelFocus();
+        this.cancelFocus = scheduleAnimationFrame(() => {
           if (this.buttonRef) {
             this.buttonRef.focus();
           }
         });
       }
     }
+  }
+
+  componentWillUnmount() {
+    if (this.cancelFocus) this.cancelFocus();
   }
 
   onDayClick(day, e) {
@@ -307,6 +335,7 @@ class CustomizableCalendarDay extends React.PureComponent {
 
     if (!day) return <td />;
 
+    const formatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,
@@ -314,7 +343,7 @@ class CustomizableCalendarDay extends React.PureComponent {
       hoveredSpan,
       isOutsideRange,
       ariaLabel,
-    } = getCalendarDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases);
+    } = getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions);
 
     return (
       <td
@@ -341,7 +370,7 @@ class CustomizableCalendarDay extends React.PureComponent {
           modifiers.has('selected-end') && getStyles(selectedEndStylesWithHover, isHovered),
           isOutsideRange && getStyles(blockedOutOfRangeStylesWithHover, isHovered),
         )}
-        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
+        role="button"
         ref={this.setButtonRef}
         aria-disabled={modifiers.has('blocked')}
         aria-label={ariaLabel}
@@ -352,7 +381,9 @@ class CustomizableCalendarDay extends React.PureComponent {
         onKeyDown={(e) => { this.onKeyDown(day, e); }}
         tabIndex={tabIndex}
       >
-        {renderDayContents ? renderDayContents(day, modifiers) : day.format('D')}
+        {renderDayContents
+          ? renderDayContents(day, modifiers)
+          : formatDate(day, { ...formatOptions, day: 'numeric' })}
       </td>
     );
   }
@@ -362,11 +393,10 @@ CustomizableCalendarDay.propTypes = propTypes;
 CustomizableCalendarDay.defaultProps = defaultProps;
 
 export { CustomizableCalendarDay as PureCustomizableCalendarDay };
-export default withStyles(({ reactDates: { font } }) => ({
+export default withStyles(() => ({
   CalendarDay: {
     boxSizing: 'border-box',
     cursor: 'pointer',
-    fontSize: font.size,
     textAlign: 'center',
 
     ':active': {

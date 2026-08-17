@@ -1,2 +1,0 @@
---require airbnb-js-shims
-test-build/**/*.js

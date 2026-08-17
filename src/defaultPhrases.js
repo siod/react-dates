@@ -2,6 +2,7 @@ const calendarLabel = 'Calendar';
 const roleDescription = 'datepicker';
 const closeDatePicker = 'Close';
 const focusStartDate = 'Interact with the calendar and add the check-in date for your trip.';
+const focusDate = 'Open calendar.';
 const clearDate = 'Clear Date';
 const clearDates = 'Clear Dates';
 const jumpToPrevMonth = 'Move backward to switch to the previous month.';
@@ -117,6 +118,7 @@ export const SingleDatePickerPhrases = {
   calendarLabel,
   roleDescription,
   closeDatePicker,
+  focusDate,
   clearDate,
   jumpToPrevMonth,
   jumpToNextMonth,
@@ -145,6 +147,7 @@ export const SingleDatePickerPhrases = {
 };
 
 export const SingleDatePickerInputPhrases = {
+  focusDate,
   clearDate,
   keyboardForwardNavigationInstructions,
   keyboardBackwardNavigationInstructions,

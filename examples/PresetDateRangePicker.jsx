@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import moment from 'moment';
-import omit from 'lodash/omit';
 
-import { withStyles, withStylesPropTypes, css } from 'react-with-styles';
+import { dateTime } from '../src/internal/date';
+import { withStyles, withStylesPropTypes } from '../src/internal/styles';
 
 import DateRangePicker from '../src/components/DateRangePicker';
 
@@ -13,18 +11,20 @@ import DateRangePickerShape from '../src/shapes/DateRangePickerShape';
 import { START_DATE, END_DATE, HORIZONTAL_ORIENTATION, ANCHOR_LEFT } from '../src/constants';
 import isSameDay from '../src/utils/isSameDay';
 
+const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
+
 const propTypes = {
   ...withStylesPropTypes,
 
   // example props for the demo
   autoFocus: PropTypes.bool,
   autoFocusEndDate: PropTypes.bool,
-  initialStartDate: momentPropTypes.momentObj,
-  initialEndDate: momentPropTypes.momentObj,
+  initialStartDate: dateTime,
+  initialEndDate: dateTime,
   presets: PropTypes.arrayOf(PropTypes.shape({
     text: PropTypes.string,
-    start: momentPropTypes.momentObj,
-    end: momentPropTypes.momentObj,
+    start: dateTime,
+    end: dateTime,
   })),
 
   ...omit(DateRangePickerShape, [
@@ -83,12 +83,12 @@ const defaultProps = {
   minimumNights: 0,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: day => false,
+  isOutsideRange: () => false,
   isDayHighlighted: () => false,
 
   // internationalization
-  displayFormat: () => moment.localeData().longDateFormat('L'),
-  monthFormat: 'MMMM YYYY',
+  displayFormat: { dateStyle: 'short' },
+  monthFormat: { month: 'long', year: 'numeric' },
   phrases: DateRangePickerPhrases,
 };
 
@@ -123,7 +123,7 @@ class DateRangePickerWrapper extends React.Component {
   }
 
   renderDatePresets() {
-    const { presets, styles } = this.props;
+    const { presets, styles, css } = this.props;
     const { startDate, endDate } = this.state;
 
     return (
@@ -160,6 +160,8 @@ class DateRangePickerWrapper extends React.Component {
       'initialStartDate',
       'initialEndDate',
       'presets',
+      'styles',
+      'css',
     ]);
 
     return (

@@ -1,11 +1,11 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 
 import { SingleDatePickerInputPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import noflip from '../utils/noflip';
 
 import DateInput from './DateInput';
 import IconPositionShape from '../shapes/IconPositionShape';
@@ -84,13 +84,13 @@ const defaultProps = {
   regular: false,
   verticalSpacing: undefined,
 
-  onChange() {},
-  onClearDate() {},
-  onFocus() {},
-  onKeyDownShiftTab() {},
-  onKeyDownTab() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onChange: noop,
+  onClearDate: noop,
+  onFocus: noop,
+  onKeyDownShiftTab: noop,
+  onKeyDownTab: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   // i18n
   phrases: SingleDatePickerInputPhrases,
@@ -152,7 +152,7 @@ function SingleDatePickerInput({
       {...css(styles.SingleDatePickerInput_calendarIcon)}
       type="button"
       disabled={disabled}
-      aria-label={phrases.focusStartDate}
+      aria-label={phrases.focusDate}
       onClick={onFocus}
       tabIndex="-1"
     >

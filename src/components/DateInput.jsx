@@ -1,11 +1,10 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import throttle from 'lodash/throttle';
-import isTouchDevice from 'is-touch-device';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { noflip, withStyles, withStylesPropTypes } from '../internal/styles';
+import { isTouchDevice, throttle } from '../internal/browser';
 
-import noflip from '../utils/noflip';
 import getInputHeight from '../utils/getInputHeight';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
@@ -73,13 +72,13 @@ const defaultProps = {
   block: false,
   regular: false,
 
-  onChange() {},
-  onFocus() {},
-  onKeyDownShiftTab() {},
-  onKeyDownTab() {},
+  onChange: noop,
+  onFocus: noop,
+  onKeyDownShiftTab: noop,
+  onKeyDownTab: noop,
 
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   // accessibility
   isFocused: false,
@@ -104,22 +103,24 @@ class DateInput extends React.PureComponent {
     this.setState({ isTouchDevice: isTouchDevice() });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { dateString } = this.state;
-    if (dateString && nextProps.displayValue) {
-      this.setState({
-        dateString: '',
-      });
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    const { focused, isFocused } = this.props;
+    const { displayValue, focused, isFocused } = this.props;
+    const { dateString } = this.state;
+
+    if (prevProps.displayValue !== displayValue && dateString) {
+      this.setState({ dateString: '' });
+      return;
+    }
+
     if (prevProps.focused === focused && prevProps.isFocused === isFocused) return;
 
     if (focused && isFocused) {
       this.inputRef.focus();
     }
+  }
+
+  componentWillUnmount() {
+    this.throttledKeyDown.cancel();
   }
 
   onChange(e) {
@@ -252,10 +253,10 @@ class DateInput extends React.PureComponent {
             {...css(
               styles.DateInput_fang,
               openDirection === OPEN_DOWN && {
-                top: inputHeight + verticalSpacing - FANG_HEIGHT_PX - 1,
+                top: inputHeight + verticalSpacing - FANG_HEIGHT_PX,
               },
               openDirection === OPEN_UP && {
-                bottom: inputHeight + verticalSpacing - FANG_HEIGHT_PX - 1,
+                bottom: inputHeight + verticalSpacing - FANG_HEIGHT_PX,
               },
             )}
           >
@@ -312,6 +313,7 @@ export default withStyles(({
   },
 
   DateInput_input: {
+    boxSizing: 'border-box',
     fontWeight: font.input.weight,
     fontSize: font.input.size,
     lineHeight: font.input.lineHeight,

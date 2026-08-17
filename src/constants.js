@@ -1,6 +1,7 @@
-export const DISPLAY_FORMAT = 'L';
-export const ISO_FORMAT = 'YYYY-MM-DD';
-export const ISO_MONTH_FORMAT = 'YYYY-MM'; // TODO delete this line of dead code on next breaking change
+export const DEFAULT_INPUT_FORMAT = Object.freeze({ dateStyle: 'short' });
+export const DEFAULT_MONTH_FORMAT = Object.freeze({ month: 'long', year: 'numeric' });
+export const DEFAULT_WEEKDAY_FORMAT = Object.freeze({ weekday: 'short' });
+export const DEFAULT_DAY_ARIA_FORMAT = Object.freeze({ dateStyle: 'full' });
 
 export const START_DATE = 'startDate';
 export const END_DATE = 'endDate';

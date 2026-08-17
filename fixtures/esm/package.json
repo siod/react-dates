@@ -1,0 +1,16 @@
+{
+  "name": "siod-react-dates-esm-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "install:packed": "node install-packed.mjs",
+    "test": "node verify.mjs",
+    "test:packed": "npm run install:packed && npm test"
+  },
+  "dependencies": {
+    "luxon": "^3.7.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

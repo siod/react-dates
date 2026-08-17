@@ -1,12 +1,5 @@
-import moment from 'moment';
+import { formatDate } from '../internal/date';
 
-import toMomentObject from './toMomentObject';
-
-import { DISPLAY_FORMAT } from '../constants';
-
-export default function toLocalizedDateString(date, currentFormat) {
-  const dateObj = moment.isMoment(date) ? date : toMomentObject(date, currentFormat);
-  if (!dateObj) return null;
-
-  return dateObj.format(DISPLAY_FORMAT);
+export default function toLocalizedDateString(date, options = {}) {
+  return formatDate(date, options) || null;
 }

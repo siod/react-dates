@@ -1,11 +1,12 @@
 /* eslint react/no-array-index-key: 0 */
 
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import moment from 'moment';
+import { DateTime } from 'luxon';
+import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes } from '../internal/styles';
+import { dateTime, formatDate } from '../internal/date';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -14,7 +15,7 @@ import CalendarWeek from './CalendarWeek';
 import CalendarDay from './CalendarDay';
 
 import calculateDimension from '../utils/calculateDimension';
-import getCalendarMonthWeeks from '../utils/getCalendarMonthWeeks';
+import getMonthWeeks from '../utils/getCalendarMonthWeeks';
 import isSameDay from '../utils/isSameDay';
 import toISODateString from '../utils/toISODateString';
 
@@ -30,7 +31,7 @@ import {
 
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
-  month: momentPropTypes.momentObj,
+  month: dateTime,
   horizontalMonthPadding: nonNegativeInteger,
   isVisible: PropTypes.bool,
   enableOutsideDays: PropTypes.bool,
@@ -50,28 +51,28 @@ const propTypes = forbidExtraProps({
   setMonthTitleHeight: PropTypes.func,
   verticalBorderSpacing: nonNegativeInteger,
 
-  focusedDate: momentPropTypes.momentObj, // indicates focusable day
+  focusedDate: dateTime, // indicates focusable day
   isFocused: PropTypes.bool, // indicates whether or not to move focus to focusable day
 
   // i18n
-  monthFormat: PropTypes.string,
+  monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
-  dayAriaLabelFormat: PropTypes.string,
+  dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 });
 
 const defaultProps = {
-  month: moment(),
+  month: DateTime.local(),
   horizontalMonthPadding: 13,
   isVisible: true,
   enableOutsideDays: false,
   modifiers: {},
   orientation: HORIZONTAL_ORIENTATION,
   daySize: DAY_SIZE,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
-  onMonthSelect() {},
-  onYearSelect() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
+  onMonthSelect: noop,
+  onYearSelect: noop,
   renderMonthText: null,
   renderCalendarDay: (props) => (<CalendarDay {...props} />),
   renderDayContents: null,
@@ -83,7 +84,7 @@ const defaultProps = {
   isFocused: false,
 
   // i18n
-  monthFormat: 'MMMM YYYY', // english locale
+  monthFormat: { month: 'long', year: 'numeric' },
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
   verticalBorderSpacing: undefined,
@@ -94,11 +95,10 @@ class CalendarMonth extends React.PureComponent {
     super(props);
 
     this.state = {
-      weeks: getCalendarMonthWeeks(
-        props.month,
-        props.enableOutsideDays,
-        props.firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : props.firstDayOfWeek,
-      ),
+      weeks: getMonthWeeks(props.month, {
+        enableOutsideDays: props.enableOutsideDays,
+        firstDayOfWeek: props.firstDayOfWeek,
+      }),
     };
 
     this.setCaptionRef = this.setCaptionRef.bind(this);
@@ -109,30 +109,19 @@ class CalendarMonth extends React.PureComponent {
     this.queueSetMonthTitleHeight();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { month, enableOutsideDays, firstDayOfWeek } = nextProps;
+  componentDidUpdate(prevProps) {
     const {
-      month: prevMonth,
-      enableOutsideDays: prevEnableOutsideDays,
-      firstDayOfWeek: prevFirstDayOfWeek,
+      setMonthTitleHeight, month, enableOutsideDays, firstDayOfWeek,
     } = this.props;
-    if (
-      !month.isSame(prevMonth)
-      || enableOutsideDays !== prevEnableOutsideDays
-      || firstDayOfWeek !== prevFirstDayOfWeek
-    ) {
+    if (month !== prevProps.month || enableOutsideDays !== prevProps.enableOutsideDays
+      || firstDayOfWeek !== prevProps.firstDayOfWeek) {
       this.setState({
-        weeks: getCalendarMonthWeeks(
-          month,
+        weeks: getMonthWeeks(month, {
           enableOutsideDays,
-          firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : firstDayOfWeek,
-        ),
+          firstDayOfWeek,
+        }),
       });
     }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { setMonthTitleHeight } = this.props;
 
     if (prevProps.setMonthTitleHeight === null && setMonthTitleHeight !== null) {
       this.queueSetMonthTitleHeight();
@@ -158,7 +147,8 @@ class CalendarMonth extends React.PureComponent {
   }
 
   queueSetMonthTitleHeight() {
-    this.setMonthTitleHeightTimeout = window.setTimeout(this.setMonthTitleHeight, 0);
+    if (this.setMonthTitleHeightTimeout) clearTimeout(this.setMonthTitleHeightTimeout);
+    this.setMonthTitleHeightTimeout = setTimeout(this.setMonthTitleHeight, 0);
   }
 
   render() {
@@ -189,7 +179,12 @@ class CalendarMonth extends React.PureComponent {
     } = this.props;
 
     const { weeks } = this.state;
-    const monthTitle = renderMonthText ? renderMonthText(month) : month.format(monthFormat);
+    const formatOptions = {};
+    const monthTitle = renderMonthText
+      ? renderMonthText(month)
+      : typeof monthFormat === 'function'
+        ? monthFormat(month)
+        : formatDate(month, { ...formatOptions, ...(monthFormat || {}) });
 
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
@@ -233,21 +228,24 @@ class CalendarMonth extends React.PureComponent {
           <tbody>
             {weeks.map((week, i) => (
               <CalendarWeek key={i}>
-                {week.map((day, dayOfWeek) => renderCalendarDay({
-                  key: dayOfWeek,
-                  day,
-                  daySize,
-                  isOutsideDay: !day || day.month() !== month.month(),
-                  tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
-                  isFocused,
-                  onDayMouseEnter,
-                  onDayMouseLeave,
-                  onDayClick,
-                  renderDayContents,
-                  phrases,
-                  modifiers: modifiers[toISODateString(day)],
-                  ariaLabelFormat: dayAriaLabelFormat,
-                }))}
+                {week.map((day, dayOfWeek) => (
+                  <React.Fragment key={day ? toISODateString(day) : `empty-${dayOfWeek}`}>
+                    {renderCalendarDay({
+                      day,
+                      daySize,
+                      isOutsideDay: !day || !day.hasSame(month, 'month'),
+                      tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
+                      isFocused,
+                      onDayMouseEnter,
+                      onDayMouseLeave,
+                      onDayClick,
+                      renderDayContents,
+                      phrases,
+                      modifiers: (day && modifiers[toISODateString(day)]) || new Set(),
+                      ariaLabelFormat: dayAriaLabelFormat,
+                    })}
+                  </React.Fragment>
+                ))}
               </CalendarWeek>
             ))}
           </tbody>

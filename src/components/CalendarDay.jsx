@@ -1,21 +1,21 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
-import moment from 'moment';
-import raf from 'raf';
+import { DateTime } from 'luxon';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes } from '../internal/styles';
+import { dateTime, formatDate } from '../internal/date';
+import scheduleAnimationFrame from '../internal/browser/raf';
 
 import { CalendarDayPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import getCalendarDaySettings from '../utils/getCalendarDaySettings';
 import ModifiersShape from '../shapes/ModifiersShape';
 
 import { DAY_SIZE } from '../constants';
 
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
-  day: momentPropTypes.momentObj,
+  day: dateTime,
   daySize: nonNegativeInteger,
   isOutsideDay: PropTypes.bool,
   modifiers: ModifiersShape,
@@ -25,28 +25,56 @@ const propTypes = forbidExtraProps({
   onDayMouseEnter: PropTypes.func,
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
-  ariaLabelFormat: PropTypes.string,
+  ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 
   // internationalization
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
 });
 
 const defaultProps = {
-  day: moment(),
+  day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
   modifiers: new Set(),
   isFocused: false,
   tabIndex: -1,
-  onDayClick() {},
-  onDayMouseEnter() {},
-  onDayMouseLeave() {},
+  onDayClick: noop,
+  onDayMouseEnter: noop,
+  onDayMouseLeave: noop,
   renderDayContents: null,
-  ariaLabelFormat: 'dddd, LL',
+  ariaLabelFormat: { dateStyle: 'full' },
 
   // internationalization
   phrases: CalendarDayPhrases,
 };
+
+function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions) {
+  const selected = modifiers.has('selected')
+    || modifiers.has('selected-span')
+    || modifiers.has('selected-start')
+    || modifiers.has('selected-end');
+  const hoveredSpan = !selected && (modifiers.has('hovered-span')
+    || modifiers.has('after-hovered-start') || modifiers.has('before-hovered-end'));
+  let date;
+  if (typeof ariaLabelFormat === 'function') date = ariaLabelFormat(day);
+  else date = formatDate(day, { ...formatOptions, ...(ariaLabelFormat || {}) });
+  const phrase = modifiers.has('selected-start') && phrases.dateIsSelectedAsStartDate
+    ? phrases.dateIsSelectedAsStartDate
+    : modifiers.has('selected-end') && phrases.dateIsSelectedAsEndDate
+      ? phrases.dateIsSelectedAsEndDate
+      : selected && phrases.dateIsSelected
+        ? phrases.dateIsSelected
+        : modifiers.has('blocked') ? phrases.dateIsUnavailable : phrases.chooseAvailableDate;
+  return {
+    daySizeStyles: { width: daySize, height: daySize - 1 },
+    useDefaultCursor: modifiers.has('blocked-minimum-nights')
+      || modifiers.has('blocked-calendar') || modifiers.has('blocked-out-of-range'),
+    selected,
+    hoveredSpan,
+    isOutsideRange: modifiers.has('blocked-out-of-range'),
+    ariaLabel: phrase ? phrase({ date }) : date,
+  };
+}
 
 class CalendarDay extends React.PureComponent {
   constructor(...args) {
@@ -59,13 +87,18 @@ class CalendarDay extends React.PureComponent {
     const { isFocused, tabIndex } = this.props;
     if (tabIndex === 0) {
       if (isFocused || tabIndex !== prevProps.tabIndex) {
-        raf(() => {
+        if (this.cancelFocus) this.cancelFocus();
+        this.cancelFocus = scheduleAnimationFrame(() => {
           if (this.buttonRef) {
             this.buttonRef.focus();
           }
         });
       }
     }
+  }
+
+  componentWillUnmount() {
+    if (this.cancelFocus) this.cancelFocus();
   }
 
   onDayClick(day, e) {
@@ -112,6 +145,7 @@ class CalendarDay extends React.PureComponent {
 
     if (!day) return <td />;
 
+    const formatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,
@@ -119,7 +153,7 @@ class CalendarDay extends React.PureComponent {
       hoveredSpan,
       isOutsideRange,
       ariaLabel,
-    } = getCalendarDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases);
+    } = getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions);
 
     return (
       <td
@@ -152,7 +186,7 @@ class CalendarDay extends React.PureComponent {
           isOutsideRange && styles.CalendarDay__blocked_out_of_range,
           daySizeStyles,
         )}
-        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
+        role="button"
         ref={this.setButtonRef}
         aria-disabled={modifiers.has('blocked')}
         {...(modifiers.has('today') ? { 'aria-current': 'date' } : {})}
@@ -164,7 +198,9 @@ class CalendarDay extends React.PureComponent {
         onKeyDown={(e) => { this.onKeyDown(day, e); }}
         tabIndex={tabIndex}
       >
-        {renderDayContents ? renderDayContents(day, modifiers) : day.format('D')}
+        {renderDayContents
+          ? renderDayContents(day, modifiers)
+          : formatDate(day, { ...formatOptions, day: 'numeric' })}
       </td>
     );
   }

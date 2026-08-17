@@ -1,6 +1,7 @@
 export { default as CalendarDay } from './components/CalendarDay';
 export { default as CalendarMonth } from './components/CalendarMonth';
 export { default as CalendarMonthGrid } from './components/CalendarMonthGrid';
+export { default as CustomizableCalendarDay } from './components/CustomizableCalendarDay';
 export { default as DateRangePicker } from './components/DateRangePicker';
 export { default as DateRangePickerInput } from './components/DateRangePickerInput';
 export { default as DateRangePickerInputController } from './components/DateRangePickerInputController';
@@ -17,4 +18,3 @@ export { default as isNextDay } from './utils/isNextDay';
 export { default as isSameDay } from './utils/isSameDay';
 export { default as toISODateString } from './utils/toISODateString';
 export { default as toLocalizedDateString } from './utils/toLocalizedDateString';
-export { default as toMomentObject } from './utils/toMomentObject';

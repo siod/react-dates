@@ -1,7 +1,8 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import { forbidExtraProps } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
+import { forbidExtraProps } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes } from '../internal/styles';
 
 import { DayPickerKeyboardShortcutsPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -30,8 +31,8 @@ const defaultProps = {
   block: false,
   buttonLocation: BOTTOM_RIGHT,
   showKeyboardShortcutsPanel: false,
-  openKeyboardShortcutsPanel() {},
-  closeKeyboardShortcutsPanel() {},
+  openKeyboardShortcutsPanel: noop,
+  closeKeyboardShortcutsPanel: noop,
   phrases: DayPickerKeyboardShortcutsPhrases,
   renderKeyboardShortcutsButton: undefined,
   renderKeyboardShortcutsPanel: undefined,
@@ -91,14 +92,10 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
     this.onKeyDown = this.onKeyDown.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { phrases } = this.props;
-    if (nextProps.phrases !== phrases) {
-      this.keyboardShortcuts = getKeyboardShortcuts(nextProps.phrases);
+  componentDidUpdate(prevProps) {
+    if (prevProps.phrases !== this.props.phrases) {
+      this.keyboardShortcuts = getKeyboardShortcuts(this.props.phrases);
     }
-  }
-
-  componentDidUpdate() {
     this.handleFocus();
   }
 

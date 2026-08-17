@@ -1,4 +1,4 @@
-Please use [pull requests](https://github.com/react-dates/react-dates/pull/new) to add your organization and/or project to this document!
+Please use [pull requests](https://github.com/siod/react-dates/pull/new) to add your organization and/or project to this document!
 
 Organizations
 ----------

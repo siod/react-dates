@@ -1,3 +1,3 @@
-import CloseButton from '../svg/close.svg';
+import CloseButton from '../svg/close.jsx';
 
 export default CloseButton;

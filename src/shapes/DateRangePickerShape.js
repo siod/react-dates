@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import momentPropTypes from 'react-moment-proptypes';
-import { mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
+
+import { dateTime } from '../internal/date/dateTimePropType';
+import { mutuallyExclusiveProps, nonNegativeInteger } from '../internal/propTypes';
 
 import { DateRangePickerPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
@@ -17,8 +18,8 @@ import NavPositionShape from './NavPositionShape';
 
 export default {
   // required props for a functional interactive DateRangePicker
-  startDate: momentPropTypes.momentObj,
-  endDate: momentPropTypes.momentObj,
+  startDate: dateTime,
+  endDate: dateTime,
   onDatesChange: PropTypes.func.isRequired,
 
   focusedInput: FocusedInputShape,
@@ -95,17 +96,17 @@ export default {
   renderCalendarDay: PropTypes.func,
   renderDayContents: PropTypes.func,
   minimumNights: PropTypes.number,
-  minDate: momentPropTypes.momentObj,
-  maxDate: momentPropTypes.momentObj,
+  minDate: dateTime,
+  maxDate: dateTime,
   enableOutsideDays: PropTypes.bool,
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   isDayHighlighted: PropTypes.func,
 
   // internationalization props
-  displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  monthFormat: PropTypes.string,
-  weekDayFormat: PropTypes.string,
+  displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
-  dayAriaLabelFormat: PropTypes.string,
+  dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 };

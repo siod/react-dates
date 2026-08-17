@@ -1,119 +1,105 @@
 # react-dates <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-[![Build Status][travis-svg]][travis-url]
-[![dependency status][deps-svg]][deps-url]
-[![dev dependency status][dev-deps-svg]][dev-deps-url]
+[![Build Status][ci-svg]][ci-url]
 [![License][license-image]][license-url]
 [![Downloads][downloads-image]][downloads-url]
 
-[![npm badge][npm-badge-png]][package-url]
-
 > An easily internationalizable, accessible, mobile-friendly datepicker library for the web.
 
-![react-dates in action](https://raw.githubusercontent.com/react-dates/react-dates/HEAD/react-dates-demo.gif)
+![react-dates in action](https://raw.githubusercontent.com/siod/react-dates/HEAD/react-dates-demo.gif)
+
+This is a maintained fork of Airbnb's [`react-dates`](https://github.com/react-dates/react-dates), published as `@siod/react-dates`. Version 22 targets React 18 and React 19 and uses Luxon `DateTime` values instead of Moment. See the [v22 migration guide](docs/migration-v22.md) when upgrading from the original package.
 
 ## Live Playground
 
-For examples of the datepicker in action, go to [react-dates.github.io](https://react-dates.github.io/react-dates/).
+For examples of the datepicker in action, go to [siod.github.io/react-dates](https://siod.github.io/react-dates/).
 
 OR
 
 To run that demo on your own computer:
 * Clone this repository
-* `npm install`
+* `npm ci`
 * `npm run storybook`
 * Visit http://localhost:6006/
 
 ## Getting Started
 ### Install dependencies
-Ensure packages are installed with correct version numbers by running (from your command line):
-  ```sh
-  (
-    export PKG=react-dates;
-    npm info "$PKG" peerDependencies --json | command sed 's/[\{\},]//g ; s/: /@/g; s/ *//g' | xargs npm install --save "$PKG"
-  )
-  ```
+Install `react-dates` and its Luxon peer dependency:
 
-  Which produces and runs a command like:
-
-  ```sh
-  npm install --save react-dates moment@>=#.## react@>=#.## react-dom@>=#.##
-  ```
-
-  > If you are running Windows, that command will not work, but if you are running npm 5 or higher, you can run `npx install-peerdeps react-dates` on any platform
-
-### Initialize
-```js
-import 'react-dates/initialize';
+```sh
+npm install --save @siod/react-dates luxon
 ```
 
-As of v13.0.0 of `react-dates`, this project relies on `react-with-styles`. If you want to continue using CSS stylesheets and classes, there is a little bit of extra set-up required to get things going. As such, you need to import `react-dates/initialize` to set up class names on our components. This import should go at the top of your application as you won't be able to import any `react-dates` components without it.
+Your application must provide React and React DOM 18 or 19.
+
+### Initialize
+Import the stylesheet once near your application entry point:
+
+```js
+import '@siod/react-dates/css';
+```
+
+The `initialize` compatibility entrypoint in `react-dates` remains available as a harmless no-op, but v22 no longer requires runtime style initialization.
 
 Note: This component assumes `box-sizing: border-box` is set globally in your page's CSS.
 
 ### Include component
 ```js
-import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
+import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from '@siod/react-dates';
 ```
 
 #### Webpack
 Using Webpack with CSS loader, add the following import to your app:
 ```js
-import 'react-dates/lib/css/_datepicker.css';
+import '@siod/react-dates/css';
 ```
 
 #### Without Webpack:
-Create a CSS file with the contents of `require.resolve('react-dates/lib/css/_datepicker.css')` and include it in your html `<head>` section.
+Create a CSS file with the contents of `require.resolve('@siod/react-dates/css')` and include it in your html `<head>` section.
 
-To see this in action, you can check out https://github.com/majapw/react-dates-demo which adds `react-dates` on top of a simple `create-react-app` setup.
-
-#### Overriding Base Class
-By default `react-dates` will use `PureComponent` conditionally if it is available.  However, it is possible to override this setting and use `Component` and `shouldComponentUpdate` instead. It is also possible to override the logic in `build/util/baseClass` if you know that you are using a React version with `PureComponent`.
-  ```javascript
-    import React from 'react';
-    export default React.PureComponent;
-    export const pureComponentAvailable = true;
-  ```
+To see complete controlled examples, explore the [examples folder](examples).
 
 #### Overriding styles
-Right now, the easiest way to tweak `react-dates` to your heart's content is to create another stylesheet to override the default react-dates styles. For example, you could create a file named `react_dates_overrides.css` with the following contents (Make sure when you import said file to your `app.js`, you import it after the `react-dates` styles):
+The easiest way to tweak `react-dates` to your heart's content is to create another stylesheet to override the default react-dates styles. Import your overrides after the react-dates stylesheet. Theme values can also be overridden with CSS variables:
 
 ```css
-// NOTE: the order of these styles DO matter
-
-// Will edit everything selected including everything between a range of dates
-.CalendarDay__selected_span {
-  background: #82e0aa; //background
-  color: white; //text
-  border: 1px solid $light-red; //default styles include a border
+:root {
+  --react-dates-primary: #006c67;
+  --react-dates-primary-dark: #00514d;
 }
 
-// Will edit selected date or the endpoints of a range of dates
+/* Will edit everything selected including everything between a range of dates. */
+.CalendarDay__selected_span {
+  background: #82e0aa;
+  color: white;
+  border-color: #58d68d;
+}
+
+/* Will edit selected date or the endpoints of a range of dates. */
 .CalendarDay__selected {
-  background: $dark-red;
+  background: #186a3b;
   color: white;
 }
 
-// Will edit when hovered over. _span style also has this property
+/* Will edit when hovered over. _span style also has this property. */
 .CalendarDay__selected:hover {
   background: orange;
   color: white;
 }
 
-// Will edit when the second date (end date) in a range of dates
-// is not yet selected. Edits the dates between your mouse and said date
+/* Will edit when the end date in a range has not yet been selected. */
 .CalendarDay__hovered_span:hover,
 .CalendarDay__hovered_span {
   background: brown;
 }
 ```
 
-This would override the background and text colors applied to highlighted calendar days. You can use this method with the default set-up to override any aspect of the calendar to have it better fit to your particular needs. If there are any styles that you need that aren't listed here, you can always check the source css of each element.
+This would override the background and text colors applied to highlighted calendar days. You can use this method with the default set-up to override any aspect of the calendar to have it better fit to your particular needs. If there are any styles that you need that aren't listed here, you can always check the source CSS of each element and the [CSS variable defaults](src/internal/styles/variables.css).
 
 ### Make some awesome datepickers
 
-We provide a handful of components for your use. If you supply essential props to each component, you'll get a full featured interactive date picker. With additional optional props, you can customize the look and feel of the inputs, calendar, etc. You can see what each of the props do in the [live demo](http://airbnb.io/react-dates/) or explore
-how to properly wrap the pickers in the [examples folder](https://github.com/react-dates/react-dates/tree/HEAD/examples).
+We provide a handful of components for your use. If you supply essential props to each component, you'll get a full featured interactive date picker. With additional optional props, you can customize the look and feel of the inputs, calendar, etc. You can see what each of the props do in the [live demo](https://siod.github.io/react-dates/) or explore
+how to properly wrap the pickers in the [examples folder](examples).
 
 #### DateRangePicker
 The `DateRangePicker` is a fully controlled component that allows users to select a date range. You can control the selected
@@ -125,9 +111,9 @@ only visible if `focusedInput` is defined) with the `focusedInput` and `onFocusC
 Here is the minimum *REQUIRED* setup you need to get the `DateRangePicker` working:
 ```jsx
 <DateRangePicker
-  startDate={this.state.startDate} // momentPropTypes.momentObj or null,
+  startDate={this.state.startDate} // Luxon DateTime or null,
   startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
-  endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+  endDate={this.state.endDate} // Luxon DateTime or null,
   endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
   onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
   focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
@@ -135,7 +121,7 @@ Here is the minimum *REQUIRED* setup you need to get the `DateRangePicker` worki
 />
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `DateRangePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports in `react-dates/constants`. Please explore the [storybook](http://airbnb.io/react-dates/?selectedKind=DRP%20-%20Input%20Props&selectedStory=default&full=0&down=1&left=1&panelRight=0&downPanel=kadirahq%2Fstorybook-addon-actions%2Factions-panel) for more information on what each of these props do.
+The following is a list of other *OPTIONAL* props you may provide to the `DateRangePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
 ```js
 // input related props
 startDatePlaceholderText: PropTypes.string,
@@ -194,19 +180,19 @@ transitionDuration: nonNegativeInteger, // milliseconds
 renderCalendarDay: PropTypes.func,
 renderDayContents: PropTypes.func,
 minimumNights: PropTypes.number,
-minDate: momentPropTypes.momentObj,
-maxDate: momentPropTypes.momentObj,
+minDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
+maxDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
 enableOutsideDays: PropTypes.bool,
 isDayBlocked: PropTypes.func,
 isOutsideRange: PropTypes.func,
 isDayHighlighted: PropTypes.func,
 
 // internationalization props
-displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-monthFormat: PropTypes.string,
-weekDayFormat: PropTypes.string,
+displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
-dayAriaLabelFormat: PropTypes.string,
+dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 ```
 
 #### SingleDatePicker
@@ -219,7 +205,7 @@ controlled with the same props) with the `focused` and `onFocusChange` props as 
 Here is the minimum *REQUIRED* setup you need to get the `SingleDatePicker` working:
 ```jsx
 <SingleDatePicker
-  date={this.state.date} // momentPropTypes.momentObj or null
+  date={this.state.date} // Luxon DateTime or null
   onDateChange={date => this.setState({ date })} // PropTypes.func.isRequired
   focused={this.state.focused} // PropTypes.bool
   onFocusChange={({ focused }) => this.setState({ focused })} // PropTypes.func.isRequired
@@ -227,7 +213,7 @@ Here is the minimum *REQUIRED* setup you need to get the `SingleDatePicker` work
 />
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `SingleDatePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports in `react-dates/constants`. Please explore the [storybook](http://airbnb.io/react-dates/?selectedKind=SDP%20-%20Input%20Props&selectedStory=default&full=0&down=1&left=1&panelRight=0&downPanel=kadirahq%2Fstorybook-addon-actions%2Factions-panel) for more information on what each of these props do.
+The following is a list of other *OPTIONAL* props you may provide to the `SingleDatePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
 ```js
 // input related props
 placeholder: PropTypes.string,
@@ -287,31 +273,32 @@ isOutsideRange: PropTypes.func,
 isDayHighlighted: PropTypes.func,
 
 // internationalization props
-displayFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-monthFormat: PropTypes.string,
-weekDayFormat: PropTypes.string,
+displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 phrases: PropTypes.shape(getPhrasePropTypes(SingleDatePickerPhrases)),
-dayAriaLabelFormat: PropTypes.string,
+dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 ```
 
 #### DayPickerRangeController
-The `DayPickerRangeController` is a calendar-only version of the `DateRangePicker`. There are no inputs (which also means
-that currently, it is not keyboard accessible) and the calendar is always visible, but you can select a date range much in the same way you would with the `DateRangePicker`. You can control the selected
+The `DayPickerRangeController` is a calendar-only version of the `DateRangePicker`. There are no inputs and the calendar is always visible, but you can select a date range much in the same way you would with the `DateRangePicker`. You can control the selected
 dates using the `startDate`, `endDate`, and `onDatesChange` props as shown below. Similarly, you can control which input is focused with the `focusedInput` and `onFocusChange` props as shown below. The user will only be able to select a date if `focusedInput` is provided.
 
 Here is the minimum *REQUIRED* setup you need to get the `DayPickerRangeController` working:
 ```jsx
+import { DateTime } from 'luxon';
+
 <DayPickerRangeController
-  startDate={this.state.startDate} // momentPropTypes.momentObj or null,
-  endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+  startDate={this.state.startDate} // Luxon DateTime or null,
+  endDate={this.state.endDate} // Luxon DateTime or null,
   onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
   focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
   onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-  initialVisibleMonth={() => moment().add(2, "M")} // PropTypes.func or null,
+  initialVisibleMonth={() => DateTime.local().plus({ months: 2 })} // PropTypes.func or null,
 />
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `DayPickerRangeController` to customize appearance and behavior to your heart's desire. Again, please explore the [storybook](http://airbnb.io/react-dates/?selectedKind=DayPickerRangeController&selectedStory=default&full=0&down=1&left=1&panelRight=0&downPanel=kadirahq%2Fstorybook-addon-actions%2Factions-panel) for more information on what each of these props do.
+The following is a list of other *OPTIONAL* props you may provide to the `DayPickerRangeController` to customize appearance and behavior to your heart's desire. Again, please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
 ```js
   // calendar presentation and interaction related props
   enableOutsideDays: PropTypes.bool,
@@ -341,82 +328,52 @@ The following is a list of other *OPTIONAL* props you may provide to the `DayPic
   isDayHighlighted: PropTypes.func,
 
   // internationalization props
-  monthFormat: PropTypes.string,
-  weekDayFormat: PropTypes.string,
+  monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
-  dayAriaLabelFormat: PropTypes.string,
+  dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
 />
 ```
 
 ## Localization
 
-[Moment.js](http://momentjs.com) is a peer dependency of `react-dates`. The latter then uses a single instance of `moment` which is imported in one’s project. Loading a locale is done by calling `moment.locale(..)` in the component where `moment` is imported, with the [locale key](http://momentjs.com/docs/#/i18n/) of choice. For instance:
+[Luxon](https://moment.github.io/luxon/) is a peer dependency of `react-dates`. Set its default locale in the component where Luxon is imported:
 
 ```js
-moment.locale('pl'); // Polish
+import { DateTime, Settings } from 'luxon';
+
+Settings.defaultLocale = 'pl'; // Polish
+
+const selectedDate = DateTime.fromISO('2026-08-17').setLocale('en-AU');
 ```
 
-However, this only solves date localization. For complete internationalization of the components, `react-dates` defines a certain amount of [user interface strings](https://github.com/react-dates/react-dates/blob/HEAD/src/defaultPhrases.js) in English which can be changed through the `phrases` prop (explore the [storybook](http://airbnb.io/react-dates/?selectedKind=DateRangePicker%20%28DRP%29&selectedStory=non-english%20locale&full=0&addons=1&stories=1&panelRight=0&addonPanel=kadirahq%2Fstorybook-addon-actions%2Factions-panel) for examples). For accessibility and usability concerns, **all these UI elements should be translated**.
+Values supplied to the picker must be valid Luxon `DateTime` instances, such as `selectedDate` above. Calling the immutable `setLocale(...)` method on an individual value overrides the global default for that value. The picker preserves each value's Luxon zone and does not add separate locale or timezone props.
+
+However, this only solves date localization. For complete internationalization of the components, `react-dates` defines a certain amount of [user interface strings](src/defaultPhrases.js) in English which can be changed through the `phrases` prop. For accessibility and usability concerns, **all these UI elements should be translated**.
+
+Formatting props accept `Intl.DateTimeFormatOptions` or a callback receiving a `DateTime`. Formatting and calendar arithmetic are Gregorian. `isRTL` controls layout direction; there are no separate calendar or numbering-system props.
 
 ## Advanced
 
-`react-dates` no longer relies strictly on CSS, but rather relies on `react-with-styles` as an abstraction layer between how styles are applied and how they are written. The instructions above will get the project working out of the box, but there's a lot more customization that can be done.
-
-### Interfaces
-
-The `react-dates/initialize` script actually relies on [react-with-styles-interface-css](https://github.com/airbnb/react-with-styles-interface-css) under the hood. If you are interested in a different solution for styling in your project, you can do your own initialization of a another [interface](https://github.com/airbnb/react-with-styles/blob/HEAD/README.md#interfaces). At Airbnb, for instance, we rely on [Aphrodite](https://github.com/Khan/aphrodite) under the hood and therefore use the Aphrodite interface for `react-with-styles`. If you want to do the same, you would use the following pattern:
-```js
-import ThemedStyleSheet from 'react-with-styles/lib/ThemedStyleSheet';
-import aphroditeInterface from 'react-with-styles-interface-aphrodite';
-import DefaultTheme from 'react-dates/lib/theme/DefaultTheme';
-
-ThemedStyleSheet.registerInterface(aphroditeInterface);
-ThemedStyleSheet.registerTheme(DefaultTheme);
-```
-
-The above code has to be run before any `react-dates` component is imported. Otherwise, you will get an error. Also note that if you register any custom interface manually, you *must* also manually register a theme.
-
 ### Theming
-`react-dates` also now supports a different way to theme. You can see the default theme values in [this file](https://github.com/react-dates/react-dates/blob/HEAD/src/theme/DefaultTheme.js) and you would override them in the following manner:
-```js
-import ThemedStyleSheet from 'react-with-styles/lib/ThemedStyleSheet';
-import aphroditeInterface from 'react-with-styles-interface-aphrodite';
-import DefaultTheme from 'react-dates/lib/theme/DefaultTheme';
+Version 22 uses static CSS and `--react-dates-*` custom properties. The old `react-with-styles` interface and runtime theme registration APIs no longer affect rendered components. Import overrides after the react-dates stylesheet:
 
-ThemedStyleSheet.registerInterface(aphroditeInterface);
-ThemedStyleSheet.registerTheme({
-  reactDates: {
-    ...DefaultTheme.reactDates,
-    color: {
-      ...DefaultTheme.reactDates.color,
-      highlighted: {
-        backgroundColor: '#82E0AA',
-        backgroundColor_active: '#58D68D',
-        backgroundColor_hover: '#58D68D',
-        color: '#186A3B',
-        color_active: '#186A3B',
-        color_hover: '#186A3B',
-      },
-    },
-  },
-});
+```css
+:root {
+  --react-dates-primary: #006c67;
+  --react-dates-color-highlighted-background: #82e0aa;
+  --react-dates-color-highlighted-background-active: #58d68d;
+  --react-dates-color-highlighted-color: #186a3b;
+}
 ```
 
-The above code would use shades of green instead of shades of yellow for the highlight color on `CalendarDay` components. Note that you *must* register an interface if you manually register a theme. One will not work without the other.
+`CustomizableCalendarDay` uses the same custom properties for its default style props. Explicit values passed through its style props continue to override those defaults.
 
-#### A note on using `react-with-styles-interface-css`
-The default interface that `react-dates` ships with is the [CSS interface](https://github.com/airbnb/react-with-styles-interface-css). If you want to use this interface along with the theme registration method, you will need to rebuild the core `_datepicker.css` file. We do not currently expose a utility method to build this file, but you can follow along with the code in https://github.com/react-dates/react-dates/blob/HEAD/scripts/buildCSS.js to build your own custom themed CSS file.
-
-[package-url]: https://npmjs.org/package/react-dates
-[npm-version-svg]: http://versionbadg.es/react-dates/react-dates.svg
-[travis-svg]: https://travis-ci.org/react-dates/react-dates.svg
-[travis-url]: https://travis-ci.org/react-dates/react-dates
-[deps-svg]: https://david-dm.org/react-dates/react-dates.svg
-[deps-url]: https://david-dm.org/react-dates/react-dates
-[dev-deps-svg]: https://david-dm.org/react-dates/react-dates/dev-status.svg
-[dev-deps-url]: https://david-dm.org/react-dates/react-dates#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/react-dates.png?downloads=true&stars=true
-[license-image]: http://img.shields.io/npm/l/react-dates.svg
+[package-url]: https://www.npmjs.com/package/@siod/react-dates
+[npm-version-svg]: https://img.shields.io/npm/v/%40siod%2Freact-dates.svg
+[ci-svg]: https://github.com/siod/react-dates/actions/workflows/ci-modernization.yml/badge.svg
+[ci-url]: https://github.com/siod/react-dates/actions/workflows/ci-modernization.yml
+[license-image]: https://img.shields.io/npm/l/react-dates.svg
 [license-url]: LICENSE
-[downloads-image]: http://img.shields.io/npm/dm/react-dates.svg
-[downloads-url]: http://npm-stat.com/charts.html?package=react-dates
+[downloads-image]: https://img.shields.io/npm/dm/%40siod%2Freact-dates.svg
+[downloads-url]: https://www.npmjs.com/package/@siod/react-dates

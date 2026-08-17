@@ -1,11 +1,11 @@
 import React from 'react';
+import noop from '../utils/noop';
 import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { withStyles, withStylesPropTypes } from 'react-with-styles';
+import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
+import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
 
 import { DateRangePickerInputPhrases } from '../defaultPhrases';
 import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import noflip from '../utils/noflip';
 import openDirectionShape from '../shapes/OpenDirectionShape';
 
 import DateInput from './DateInput';
@@ -95,15 +95,15 @@ const defaultProps = {
   endDateTitleText: undefined,
   screenReaderMessage: '',
   autoComplete: 'off',
-  onStartDateFocus() {},
-  onEndDateFocus() {},
-  onStartDateChange() {},
-  onEndDateChange() {},
-  onStartDateShiftTab() {},
-  onEndDateTab() {},
-  onClearDates() {},
-  onKeyDownArrowDown() {},
-  onKeyDownQuestionMark() {},
+  onStartDateFocus: noop,
+  onEndDateFocus: noop,
+  onStartDateChange: noop,
+  onEndDateChange: noop,
+  onStartDateShiftTab: noop,
+  onEndDateTab: noop,
+  onClearDates: noop,
+  onKeyDownArrowDown: noop,
+  onKeyDownQuestionMark: noop,
 
   startDate: '',
   endDate: '',

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "index.js",
+    "constants.js",
+    "initialize.js",
+    "src/index.js",
+    "src/constants.js",
+    "src/initialize.js",
+    "scripts/*.mjs",
+    "test/**/*.test.{js,jsx}",
+    "test/browser-fixtures/**/*.spec.{js,jsx,mjs}",
+    ".storybook/*.{js,mjs}"
+  ],
+  "project": [
+    "src/**/*.{js,jsx}",
+    "scripts/**/*.{js,jsx,mjs}",
+    "test/**/*.{js,jsx,mjs}",
+    "stories/**/*.{js,jsx,mjs}",
+    "examples/**/*.{js,jsx,mjs}",
+    ".storybook/**/*.{js,jsx,mjs}"
+  ],
+  "ignoreDependencies": [
+    "lightningcss",
+    "@storybook/addon-a11y"
+  ],
+  "ignore": [
+    ".eslintrc",
+    "**/.eslintrc",
+    "lib/**",
+    "esm/**",
+    "coverage/**",
+    "storybook-static/**",
+    "playwright-report/**",
+    "test-results/**",
+    "fixtures/**"
+  ]
+}

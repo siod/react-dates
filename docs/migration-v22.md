@@ -40,7 +40,8 @@ picker or typed input:
 + Settings.defaultLocale = 'en-AU'
 ```
 
-Supplied dates may override that default with `dateTime.setLocale(...)`.
+An individual Luxon `DateTime` may override that default with, for example,
+`DateTime.fromISO('2026-08-17').setLocale('en-AU')`.
 
 ## Styling
 

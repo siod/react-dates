@@ -180,8 +180,8 @@ transitionDuration: nonNegativeInteger, // milliseconds
 renderCalendarDay: PropTypes.func,
 renderDayContents: PropTypes.func,
 minimumNights: PropTypes.number,
-minDate: dateTime,
-maxDate: dateTime,
+minDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
+maxDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
 enableOutsideDays: PropTypes.bool,
 isDayBlocked: PropTypes.func,
 isOutsideRange: PropTypes.func,
@@ -340,12 +340,14 @@ The following is a list of other *OPTIONAL* props you may provide to the `DayPic
 [Luxon](https://moment.github.io/luxon/) is a peer dependency of `react-dates`. Set its default locale in the component where Luxon is imported:
 
 ```js
-import { Settings } from 'luxon';
+import { DateTime, Settings } from 'luxon';
 
 Settings.defaultLocale = 'pl'; // Polish
+
+const selectedDate = DateTime.fromISO('2026-08-17').setLocale('en-AU');
 ```
 
-Supplied values can override that default with `dateTime.setLocale(...)`. The picker preserves each value's Luxon zone and does not add separate locale or timezone props.
+Values supplied to the picker must be valid Luxon `DateTime` instances, such as `selectedDate` above. Calling the immutable `setLocale(...)` method on an individual value overrides the global default for that value. The picker preserves each value's Luxon zone and does not add separate locale or timezone props.
 
 However, this only solves date localization. For complete internationalization of the components, `react-dates` defines a certain amount of [user interface strings](src/defaultPhrases.js) in English which can be changed through the `phrases` prop. For accessibility and usability concerns, **all these UI elements should be translated**.
 

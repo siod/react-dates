@@ -1,4 +1,10 @@
-function getPadding(vertical, top, bottom) {
+import defaultStyleTokens from '../internal/styles/defaultStyleTokens.js';
+
+function getPadding(
+  vertical: number | undefined,
+  top: number | undefined,
+  bottom: number | undefined,
+) {
   const isTopDefined = typeof top === 'number';
   const isBottomDefined = typeof bottom === 'number';
   const isVerticalDefined = typeof vertical === 'number';
@@ -46,7 +52,7 @@ export default function getInputHeight({
     displayTextPaddingTop_small,
     displayTextPaddingBottom_small,
   },
-}, small) {
+}: typeof defaultStyleTokens.reactDates, small: boolean) {
   const calcLineHeight = small ? lineHeight_small : lineHeight;
 
   const padding = small

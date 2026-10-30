@@ -1,4 +1,4 @@
-export default function getTransformStyles(transformValue) {
+export default function getTransformStyles(transformValue: string) {
   return {
     transform: transformValue,
     msTransform: transformValue,

@@ -1,61 +1,17 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
+import noop from '../utils/noop.js';
+import { withStyles, noflip } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import type { SingleDatePickerInputProps } from '../types.js';
 
-import { SingleDatePickerInputPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import { SingleDatePickerInputPhrases } from '../defaultPhrases.js';
 
-import DateInput from './DateInput';
-import IconPositionShape from '../shapes/IconPositionShape';
+import DateInput from './DateInput.js';
 
-import CloseButton from './CloseButton';
-import CalendarIcon from './CalendarIcon';
+import CloseButton from './CloseButton.js';
+import CalendarIcon from './CalendarIcon.js';
 
-import openDirectionShape from '../shapes/OpenDirectionShape';
-import { ICON_BEFORE_POSITION, ICON_AFTER_POSITION, OPEN_DOWN } from '../constants';
-
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  id: PropTypes.string.isRequired,
-  children: PropTypes.node,
-  placeholder: PropTypes.string,
-  ariaLabel: PropTypes.string,
-  autoComplete: PropTypes.string,
-  titleText: PropTypes.string,
-  displayValue: PropTypes.string,
-  screenReaderMessage: PropTypes.string,
-  focused: PropTypes.bool,
-  isFocused: PropTypes.bool, // describes actual DOM focus
-  disabled: PropTypes.bool,
-  required: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  openDirection: openDirectionShape,
-  showCaret: PropTypes.bool,
-  showClearDate: PropTypes.bool,
-  customCloseIcon: PropTypes.node,
-  showDefaultInputIcon: PropTypes.bool,
-  inputIconPosition: IconPositionShape,
-  customInputIcon: PropTypes.node,
-  isRTL: PropTypes.bool,
-  noBorder: PropTypes.bool,
-  block: PropTypes.bool,
-  small: PropTypes.bool,
-  regular: PropTypes.bool,
-  verticalSpacing: nonNegativeInteger,
-
-  onChange: PropTypes.func,
-  onClearDate: PropTypes.func,
-  onFocus: PropTypes.func,
-  onKeyDownShiftTab: PropTypes.func,
-  onKeyDownTab: PropTypes.func,
-  onKeyDownArrowDown: PropTypes.func,
-  onKeyDownQuestionMark: PropTypes.func,
-
-  // i18n
-  phrases: PropTypes.shape(getPhrasePropTypes(SingleDatePickerInputPhrases)),
-});
+import { ICON_BEFORE_POSITION, ICON_AFTER_POSITION, OPEN_DOWN } from '../constants.js';
 
 const defaultProps = {
   children: null,
@@ -94,46 +50,48 @@ const defaultProps = {
 
   // i18n
   phrases: SingleDatePickerInputPhrases,
-};
+} satisfies Omit<SingleDatePickerInputProps, 'id'>;
+
+type SingleDatePickerInputInternalProps = SingleDatePickerInputProps & WithStylesProps;
 
 function SingleDatePickerInput({
   id,
-  children,
-  placeholder,
-  ariaLabel,
-  autoComplete,
-  titleText,
-  displayValue,
-  focused,
-  isFocused,
-  disabled,
-  required,
-  readOnly,
-  showCaret,
-  showClearDate,
-  showDefaultInputIcon,
-  inputIconPosition,
-  phrases,
-  onClearDate,
-  onChange,
-  onFocus,
-  onKeyDownShiftTab,
-  onKeyDownTab,
-  onKeyDownArrowDown,
-  onKeyDownQuestionMark,
-  screenReaderMessage,
-  customCloseIcon,
-  customInputIcon,
-  openDirection,
-  isRTL,
-  noBorder,
-  block,
-  small,
-  regular,
-  verticalSpacing,
+  children = defaultProps.children,
+  placeholder = defaultProps.placeholder,
+  ariaLabel = defaultProps.ariaLabel,
+  autoComplete = defaultProps.autoComplete,
+  titleText = defaultProps.titleText,
+  displayValue = defaultProps.displayValue,
+  focused = defaultProps.focused,
+  isFocused = defaultProps.isFocused,
+  disabled = defaultProps.disabled,
+  required = defaultProps.required,
+  readOnly = defaultProps.readOnly,
+  showCaret = defaultProps.showCaret,
+  showClearDate = defaultProps.showClearDate,
+  showDefaultInputIcon = defaultProps.showDefaultInputIcon,
+  inputIconPosition = defaultProps.inputIconPosition,
+  phrases = defaultProps.phrases,
+  onClearDate = defaultProps.onClearDate,
+  onChange = defaultProps.onChange,
+  onFocus = defaultProps.onFocus,
+  onKeyDownShiftTab = defaultProps.onKeyDownShiftTab,
+  onKeyDownTab = defaultProps.onKeyDownTab,
+  onKeyDownArrowDown = defaultProps.onKeyDownArrowDown,
+  onKeyDownQuestionMark = defaultProps.onKeyDownQuestionMark,
+  screenReaderMessage = defaultProps.screenReaderMessage,
+  customCloseIcon = defaultProps.customCloseIcon,
+  customInputIcon = defaultProps.customInputIcon,
+  openDirection = defaultProps.openDirection,
+  isRTL = defaultProps.isRTL,
+  noBorder = defaultProps.noBorder,
+  block = defaultProps.block,
+  small = defaultProps.small,
+  regular = defaultProps.regular,
+  verticalSpacing = defaultProps.verticalSpacing,
   css,
   styles,
-}) {
+}: SingleDatePickerInputInternalProps) {
   const calendarIcon = customInputIcon || (
     <CalendarIcon {...css(styles.SingleDatePickerInput_calendarIcon_svg)} />
   );
@@ -154,7 +112,7 @@ function SingleDatePickerInput({
       disabled={disabled}
       aria-label={phrases.focusDate}
       onClick={onFocus}
-      tabIndex="-1"
+      tabIndex={-1}
     >
       {calendarIcon}
     </button>
@@ -224,9 +182,6 @@ function SingleDatePickerInput({
     </div>
   );
 }
-
-SingleDatePickerInput.propTypes = propTypes;
-SingleDatePickerInput.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { border, color } }) => ({
   SingleDatePickerInput: {

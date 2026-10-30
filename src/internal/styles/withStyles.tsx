@@ -16,7 +16,7 @@ const EMPTY = {};
 
 export type StyleObject = Record<string, unknown>;
 export type StyleMap = Record<string, StyleObject>;
-export type CssArgument = string | StyleObject | CssArgument[] | false | null | undefined;
+export type CssArgument = string | CSSProperties | StyleObject | CssArgument[] | false | null | undefined;
 export type CssResult = { className?: string; style?: CSSProperties };
 export type CssFunction = (...arguments_: CssArgument[]) => CssResult;
 

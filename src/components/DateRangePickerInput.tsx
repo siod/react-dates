@@ -1,21 +1,18 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes, noflip } from '../internal/styles';
+import type { ReactNode } from 'react';
+import noop from '../utils/noop.js';
+import { withStyles, noflip } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import type { DateRangePickerInputProps } from '../types.js';
 
-import { DateRangePickerInputPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import openDirectionShape from '../shapes/OpenDirectionShape';
+import { DateRangePickerInputPhrases } from '../defaultPhrases.js';
 
-import DateInput from './DateInput';
-import IconPositionShape from '../shapes/IconPositionShape';
-import DisabledShape from '../shapes/DisabledShape';
+import DateInput from './DateInput.js';
 
-import RightArrow from './RightArrow';
-import LeftArrow from './LeftArrow';
-import CloseButton from './CloseButton';
-import CalendarIcon from './CalendarIcon';
+import RightArrow from './RightArrow.js';
+import LeftArrow from './LeftArrow.js';
+import CloseButton from './CloseButton.js';
+import CalendarIcon from './CalendarIcon.js';
 
 import {
   START_DATE,
@@ -23,65 +20,7 @@ import {
   ICON_BEFORE_POSITION,
   ICON_AFTER_POSITION,
   OPEN_DOWN,
-} from '../constants';
-
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-
-  children: PropTypes.node,
-
-  startDateId: PropTypes.string,
-  startDatePlaceholderText: PropTypes.string,
-  startDateAriaLabel: PropTypes.string,
-  startDateTitleText: PropTypes.string,
-  screenReaderMessage: PropTypes.string,
-
-  endDateId: PropTypes.string,
-  endDatePlaceholderText: PropTypes.string,
-  endDateAriaLabel: PropTypes.string,
-  endDateTitleText: PropTypes.string,
-
-  onStartDateFocus: PropTypes.func,
-  onEndDateFocus: PropTypes.func,
-  onStartDateChange: PropTypes.func,
-  onEndDateChange: PropTypes.func,
-  onStartDateShiftTab: PropTypes.func,
-  onEndDateTab: PropTypes.func,
-  onClearDates: PropTypes.func,
-  onKeyDownArrowDown: PropTypes.func,
-  onKeyDownQuestionMark: PropTypes.func,
-
-  startDate: PropTypes.string,
-  endDate: PropTypes.string,
-
-  isStartDateFocused: PropTypes.bool,
-  isEndDateFocused: PropTypes.bool,
-  showClearDates: PropTypes.bool,
-  disabled: DisabledShape,
-  required: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  openDirection: openDirectionShape,
-  showCaret: PropTypes.bool,
-  showDefaultInputIcon: PropTypes.bool,
-  inputIconPosition: IconPositionShape,
-  customInputIcon: PropTypes.node,
-  customArrowIcon: PropTypes.node,
-  customCloseIcon: PropTypes.node,
-  noBorder: PropTypes.bool,
-  block: PropTypes.bool,
-  small: PropTypes.bool,
-  regular: PropTypes.bool,
-  verticalSpacing: nonNegativeInteger,
-  autoComplete: PropTypes.string,
-
-  // accessibility
-  isFocused: PropTypes.bool, // describes actual DOM focus
-
-  // i18n
-  phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerInputPhrases)),
-
-  isRTL: PropTypes.bool,
-});
+} from '../constants.js';
 
 const defaultProps = {
   children: null,
@@ -134,59 +73,61 @@ const defaultProps = {
   phrases: DateRangePickerInputPhrases,
 
   isRTL: false,
-};
+} satisfies DateRangePickerInputProps;
+
+type DateRangePickerInputInternalProps = DateRangePickerInputProps & WithStylesProps;
 
 function DateRangePickerInput({
-  children,
-  startDate,
-  startDateId,
-  startDatePlaceholderText,
-  screenReaderMessage,
-  isStartDateFocused,
-  onStartDateChange,
-  onStartDateFocus,
-  onStartDateShiftTab,
-  startDateAriaLabel,
-  startDateTitleText,
-  endDate,
-  endDateId,
-  endDatePlaceholderText,
-  isEndDateFocused,
-  onEndDateChange,
-  onEndDateFocus,
-  onEndDateTab,
-  endDateAriaLabel,
-  endDateTitleText,
-  onKeyDownArrowDown,
-  onKeyDownQuestionMark,
-  onClearDates,
-  showClearDates,
-  disabled,
-  required,
-  readOnly,
-  autoComplete,
-  showCaret,
-  openDirection,
-  showDefaultInputIcon,
-  inputIconPosition,
-  customInputIcon,
-  customArrowIcon,
-  customCloseIcon,
-  isFocused,
-  phrases,
-  isRTL,
-  noBorder,
-  block,
-  verticalSpacing,
-  small,
-  regular,
+  children = defaultProps.children,
+  startDate = defaultProps.startDate,
+  startDateId = defaultProps.startDateId,
+  startDatePlaceholderText = defaultProps.startDatePlaceholderText,
+  screenReaderMessage = defaultProps.screenReaderMessage,
+  isStartDateFocused = defaultProps.isStartDateFocused,
+  onStartDateChange = defaultProps.onStartDateChange,
+  onStartDateFocus = defaultProps.onStartDateFocus,
+  onStartDateShiftTab = defaultProps.onStartDateShiftTab,
+  startDateAriaLabel = defaultProps.startDateAriaLabel,
+  startDateTitleText = defaultProps.startDateTitleText,
+  endDate = defaultProps.endDate,
+  endDateId = defaultProps.endDateId,
+  endDatePlaceholderText = defaultProps.endDatePlaceholderText,
+  isEndDateFocused = defaultProps.isEndDateFocused,
+  onEndDateChange = defaultProps.onEndDateChange,
+  onEndDateFocus = defaultProps.onEndDateFocus,
+  onEndDateTab = defaultProps.onEndDateTab,
+  endDateAriaLabel = defaultProps.endDateAriaLabel,
+  endDateTitleText = defaultProps.endDateTitleText,
+  onKeyDownArrowDown = defaultProps.onKeyDownArrowDown,
+  onKeyDownQuestionMark = defaultProps.onKeyDownQuestionMark,
+  onClearDates = defaultProps.onClearDates,
+  showClearDates = defaultProps.showClearDates,
+  disabled = defaultProps.disabled,
+  required = defaultProps.required,
+  readOnly = defaultProps.readOnly,
+  autoComplete = defaultProps.autoComplete,
+  showCaret = defaultProps.showCaret,
+  openDirection = defaultProps.openDirection,
+  showDefaultInputIcon = defaultProps.showDefaultInputIcon,
+  inputIconPosition = defaultProps.inputIconPosition,
+  customInputIcon = defaultProps.customInputIcon,
+  customArrowIcon = defaultProps.customArrowIcon,
+  customCloseIcon = defaultProps.customCloseIcon,
+  isFocused = defaultProps.isFocused,
+  phrases = defaultProps.phrases,
+  isRTL = defaultProps.isRTL,
+  noBorder = defaultProps.noBorder,
+  block = defaultProps.block,
+  verticalSpacing = defaultProps.verticalSpacing,
+  small = defaultProps.small,
+  regular = defaultProps.regular,
   css,
   styles,
-}) {
+}: DateRangePickerInputInternalProps) {
   const calendarIcon = customInputIcon || (
     <CalendarIcon {...css(styles.DateRangePickerInput_calendarIcon_svg)} />
   );
-  let arrowIcon = <RightArrow {...css(styles.DateRangePickerInput_arrow_svg)} />;
+  let arrowIcon: ReactNode = <RightArrow {...css(styles.DateRangePickerInput_arrow_svg)} />;
   if (isRTL) arrowIcon = <LeftArrow {...css(styles.DateRangePickerInput_arrow_svg)} />;
   if (small) arrowIcon = '-';
   if (customArrowIcon) arrowIcon = customArrowIcon;
@@ -209,7 +150,7 @@ function DateRangePickerInput({
     <button
       {...css(styles.DateRangePickerInput_calendarIcon)}
       type="button"
-      disabled={disabled}
+      disabled={Boolean(disabled)}
       aria-label={phrases.focusStartDate}
       onClick={onKeyDownArrowDown}
     >
@@ -306,7 +247,7 @@ function DateRangePickerInput({
             !(startDate || endDate) && styles.DateRangePickerInput_clearDates__hide,
           )}
           onClick={onClearDates}
-          disabled={disabled}
+          disabled={Boolean(disabled)}
         >
           {closeIcon}
         </button>
@@ -316,9 +257,6 @@ function DateRangePickerInput({
     </div>
   );
 }
-
-DateRangePickerInput.propTypes = propTypes;
-DateRangePickerInput.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { border, color, sizing } }) => ({
   DateRangePickerInput: {

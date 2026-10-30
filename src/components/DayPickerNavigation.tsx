@@ -1,49 +1,56 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
-import { forbidExtraProps } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import noop from '../utils/noop.js';
+import { withStyles } from '../internal/styles/index.js';
+import type { StyleObject, WithStylesProps } from '../internal/styles/withStyles.js';
+import type { DayPickerPhrases, NavPosition, ScrollableOrientation } from '../types.js';
 
-import { DayPickerNavigationPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import noflip from '../internal/styles/noflip';
+import { DayPickerNavigationPhrases } from '../defaultPhrases.js';
+import noflip from '../internal/styles/noflip.js';
 
-import LeftArrow from './LeftArrow';
-import RightArrow from './RightArrow';
-import ChevronUp from './ChevronUp';
-import ChevronDown from './ChevronDown';
-import NavPositionShape from '../shapes/NavPositionShape';
-import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
+import LeftArrow from './LeftArrow.js';
+import RightArrow from './RightArrow.js';
+import ChevronUp from './ChevronUp.js';
+import ChevronDown from './ChevronDown.js';
 
 import {
   HORIZONTAL_ORIENTATION,
   NAV_POSITION_BOTTOM,
   NAV_POSITION_TOP,
   VERTICAL_SCROLLABLE,
-} from '../constants';
+} from '../constants.js';
 
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  disablePrev: PropTypes.bool,
-  disableNext: PropTypes.bool,
-  inlineStyles: PropTypes.object,
-  isRTL: PropTypes.bool,
-  navPosition: NavPositionShape,
-  navPrev: PropTypes.node,
-  navNext: PropTypes.node,
-  orientation: ScrollableOrientationShape,
+type NavigationEvent = KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>;
+type NavigationHandler = (event: NavigationEvent) => void;
+type NavigationPhrases = Required<Pick<DayPickerPhrases, 'jumpToPrevMonth' | 'jumpToNextMonth'>>;
 
-  onPrevMonthClick: PropTypes.func,
-  onNextMonthClick: PropTypes.func,
+export interface NavigationButtonArguments {
+  ariaLabel: string;
+  disabled: boolean;
+  onClick?: NavigationHandler;
+  onKeyUp?: (event: KeyboardEvent<HTMLElement>) => void;
+  onMouseUp?: (event: MouseEvent<HTMLElement>) => void;
+}
 
-  // internationalization
-  phrases: PropTypes.shape(getPhrasePropTypes(DayPickerNavigationPhrases)),
+export interface DayPickerNavigationProps {
+  disablePrev?: boolean;
+  disableNext?: boolean;
+  inlineStyles?: StyleObject | null;
+  isRTL?: boolean;
+  navPosition?: NavPosition;
+  navPrev?: ReactNode;
+  navNext?: ReactNode;
+  orientation?: ScrollableOrientation;
+  onPrevMonthClick?: NavigationHandler;
+  onNextMonthClick?: NavigationHandler;
+  phrases?: NavigationPhrases;
+  renderNavPrevButton?: ((arguments_: NavigationButtonArguments) => ReactNode) | null;
+  renderNavNextButton?: ((arguments_: NavigationButtonArguments) => ReactNode) | null;
+  showNavPrevButton?: boolean;
+  showNavNextButton?: boolean;
+}
 
-  renderNavPrevButton: PropTypes.func,
-  renderNavNextButton: PropTypes.func,
-  showNavPrevButton: PropTypes.bool,
-  showNavNextButton: PropTypes.bool,
-});
+type DayPickerNavigationInternalProps = DayPickerNavigationProps & WithStylesProps;
 
 const defaultProps = {
   disablePrev: false,
@@ -65,26 +72,28 @@ const defaultProps = {
   renderNavNextButton: null,
   showNavPrevButton: true,
   showNavNextButton: true,
-};
+} satisfies DayPickerNavigationProps;
 
-class DayPickerNavigation extends React.PureComponent {
-  render() {
+class DayPickerNavigation extends React.PureComponent<DayPickerNavigationInternalProps> {
+  static defaultProps = defaultProps;
+
+  override render() {
     const {
-      inlineStyles,
-      isRTL,
-      disablePrev,
-      disableNext,
-      navPosition,
-      navPrev,
-      navNext,
-      onPrevMonthClick,
-      onNextMonthClick,
-      orientation,
-      phrases,
-      renderNavPrevButton,
-      renderNavNextButton,
-      showNavPrevButton,
-      showNavNextButton,
+      inlineStyles = defaultProps.inlineStyles,
+      isRTL = defaultProps.isRTL,
+      disablePrev = defaultProps.disablePrev,
+      disableNext = defaultProps.disableNext,
+      navPosition = defaultProps.navPosition,
+      navPrev = defaultProps.navPrev,
+      navNext = defaultProps.navNext,
+      onPrevMonthClick = defaultProps.onPrevMonthClick,
+      onNextMonthClick = defaultProps.onNextMonthClick,
+      orientation = defaultProps.orientation,
+      phrases = defaultProps.phrases,
+      renderNavPrevButton = defaultProps.renderNavPrevButton,
+      renderNavNextButton = defaultProps.renderNavNextButton,
+      showNavPrevButton = defaultProps.showNavPrevButton,
+      showNavNextButton = defaultProps.showNavNextButton,
       css,
       styles,
     } = this.props;
@@ -103,11 +112,11 @@ class DayPickerNavigation extends React.PureComponent {
     let navNextIcon = navNext;
     let isDefaultNavPrev = false;
     let isDefaultNavNext = false;
-    let navPrevTabIndex = {};
-    let navNextTabIndex = {};
+    let navPrevTabIndex: { tabIndex?: 0 } = {};
+    let navNextTabIndex: { tabIndex?: 0 } = {};
 
     if (!navPrevIcon && !renderNavPrevButton && showNavPrevButton) {
-      navPrevTabIndex = { tabIndex: '0' };
+      navPrevTabIndex = { tabIndex: 0 };
       isDefaultNavPrev = true;
       let Icon = isVertical ? ChevronUp : LeftArrow;
       if (isRTL && !isVertical) {
@@ -125,7 +134,7 @@ class DayPickerNavigation extends React.PureComponent {
     }
 
     if (!navNextIcon && !renderNavNextButton && showNavNextButton) {
-      navNextTabIndex = { tabIndex: '0' };
+      navNextTabIndex = { tabIndex: 0 };
       isDefaultNavNext = true;
       let Icon = isVertical ? ChevronDown : RightArrow;
       if (isRTL && !isVertical) {
@@ -149,20 +158,20 @@ class DayPickerNavigation extends React.PureComponent {
         {...css(
           styles.DayPickerNavigation,
           isHorizontal && styles.DayPickerNavigation__horizontal,
-          ...(isVertical ? [
+          isVertical ? [
             styles.DayPickerNavigation__vertical,
-            isDefaultNav && styles.DayPickerNavigation__verticalDefault,
-          ] : []),
-          ...(isVerticalScrollable ? [
+            isDefaultNav ? styles.DayPickerNavigation__verticalDefault : false,
+          ] : false,
+          isVerticalScrollable ? [
             styles.DayPickerNavigation__verticalScrollable,
-            isDefaultNav && styles.DayPickerNavigation__verticalScrollableDefault,
-            showNavPrevButton && styles.DayPickerNavigation__verticalScrollable_prevNav,
-          ] : []),
-          ...(isBottomNavPosition ? [
+            isDefaultNav ? styles.DayPickerNavigation__verticalScrollableDefault : false,
+            showNavPrevButton ? styles.DayPickerNavigation__verticalScrollable_prevNav : false,
+          ] : false,
+          isBottomNavPosition ? [
             styles.DayPickerNavigation__bottom,
-            isDefaultNav && styles.DayPickerNavigation__bottomDefault,
-          ] : []),
-          hasInlineStyles && inlineStyles,
+            isDefaultNav ? styles.DayPickerNavigation__bottomDefault : false,
+          ] : false,
+          hasInlineStyles ? inlineStyles : false,
         )}
       >
         {showNavPrevButton
@@ -189,25 +198,25 @@ class DayPickerNavigation extends React.PureComponent {
                 styles.DayPickerNavigation_button,
                 isDefaultNavPrev && styles.DayPickerNavigation_button__default,
                 disablePrev && styles.DayPickerNavigation_button__disabled,
-                ...(isHorizontal ? [
+                isHorizontal ? [
                   styles.DayPickerNavigation_button__horizontal,
-                  ...(isDefaultNavPrev ? [
+                  isDefaultNavPrev ? [
                     styles.DayPickerNavigation_button__horizontalDefault,
                     isBottomNavPosition
-                      && styles.DayPickerNavigation_bottomButton__horizontalDefault,
-                    !isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-                    isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-                  ] : []),
-                ] : []),
-                ...(isVertical ? [
+                      ? styles.DayPickerNavigation_bottomButton__horizontalDefault : false,
+                    !isRTL ? styles.DayPickerNavigation_leftButton__horizontalDefault : false,
+                    isRTL ? styles.DayPickerNavigation_rightButton__horizontalDefault : false,
+                  ] : false,
+                ] : false,
+                isVertical ? [
                   styles.DayPickerNavigation_button__vertical,
-                  ...(isDefaultNavPrev ? [
+                  isDefaultNavPrev ? [
                     styles.DayPickerNavigation_button__verticalDefault,
                     styles.DayPickerNavigation_prevButton__verticalDefault,
                     isVerticalScrollable
-                      && styles.DayPickerNavigation_prevButton__verticalScrollableDefault,
-                  ] : []),
-                ] : []),
+                      ? styles.DayPickerNavigation_prevButton__verticalScrollableDefault : false,
+                  ] : false,
+                ] : false,
               )}
               aria-disabled={disablePrev ? true : undefined}
               aria-label={phrases.jumpToPrevMonth}
@@ -250,25 +259,25 @@ class DayPickerNavigation extends React.PureComponent {
                 styles.DayPickerNavigation_button,
                 isDefaultNavNext && styles.DayPickerNavigation_button__default,
                 disableNext && styles.DayPickerNavigation_button__disabled,
-                ...(isHorizontal ? [
+                isHorizontal ? [
                   styles.DayPickerNavigation_button__horizontal,
-                  ...(isDefaultNavNext ? [
+                  isDefaultNavNext ? [
                     styles.DayPickerNavigation_button__horizontalDefault,
                     isBottomNavPosition
-                      && styles.DayPickerNavigation_bottomButton__horizontalDefault,
-                    isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-                    !isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-                  ] : []),
-                ] : []),
-                ...(isVertical ? [
+                      ? styles.DayPickerNavigation_bottomButton__horizontalDefault : false,
+                    isRTL ? styles.DayPickerNavigation_leftButton__horizontalDefault : false,
+                    !isRTL ? styles.DayPickerNavigation_rightButton__horizontalDefault : false,
+                  ] : false,
+                ] : false,
+                isVertical ? [
                   styles.DayPickerNavigation_button__vertical,
-                  ...(isDefaultNavNext ? [
+                  isDefaultNavNext ? [
                     styles.DayPickerNavigation_button__verticalDefault,
                     styles.DayPickerNavigation_nextButton__verticalDefault,
                     isVerticalScrollable
-                      && styles.DayPickerNavigation_nextButton__verticalScrollableDefault,
-                  ] : []),
-                ] : []),
+                      ? styles.DayPickerNavigation_nextButton__verticalScrollableDefault : false,
+                  ] : false,
+                ] : false,
               )}
               aria-disabled={disableNext ? true : undefined}
               aria-label={phrases.jumpToNextMonth}
@@ -290,9 +299,6 @@ class DayPickerNavigation extends React.PureComponent {
     );
   }
 }
-
-DayPickerNavigation.propTypes = propTypes;
-DayPickerNavigation.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { color, zIndex } }) => ({
   DayPickerNavigation: {

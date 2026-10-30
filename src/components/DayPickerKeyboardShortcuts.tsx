@@ -1,44 +1,75 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
-import { forbidExtraProps } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import noop from '../utils/noop.js';
+import { withStyles } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import type { DayPickerPhrases } from '../types.js';
 
-import { DayPickerKeyboardShortcutsPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import { DayPickerKeyboardShortcutsPhrases } from '../defaultPhrases.js';
 
-import KeyboardShortcutRow from './KeyboardShortcutRow';
-import CloseButton from './CloseButton';
+import KeyboardShortcutRow from './KeyboardShortcutRow.js';
+import CloseButton from './CloseButton.js';
 
 export const TOP_LEFT = 'top-left';
 export const TOP_RIGHT = 'top-right';
 export const BOTTOM_RIGHT = 'bottom-right';
 
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  block: PropTypes.bool,
-  // TODO: rename button location to be direction-agnostic
-  buttonLocation: PropTypes.oneOf([TOP_LEFT, TOP_RIGHT, BOTTOM_RIGHT]),
-  showKeyboardShortcutsPanel: PropTypes.bool,
-  openKeyboardShortcutsPanel: PropTypes.func,
-  closeKeyboardShortcutsPanel: PropTypes.func,
-  phrases: PropTypes.shape(getPhrasePropTypes(DayPickerKeyboardShortcutsPhrases)),
-  renderKeyboardShortcutsButton: PropTypes.func,
-  renderKeyboardShortcutsPanel: PropTypes.func,
-});
+export type KeyboardShortcutButtonLocation = typeof TOP_LEFT | typeof TOP_RIGHT | typeof BOTTOM_RIGHT;
 
-const defaultProps = {
-  block: false,
-  buttonLocation: BOTTOM_RIGHT,
-  showKeyboardShortcutsPanel: false,
-  openKeyboardShortcutsPanel: noop,
-  closeKeyboardShortcutsPanel: noop,
-  phrases: DayPickerKeyboardShortcutsPhrases,
-  renderKeyboardShortcutsButton: undefined,
-  renderKeyboardShortcutsPanel: undefined,
-};
+export interface KeyboardShortcut {
+  unicode: string;
+  label: string;
+  action: string;
+}
 
-function getKeyboardShortcuts(phrases) {
+export interface KeyboardShortcutsButtonArguments {
+  ref: (element: HTMLButtonElement | null) => void;
+  onClick: () => void;
+  ariaLabel: string;
+}
+
+export interface KeyboardShortcutsPanelArguments {
+  closeButtonAriaLabel: string;
+  keyboardShortcuts: KeyboardShortcut[];
+  onCloseButtonClick: () => void;
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  title: string;
+}
+
+type KeyboardShortcutPhrases = Required<Pick<DayPickerPhrases,
+  | 'enterKey'
+  | 'leftArrowRightArrow'
+  | 'upArrowDownArrow'
+  | 'pageUpPageDown'
+  | 'homeEnd'
+  | 'escape'
+  | 'questionMark'
+  | 'openThisPanel'
+  | 'selectFocusedDate'
+  | 'moveFocusByOneDay'
+  | 'moveFocusByOneWeek'
+  | 'moveFocusByOneMonth'
+  | 'moveFocustoStartAndEndOfWeek'
+  | 'returnFocusToInput'
+  | 'hideKeyboardShortcutsPanel'
+  | 'showKeyboardShortcutsPanel'
+  | 'keyboardShortcuts'
+>>;
+
+export interface DayPickerKeyboardShortcutsProps {
+  block?: boolean;
+  buttonLocation?: KeyboardShortcutButtonLocation;
+  showKeyboardShortcutsPanel?: boolean;
+  openKeyboardShortcutsPanel?: (onClose: () => void) => void;
+  closeKeyboardShortcutsPanel?: () => void;
+  phrases?: KeyboardShortcutPhrases;
+  renderKeyboardShortcutsButton?: ((arguments_: KeyboardShortcutsButtonArguments) => ReactNode) | null;
+  renderKeyboardShortcutsPanel?: ((arguments_: KeyboardShortcutsPanelArguments) => ReactNode) | null;
+}
+
+type DayPickerKeyboardShortcutsInternalProps = DayPickerKeyboardShortcutsProps & WithStylesProps;
+
+function getKeyboardShortcuts(phrases: KeyboardShortcutPhrases): KeyboardShortcut[] {
   return [
     {
       unicode: '↵',
@@ -78,23 +109,27 @@ function getKeyboardShortcuts(phrases) {
   ];
 }
 
-class DayPickerKeyboardShortcuts extends React.PureComponent {
-  constructor(...args) {
-    super(...args);
+class DayPickerKeyboardShortcuts extends React.PureComponent<DayPickerKeyboardShortcutsInternalProps> {
+  private keyboardShortcuts: KeyboardShortcut[];
 
-    const { phrases } = this.props;
+  private showKeyboardShortcutsButton: HTMLButtonElement | null = null;
+
+  private hideKeyboardShortcutsButton: HTMLButtonElement | null = null;
+
+  constructor(props: DayPickerKeyboardShortcutsInternalProps) {
+    super(props);
+
+    const phrases = this.props.phrases ?? DayPickerKeyboardShortcutsPhrases;
     this.keyboardShortcuts = getKeyboardShortcuts(phrases);
 
-    this.onShowKeyboardShortcutsButtonClick = this.onShowKeyboardShortcutsButtonClick.bind(this);
-    this.setShowKeyboardShortcutsButtonRef = this.setShowKeyboardShortcutsButtonRef.bind(this);
-    this.setHideKeyboardShortcutsButtonRef = this.setHideKeyboardShortcutsButtonRef.bind(this);
     this.handleFocus = this.handleFocus.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
+  override componentDidUpdate(prevProps: DayPickerKeyboardShortcutsInternalProps) {
     if (prevProps.phrases !== this.props.phrases) {
-      this.keyboardShortcuts = getKeyboardShortcuts(this.props.phrases);
+      this.keyboardShortcuts = getKeyboardShortcuts(
+        this.props.phrases ?? DayPickerKeyboardShortcutsPhrases,
+      );
     }
     this.handleFocus();
   }
@@ -107,10 +142,10 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
     }
   }
 
-  onKeyDown(e) {
+  onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     e.stopPropagation();
 
-    const { closeKeyboardShortcutsPanel } = this.props;
+    const closeKeyboardShortcutsPanel = this.props.closeKeyboardShortcutsPanel ?? noop;
     // Because the close button is the only focusable element inside of the panel, this
     // amounts to a very basic focus trap. The user can exit the panel by "pressing" the
     // close button or hitting escape
@@ -140,32 +175,32 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
       default:
         break;
     }
-  }
+  };
 
-  onShowKeyboardShortcutsButtonClick() {
-    const { openKeyboardShortcutsPanel } = this.props;
+  onShowKeyboardShortcutsButtonClick = () => {
+    const openKeyboardShortcutsPanel = this.props.openKeyboardShortcutsPanel ?? noop;
 
     // we want to return focus to this button after closing the keyboard shortcuts panel
-    openKeyboardShortcutsPanel(() => { this.showKeyboardShortcutsButton.focus(); });
-  }
+    openKeyboardShortcutsPanel(() => { this.showKeyboardShortcutsButton?.focus(); });
+  };
 
-  setShowKeyboardShortcutsButtonRef(ref) {
+  setShowKeyboardShortcutsButtonRef = (ref: HTMLButtonElement | null) => {
     this.showKeyboardShortcutsButton = ref;
-  }
+  };
 
-  setHideKeyboardShortcutsButtonRef(ref) {
+  setHideKeyboardShortcutsButtonRef = (ref: HTMLButtonElement | null) => {
     this.hideKeyboardShortcutsButton = ref;
-  }
+  };
 
-  render() {
+  override render() {
     const {
-      block,
-      buttonLocation,
-      showKeyboardShortcutsPanel,
-      closeKeyboardShortcutsPanel,
+      block = false,
+      buttonLocation = BOTTOM_RIGHT,
+      showKeyboardShortcutsPanel = false,
+      closeKeyboardShortcutsPanel = noop,
       css,
       styles,
-      phrases,
+      phrases = DayPickerKeyboardShortcutsPhrases,
       renderKeyboardShortcutsButton,
       renderKeyboardShortcutsPanel,
     } = this.props;
@@ -200,7 +235,7 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
             type="button"
             aria-label={toggleButtonText}
             onClick={this.onShowKeyboardShortcutsButtonClick}
-            onMouseUp={(e) => {
+            onMouseUp={(e: MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.blur();
             }}
           >
@@ -246,7 +281,7 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
                   styles.DayPickerKeyboardShortcuts_close,
                 )}
                 type="button"
-                tabIndex="0"
+                tabIndex={0}
                 aria-label={phrases.hideKeyboardShortcutsPanel}
                 onClick={closeKeyboardShortcutsPanel}
                 onKeyDown={this.onKeyDown}
@@ -275,9 +310,6 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
     );
   }
 }
-
-DayPickerKeyboardShortcuts.propTypes = propTypes;
-DayPickerKeyboardShortcuts.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { color, font, zIndex } }) => ({
   DayPickerKeyboardShortcuts_buttonReset: {

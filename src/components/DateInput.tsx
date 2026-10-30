@@ -1,12 +1,13 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
-import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { noflip, withStyles, withStylesPropTypes } from '../internal/styles';
-import { isTouchDevice, throttle } from '../internal/browser';
+import type { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
+import noop from '../utils/noop.js';
+import { noflip, withStyles } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import { isTouchDevice, throttle } from '../internal/browser/index.js';
+import type { ThrottledFunction } from '../internal/browser/throttle.js';
+import type { OpenDirection } from '../types.js';
 
-import getInputHeight from '../utils/getInputHeight';
-import openDirectionShape from '../shapes/OpenDirectionShape';
+import getInputHeight from '../utils/getInputHeight.js';
 
 import {
   OPEN_DOWN,
@@ -15,44 +16,41 @@ import {
   FANG_WIDTH_PX,
   DEFAULT_VERTICAL_SPACING,
   MODIFIER_KEY_NAMES,
-} from '../constants';
+} from '../constants.js';
 
 const FANG_PATH_TOP = `M0,${FANG_HEIGHT_PX} ${FANG_WIDTH_PX},${FANG_HEIGHT_PX} ${FANG_WIDTH_PX / 2},0z`;
 const FANG_STROKE_TOP = `M0,${FANG_HEIGHT_PX} ${FANG_WIDTH_PX / 2},0 ${FANG_WIDTH_PX},${FANG_HEIGHT_PX}`;
 const FANG_PATH_BOTTOM = `M0,0 ${FANG_WIDTH_PX},0 ${FANG_WIDTH_PX / 2},${FANG_HEIGHT_PX}z`;
 const FANG_STROKE_BOTTOM = `M0,0 ${FANG_WIDTH_PX / 2},${FANG_HEIGHT_PX} ${FANG_WIDTH_PX},0`;
 
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  id: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  displayValue: PropTypes.string,
-  ariaLabel: PropTypes.string,
-  autoComplete: PropTypes.string,
-  titleText: PropTypes.string,
-  screenReaderMessage: PropTypes.string,
-  focused: PropTypes.bool,
-  disabled: PropTypes.bool,
-  required: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  openDirection: openDirectionShape,
-  showCaret: PropTypes.bool,
-  verticalSpacing: nonNegativeInteger,
-  small: PropTypes.bool,
-  block: PropTypes.bool,
-  regular: PropTypes.bool,
+type DateInputKeyEvent = ChangeEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>;
 
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onKeyDownShiftTab: PropTypes.func,
-  onKeyDownTab: PropTypes.func,
-
-  onKeyDownArrowDown: PropTypes.func,
-  onKeyDownQuestionMark: PropTypes.func,
-
-  // accessibility
-  isFocused: PropTypes.bool, // describes actual DOM focus
-});
+export interface DateInputProps {
+  id: string;
+  placeholder?: string;
+  displayValue?: string;
+  ariaLabel?: string;
+  autoComplete?: string;
+  titleText?: string;
+  screenReaderMessage?: string;
+  focused?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  readOnly?: boolean | null;
+  openDirection?: OpenDirection;
+  showCaret?: boolean;
+  verticalSpacing?: number;
+  small?: boolean;
+  block?: boolean;
+  regular?: boolean;
+  onChange?: (value: string) => void;
+  onFocus?: (event: FocusEvent<HTMLInputElement>) => void;
+  onKeyDownShiftTab?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDownTab?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDownArrowDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onKeyDownQuestionMark?: (event: DateInputKeyEvent) => void;
+  isFocused?: boolean;
+}
 
 const defaultProps = {
   placeholder: 'Select Date',
@@ -82,10 +80,23 @@ const defaultProps = {
 
   // accessibility
   isFocused: false,
-};
+} satisfies Omit<DateInputProps, 'id'>;
 
-class DateInput extends React.PureComponent {
-  constructor(props) {
+type DateInputInternalProps = DateInputProps & WithStylesProps;
+
+interface DateInputState {
+  dateString: string;
+  isTouchDevice: boolean;
+}
+
+class DateInput extends React.PureComponent<DateInputInternalProps, DateInputState> {
+  static defaultProps = defaultProps;
+
+  private inputRef: HTMLInputElement | null = null;
+
+  private readonly throttledKeyDown: ThrottledFunction<[KeyboardEvent<HTMLInputElement>], void>;
+
+  constructor(props: DateInputInternalProps) {
     super(props);
 
     this.state = {
@@ -93,17 +104,14 @@ class DateInput extends React.PureComponent {
       isTouchDevice: false,
     };
 
-    this.onChange = this.onChange.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
-    this.setInputRef = this.setInputRef.bind(this);
     this.throttledKeyDown = throttle(this.onFinalKeyDown, 300, { trailing: false });
   }
 
-  componentDidMount() {
+  override componentDidMount() {
     this.setState({ isTouchDevice: isTouchDevice() });
   }
 
-  componentDidUpdate(prevProps) {
+  override componentDidUpdate(prevProps: DateInputInternalProps) {
     const { displayValue, focused, isFocused } = this.props;
     const { dateString } = this.state;
 
@@ -115,16 +123,18 @@ class DateInput extends React.PureComponent {
     if (prevProps.focused === focused && prevProps.isFocused === isFocused) return;
 
     if (focused && isFocused) {
-      this.inputRef.focus();
+      this.inputRef?.focus();
     }
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     this.throttledKeyDown.cancel();
   }
 
-  onChange(e) {
-    const { onChange, onKeyDownQuestionMark } = this.props;
+  onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onChange = this.props.onChange ?? defaultProps.onChange;
+    const onKeyDownQuestionMark = this.props.onKeyDownQuestionMark
+      ?? defaultProps.onKeyDownQuestionMark;
     const dateString = e.target.value;
 
     // In Safari, onKeyDown does not consistently fire ahead of onChange. As a result, we need to
@@ -135,21 +145,21 @@ class DateInput extends React.PureComponent {
     } else {
       this.setState({ dateString }, () => onChange(dateString));
     }
-  }
+  };
 
-  onKeyDown(e) {
+  onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation();
     if (!MODIFIER_KEY_NAMES.has(e.key)) {
       this.throttledKeyDown(e);
     }
-  }
+  };
 
-  onFinalKeyDown(e) {
+  onFinalKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const {
-      onKeyDownShiftTab,
-      onKeyDownTab,
-      onKeyDownArrowDown,
-      onKeyDownQuestionMark,
+      onKeyDownShiftTab = defaultProps.onKeyDownShiftTab,
+      onKeyDownTab = defaultProps.onKeyDownTab,
+      onKeyDownArrowDown = defaultProps.onKeyDownArrowDown,
+      onKeyDownQuestionMark = defaultProps.onKeyDownQuestionMark,
     } = this.props;
     const { key } = e;
 
@@ -165,36 +175,36 @@ class DateInput extends React.PureComponent {
       e.preventDefault();
       onKeyDownQuestionMark(e);
     }
-  }
+  };
 
-  setInputRef(ref) {
+  setInputRef = (ref: HTMLInputElement | null) => {
     this.inputRef = ref;
-  }
+  };
 
-  render() {
+  override render() {
     const {
       dateString,
       isTouchDevice: isTouch,
     } = this.state;
     const {
       id,
-      placeholder,
-      ariaLabel,
-      autoComplete,
-      titleText,
-      displayValue,
-      screenReaderMessage,
-      focused,
-      showCaret,
-      onFocus,
-      disabled,
-      required,
-      readOnly,
-      openDirection,
-      verticalSpacing,
-      small,
-      regular,
-      block,
+      placeholder = defaultProps.placeholder,
+      ariaLabel = defaultProps.ariaLabel,
+      autoComplete = defaultProps.autoComplete,
+      titleText = defaultProps.titleText,
+      displayValue = defaultProps.displayValue,
+      screenReaderMessage = defaultProps.screenReaderMessage,
+      focused = defaultProps.focused,
+      showCaret = defaultProps.showCaret,
+      onFocus = defaultProps.onFocus,
+      disabled = defaultProps.disabled,
+      required = defaultProps.required,
+      readOnly = defaultProps.readOnly,
+      openDirection = defaultProps.openDirection,
+      verticalSpacing = defaultProps.verticalSpacing,
+      small = defaultProps.small,
+      regular = defaultProps.regular,
+      block = defaultProps.block,
       css,
       styles,
       theme: { reactDates },
@@ -280,9 +290,6 @@ class DateInput extends React.PureComponent {
     );
   }
 }
-
-DateInput.propTypes = propTypes;
-DateInput.defaultProps = defaultProps;
 
 export default withStyles(({
   reactDates: {

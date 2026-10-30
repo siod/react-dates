@@ -1,18 +1,23 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
+import type { CSSProperties, KeyboardEvent, MouseEvent } from 'react';
 import { DateTime } from 'luxon';
-import { forbidExtraProps, nonNegativeInteger, or } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { dateTime, formatDate } from '../internal/date';
-import scheduleAnimationFrame from '../internal/browser/raf';
+import noop from '../utils/noop.js';
+import { withStyles } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import { formatDate } from '../internal/date/index.js';
+import scheduleAnimationFrame from '../internal/browser/raf.js';
+import type { AnimationFrameCancel } from '../internal/browser/raf.js';
+import type {
+  CalendarDayPhrases as CalendarDayPhrasesType,
+  CustomizableCalendarDayProps,
+  DayStyle,
+} from '../types.js';
 
-import { CalendarDayPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import { CalendarDayPhrases } from '../defaultPhrases.js';
 
-import { DAY_SIZE } from '../constants';
+import { DAY_SIZE } from '../constants.js';
 
-function getStyles(stylesObj, isHovered) {
+function getStyles(stylesObj: DayStyle | undefined, isHovered: boolean): CSSProperties | null {
   if (!stylesObj) return null;
 
   const { hover, ...baseStyles } = stylesObj;
@@ -22,56 +27,6 @@ function getStyles(stylesObj, isHovered) {
 
   return baseStyles;
 }
-
-const DayStyleShape = PropTypes.shape({
-  background: PropTypes.string,
-  border: or([PropTypes.string, PropTypes.number]),
-  color: PropTypes.string,
-
-  hover: PropTypes.shape({
-    background: PropTypes.string,
-    border: or([PropTypes.string, PropTypes.number]),
-    color: PropTypes.string,
-  }),
-});
-
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  day: dateTime,
-  daySize: nonNegativeInteger,
-  isOutsideDay: PropTypes.bool,
-  modifiers: PropTypes.instanceOf(Set),
-  isFocused: PropTypes.bool,
-  tabIndex: PropTypes.oneOf([0, -1]),
-  onDayClick: PropTypes.func,
-  onDayMouseEnter: PropTypes.func,
-  onDayMouseLeave: PropTypes.func,
-  renderDayContents: PropTypes.func,
-  ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-
-  // style overrides
-  defaultStyles: DayStyleShape,
-  outsideStyles: DayStyleShape,
-  todayStyles: DayStyleShape,
-  firstDayOfWeekStyles: DayStyleShape,
-  lastDayOfWeekStyles: DayStyleShape,
-  highlightedCalendarStyles: DayStyleShape,
-  blockedMinNightsStyles: DayStyleShape,
-  blockedCalendarStyles: DayStyleShape,
-  blockedOutOfRangeStyles: DayStyleShape,
-  hoveredSpanStyles: DayStyleShape,
-  selectedSpanStyles: DayStyleShape,
-  lastInRangeStyles: DayStyleShape,
-  selectedStyles: DayStyleShape,
-  selectedStartStyles: DayStyleShape,
-  selectedEndStyles: DayStyleShape,
-  afterHoveredStartStyles: DayStyleShape,
-  hoveredStartFirstPossibleEndStyles: DayStyleShape,
-  hoveredStartBlockedMinNightsStyles: DayStyleShape,
-
-  // internationalization
-  phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
-});
 
 export const defaultStyles = {
   border: '1px solid var(--react-dates-border-light)',
@@ -178,7 +133,7 @@ const defaultProps = {
   day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
-  modifiers: new Set(),
+  modifiers: new Set<string>(),
   isFocused: false,
   tabIndex: -1,
   onDayClick: noop,
@@ -209,9 +164,22 @@ const defaultProps = {
 
   // internationalization
   phrases: CalendarDayPhrases,
-};
+} satisfies CustomizableCalendarDayProps;
 
-function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions) {
+type CustomizableCalendarDayInternalProps = CustomizableCalendarDayProps & WithStylesProps;
+
+interface CustomizableCalendarDayState {
+  isHovered: boolean;
+}
+
+function getDaySettings(
+  day: DateTime,
+  ariaLabelFormat: NonNullable<CustomizableCalendarDayProps['ariaLabelFormat']>,
+  daySize: number,
+  modifiers: NonNullable<CustomizableCalendarDayProps['modifiers']>,
+  phrases: CalendarDayPhrasesType,
+  formatOptions: Intl.DateTimeFormatOptions,
+) {
   const selected = modifiers.has('selected') || modifiers.has('selected-span')
     || modifiers.has('selected-start') || modifiers.has('selected-end');
   const hoveredSpan = !selected && (modifiers.has('hovered-span')
@@ -237,18 +205,26 @@ function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, forma
   };
 }
 
-class CustomizableCalendarDay extends React.PureComponent {
-  constructor(...args) {
-    super(...args);
+class CustomizableCalendarDay extends React.PureComponent<
+CustomizableCalendarDayInternalProps,
+CustomizableCalendarDayState
+> {
+  static defaultProps = defaultProps;
+
+  private buttonRef: HTMLTableCellElement | null = null;
+
+  private cancelFocus: AnimationFrameCancel | null = null;
+
+  constructor(props: CustomizableCalendarDayInternalProps) {
+    super(props);
 
     this.state = {
       isHovered: false,
     };
 
-    this.setButtonRef = this.setButtonRef.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
+  override componentDidUpdate(prevProps: CustomizableCalendarDayInternalProps) {
     const { isFocused, tabIndex } = this.props;
     if (tabIndex === 0) {
       if (isFocused || tabIndex !== prevProps.tabIndex) {
@@ -262,30 +238,30 @@ class CustomizableCalendarDay extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     if (this.cancelFocus) this.cancelFocus();
   }
 
-  onDayClick(day, e) {
-    const { onDayClick } = this.props;
+  onDayClick(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayClick = this.props.onDayClick ?? noop;
     onDayClick(day, e);
   }
 
-  onDayMouseEnter(day, e) {
-    const { onDayMouseEnter } = this.props;
+  onDayMouseEnter(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayMouseEnter = this.props.onDayMouseEnter ?? noop;
     this.setState({ isHovered: true });
     onDayMouseEnter(day, e);
   }
 
-  onDayMouseLeave(day, e) {
-    const { onDayMouseLeave } = this.props;
+  onDayMouseLeave(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayMouseLeave = this.props.onDayMouseLeave ?? noop;
     this.setState({ isHovered: false });
     onDayMouseLeave(day, e);
   }
 
-  onKeyDown(day, e) {
+  onKeyDown(day: DateTime, e: KeyboardEvent<HTMLElement>) {
     const {
-      onDayClick,
+      onDayClick = noop,
     } = this.props;
 
     const { key } = e;
@@ -294,48 +270,48 @@ class CustomizableCalendarDay extends React.PureComponent {
     }
   }
 
-  setButtonRef(ref) {
+  setButtonRef = (ref: HTMLTableCellElement | null) => {
     this.buttonRef = ref;
-  }
+  };
 
-  render() {
+  override render() {
     const {
-      day,
-      ariaLabelFormat,
-      daySize,
-      isOutsideDay,
-      modifiers,
-      tabIndex,
-      renderDayContents,
+      day = defaultProps.day,
+      ariaLabelFormat = defaultProps.ariaLabelFormat,
+      daySize = defaultProps.daySize,
+      isOutsideDay = defaultProps.isOutsideDay,
+      modifiers = defaultProps.modifiers,
+      tabIndex = defaultProps.tabIndex,
+      renderDayContents = defaultProps.renderDayContents,
       css,
       styles,
-      phrases,
+      phrases = defaultProps.phrases,
 
-      defaultStyles: defaultStylesWithHover,
-      outsideStyles: outsideStylesWithHover,
-      todayStyles: todayStylesWithHover,
-      firstDayOfWeekStyles: firstDayOfWeekStylesWithHover,
-      lastDayOfWeekStyles: lastDayOfWeekStylesWithHover,
-      highlightedCalendarStyles: highlightedCalendarStylesWithHover,
-      blockedMinNightsStyles: blockedMinNightsStylesWithHover,
-      blockedCalendarStyles: blockedCalendarStylesWithHover,
-      blockedOutOfRangeStyles: blockedOutOfRangeStylesWithHover,
-      hoveredSpanStyles: hoveredSpanStylesWithHover,
-      selectedSpanStyles: selectedSpanStylesWithHover,
-      lastInRangeStyles: lastInRangeStylesWithHover,
-      selectedStyles: selectedStylesWithHover,
-      selectedStartStyles: selectedStartStylesWithHover,
-      selectedEndStyles: selectedEndStylesWithHover,
-      afterHoveredStartStyles: afterHoveredStartStylesWithHover,
-      hoveredStartFirstPossibleEndStyles: hoveredStartFirstPossibleEndStylesWithHover,
-      hoveredStartBlockedMinNightsStyles: hoveredStartBlockedMinNightsStylesWithHover,
+      defaultStyles: defaultStylesWithHover = defaultProps.defaultStyles,
+      outsideStyles: outsideStylesWithHover = defaultProps.outsideStyles,
+      todayStyles: todayStylesWithHover = defaultProps.todayStyles,
+      firstDayOfWeekStyles: firstDayOfWeekStylesWithHover = defaultProps.firstDayOfWeekStyles,
+      lastDayOfWeekStyles: lastDayOfWeekStylesWithHover = defaultProps.lastDayOfWeekStyles,
+      highlightedCalendarStyles: highlightedCalendarStylesWithHover = defaultProps.highlightedCalendarStyles,
+      blockedMinNightsStyles: blockedMinNightsStylesWithHover = defaultProps.blockedMinNightsStyles,
+      blockedCalendarStyles: blockedCalendarStylesWithHover = defaultProps.blockedCalendarStyles,
+      blockedOutOfRangeStyles: blockedOutOfRangeStylesWithHover = defaultProps.blockedOutOfRangeStyles,
+      hoveredSpanStyles: hoveredSpanStylesWithHover = defaultProps.hoveredSpanStyles,
+      selectedSpanStyles: selectedSpanStylesWithHover = defaultProps.selectedSpanStyles,
+      lastInRangeStyles: lastInRangeStylesWithHover = defaultProps.lastInRangeStyles,
+      selectedStyles: selectedStylesWithHover = defaultProps.selectedStyles,
+      selectedStartStyles: selectedStartStylesWithHover = defaultProps.selectedStartStyles,
+      selectedEndStyles: selectedEndStylesWithHover = defaultProps.selectedEndStyles,
+      afterHoveredStartStyles: afterHoveredStartStylesWithHover = defaultProps.afterHoveredStartStyles,
+      hoveredStartFirstPossibleEndStyles: hoveredStartFirstPossibleEndStylesWithHover = defaultProps.hoveredStartFirstPossibleEndStyles,
+      hoveredStartBlockedMinNightsStyles: hoveredStartBlockedMinNightsStylesWithHover = defaultProps.hoveredStartBlockedMinNightsStyles,
     } = this.props;
 
     const { isHovered } = this.state;
 
     if (!day) return <td />;
 
-    const formatOptions = {};
+    const formatOptions: Intl.DateTimeFormatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,
@@ -388,9 +364,6 @@ class CustomizableCalendarDay extends React.PureComponent {
     );
   }
 }
-
-CustomizableCalendarDay.propTypes = propTypes;
-CustomizableCalendarDay.defaultProps = defaultProps;
 
 export { CustomizableCalendarDay as PureCustomizableCalendarDay };
 export default withStyles(() => ({

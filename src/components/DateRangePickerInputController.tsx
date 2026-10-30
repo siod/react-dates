@@ -1,88 +1,22 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
-import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { dateTime, formatDate, parseLocalizedDate } from '../internal/date';
-import openDirectionShape from '../shapes/OpenDirectionShape';
+import noop from '../utils/noop.js';
+import { formatDate, parseLocalizedDate } from '../internal/date/index.js';
+import type { DateRangePickerInputControllerProps } from '../types.js';
 
-import { DateRangePickerInputPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
+import { DateRangePickerInputPhrases } from '../defaultPhrases.js';
 
-import DateRangePickerInput from './DateRangePickerInput';
+import DateRangePickerInput from './DateRangePickerInput.js';
 
-import IconPositionShape from '../shapes/IconPositionShape';
-import DisabledShape from '../shapes/DisabledShape';
-
-import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay';
-import isBeforeDay from '../utils/isBeforeDay';
+import isInclusivelyAfterDay from '../utils/isInclusivelyAfterDay.js';
+import isBeforeDay from '../utils/isBeforeDay.js';
 
 import {
   START_DATE,
   END_DATE,
   ICON_BEFORE_POSITION,
   OPEN_DOWN,
-} from '../constants';
-
-const propTypes = forbidExtraProps({
-  children: PropTypes.node,
-
-  startDate: dateTime,
-  startDateId: PropTypes.string,
-  startDatePlaceholderText: PropTypes.string,
-  isStartDateFocused: PropTypes.bool,
-  startDateAriaLabel: PropTypes.string,
-  startDateTitleText: PropTypes.string,
-
-  endDate: dateTime,
-  endDateId: PropTypes.string,
-  endDatePlaceholderText: PropTypes.string,
-  isEndDateFocused: PropTypes.bool,
-  endDateAriaLabel: PropTypes.string,
-  endDateTitleText: PropTypes.string,
-
-  screenReaderMessage: PropTypes.string,
-  showClearDates: PropTypes.bool,
-  showCaret: PropTypes.bool,
-  showDefaultInputIcon: PropTypes.bool,
-  inputIconPosition: IconPositionShape,
-  disabled: DisabledShape,
-  required: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  openDirection: openDirectionShape,
-  noBorder: PropTypes.bool,
-  block: PropTypes.bool,
-  small: PropTypes.bool,
-  regular: PropTypes.bool,
-  verticalSpacing: nonNegativeInteger,
-  autoComplete: PropTypes.string,
-
-  keepOpenOnDateSelect: PropTypes.bool,
-  reopenPickerOnClearDates: PropTypes.bool,
-  withFullScreenPortal: PropTypes.bool,
-  minimumNights: nonNegativeInteger,
-  isOutsideRange: PropTypes.func,
-  isDayBlocked: PropTypes.func,
-  displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-
-  onFocusChange: PropTypes.func,
-  onClose: PropTypes.func,
-  onDatesChange: PropTypes.func,
-  onKeyDownArrowDown: PropTypes.func,
-  onKeyDownQuestionMark: PropTypes.func,
-
-  customInputIcon: PropTypes.node,
-  customArrowIcon: PropTypes.node,
-  customCloseIcon: PropTypes.node,
-
-  // accessibility
-  isFocused: PropTypes.bool,
-
-  // i18n
-  phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerInputPhrases)),
-
-  isRTL: PropTypes.bool,
-});
+} from '../constants.js';
 
 const defaultProps = {
   children: null,
@@ -142,42 +76,35 @@ const defaultProps = {
   phrases: DateRangePickerInputPhrases,
 
   isRTL: false,
-};
+} satisfies DateRangePickerInputControllerProps;
 
-export default class DateRangePickerInputController extends React.PureComponent {
-  constructor(props) {
-    super(props);
+export default class DateRangePickerInputController extends React.PureComponent<
+DateRangePickerInputControllerProps
+> {
+  static defaultProps = defaultProps;
 
-    this.onClearFocus = this.onClearFocus.bind(this);
-    this.onStartDateChange = this.onStartDateChange.bind(this);
-    this.onStartDateFocus = this.onStartDateFocus.bind(this);
-    this.onEndDateChange = this.onEndDateChange.bind(this);
-    this.onEndDateFocus = this.onEndDateFocus.bind(this);
-    this.clearDates = this.clearDates.bind(this);
-  }
-
-  onClearFocus() {
+  onClearFocus = () => {
     const {
-      onFocusChange,
-      onClose,
-      startDate,
-      endDate,
+      onFocusChange = defaultProps.onFocusChange,
+      onClose = defaultProps.onClose,
+      startDate = defaultProps.startDate,
+      endDate = defaultProps.endDate,
     } = this.props;
 
     onFocusChange(null);
     onClose({ startDate, endDate });
-  }
+  };
 
-  onEndDateChange(endDateString) {
+  onEndDateChange = (endDateString: string) => {
     const {
-      startDate,
-      isOutsideRange,
-      isDayBlocked,
-      minimumNights,
-      keepOpenOnDateSelect,
-      onDatesChange,
-      onClose,
-      onFocusChange,
+      startDate = defaultProps.startDate,
+      isOutsideRange = defaultProps.isOutsideRange,
+      isDayBlocked = defaultProps.isDayBlocked,
+      minimumNights = defaultProps.minimumNights,
+      keepOpenOnDateSelect = defaultProps.keepOpenOnDateSelect,
+      onDatesChange = defaultProps.onDatesChange,
+      onClose = defaultProps.onClose,
+      onFocusChange = defaultProps.onFocusChange,
     } = this.props;
 
     const endDate = this.parseDate(endDateString);
@@ -197,14 +124,14 @@ export default class DateRangePickerInputController extends React.PureComponent 
         endDate: null,
       });
     }
-  }
+  };
 
-  onEndDateFocus() {
+  onEndDateFocus = () => {
     const {
-      startDate,
-      onFocusChange,
-      withFullScreenPortal,
-      disabled,
+      startDate = defaultProps.startDate,
+      onFocusChange = defaultProps.onFocusChange,
+      withFullScreenPortal = defaultProps.withFullScreenPortal,
+      disabled = defaultProps.disabled,
     } = this.props;
 
     if (!startDate && withFullScreenPortal && (!disabled || disabled === END_DATE)) {
@@ -215,17 +142,17 @@ export default class DateRangePickerInputController extends React.PureComponent 
     } else if (!disabled || disabled === START_DATE) {
       onFocusChange(END_DATE);
     }
-  }
+  };
 
-  onStartDateChange(startDateString) {
-    let { endDate } = this.props;
+  onStartDateChange = (startDateString: string) => {
+    let endDate = this.props.endDate ?? defaultProps.endDate;
     const {
-      isOutsideRange,
-      isDayBlocked,
-      minimumNights,
-      onDatesChange,
-      onFocusChange,
-      disabled,
+      isOutsideRange = defaultProps.isOutsideRange,
+      isDayBlocked = defaultProps.isDayBlocked,
+      minimumNights = defaultProps.minimumNights,
+      onDatesChange = defaultProps.onDatesChange,
+      onFocusChange = defaultProps.onFocusChange,
+      disabled = defaultProps.disabled,
     } = this.props;
 
     const startDate = this.parseDate(startDateString);
@@ -248,26 +175,27 @@ export default class DateRangePickerInputController extends React.PureComponent 
         endDate,
       });
     }
-  }
+  };
 
-  onStartDateFocus() {
-    const { disabled, onFocusChange } = this.props;
+  onStartDateFocus = () => {
+    const disabled = this.props.disabled ?? defaultProps.disabled;
+    const onFocusChange = this.props.onFocusChange ?? defaultProps.onFocusChange;
 
     if (!disabled || disabled === END_DATE) {
       onFocusChange(START_DATE);
     }
-  }
+  };
 
-  parseDate(value) {
-    const { displayFormat } = this.props;
+  parseDate(value: string) {
+    const displayFormat = this.props.displayFormat ?? defaultProps.displayFormat;
     return parseLocalizedDate(value, {
       ...(typeof displayFormat === 'function' ? { dateStyle: 'short' } : displayFormat),
     });
   }
 
-  getDateString(date) {
+  getDateString(date: DateTime | null) {
     if (!date) return '';
-    const { displayFormat } = this.props;
+    const displayFormat = this.props.displayFormat ?? defaultProps.displayFormat;
     const value = typeof displayFormat === 'function' ? displayFormat(date) : null;
     if (typeof value === 'string') return value;
     return formatDate(date, {
@@ -275,52 +203,55 @@ export default class DateRangePickerInputController extends React.PureComponent 
     });
   }
 
-  clearDates() {
-    const { onDatesChange, reopenPickerOnClearDates, onFocusChange } = this.props;
+  clearDates = () => {
+    const onDatesChange = this.props.onDatesChange ?? defaultProps.onDatesChange;
+    const reopenPickerOnClearDates = this.props.reopenPickerOnClearDates
+      ?? defaultProps.reopenPickerOnClearDates;
+    const onFocusChange = this.props.onFocusChange ?? defaultProps.onFocusChange;
     onDatesChange({ startDate: null, endDate: null });
     if (reopenPickerOnClearDates) {
       onFocusChange(START_DATE);
     }
-  }
+  };
 
-  render() {
+  override render() {
     const {
-      children,
-      startDate,
-      startDateId,
-      startDatePlaceholderText,
-      isStartDateFocused,
-      startDateAriaLabel,
-      startDateTitleText,
-      endDate,
-      endDateId,
-      endDatePlaceholderText,
-      endDateAriaLabel,
-      endDateTitleText,
-      isEndDateFocused,
-      screenReaderMessage,
-      showClearDates,
-      showCaret,
-      showDefaultInputIcon,
-      inputIconPosition,
-      customInputIcon,
-      customArrowIcon,
-      customCloseIcon,
-      disabled,
-      required,
-      readOnly,
-      openDirection,
-      isFocused,
-      phrases,
-      onKeyDownArrowDown,
-      onKeyDownQuestionMark,
-      isRTL,
-      noBorder,
-      block,
-      small,
-      regular,
-      verticalSpacing,
-      autoComplete,
+      children = defaultProps.children,
+      startDate = defaultProps.startDate,
+      startDateId = defaultProps.startDateId,
+      startDatePlaceholderText = defaultProps.startDatePlaceholderText,
+      isStartDateFocused = defaultProps.isStartDateFocused,
+      startDateAriaLabel = defaultProps.startDateAriaLabel,
+      startDateTitleText = defaultProps.startDateTitleText,
+      endDate = defaultProps.endDate,
+      endDateId = defaultProps.endDateId,
+      endDatePlaceholderText = defaultProps.endDatePlaceholderText,
+      endDateAriaLabel = defaultProps.endDateAriaLabel,
+      endDateTitleText = defaultProps.endDateTitleText,
+      isEndDateFocused = defaultProps.isEndDateFocused,
+      screenReaderMessage = defaultProps.screenReaderMessage,
+      showClearDates = defaultProps.showClearDates,
+      showCaret = defaultProps.showCaret,
+      showDefaultInputIcon = defaultProps.showDefaultInputIcon,
+      inputIconPosition = defaultProps.inputIconPosition,
+      customInputIcon = defaultProps.customInputIcon,
+      customArrowIcon = defaultProps.customArrowIcon,
+      customCloseIcon = defaultProps.customCloseIcon,
+      disabled = defaultProps.disabled,
+      required = defaultProps.required,
+      readOnly = defaultProps.readOnly,
+      openDirection = defaultProps.openDirection,
+      isFocused = defaultProps.isFocused,
+      phrases = defaultProps.phrases,
+      onKeyDownArrowDown = defaultProps.onKeyDownArrowDown,
+      onKeyDownQuestionMark = defaultProps.onKeyDownQuestionMark,
+      isRTL = defaultProps.isRTL,
+      noBorder = defaultProps.noBorder,
+      block = defaultProps.block,
+      small = defaultProps.small,
+      regular = defaultProps.regular,
+      verticalSpacing = defaultProps.verticalSpacing,
+      autoComplete = defaultProps.autoComplete,
     } = this.props;
 
     const startDateString = this.getDateString(startDate);
@@ -375,6 +306,3 @@ export default class DateRangePickerInputController extends React.PureComponent 
     );
   }
 }
-
-DateRangePickerInputController.propTypes = propTypes;
-DateRangePickerInputController.defaultProps = defaultProps;

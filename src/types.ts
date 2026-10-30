@@ -1,5 +1,5 @@
 import type { DateTime } from 'luxon';
-import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
 export type DateRange = { startDate: DateTime | null; endDate: DateTime | null };
 export type FocusedInput = 'startDate' | 'endDate' | null;
@@ -16,7 +16,10 @@ export type IconPosition = 'before' | 'after';
 export type CalendarInfoPosition = 'top' | 'bottom' | 'before' | 'after';
 export type NavPosition = 'navPositionTop' | 'navPositionBottom';
 export type DatePredicate = (day: DateTime) => boolean;
-export type DayEventHandler = (day: DateTime, event: MouseEvent<HTMLElement>) => void;
+export type DayEventHandler = (
+  day: DateTime,
+  event: KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>,
+) => void;
 export type DayRenderer = (day: DateTime, modifiers: Modifiers) => ReactNode;
 export type InitialVisibleMonth = () => DateTime;
 export type DateOffset = (day: DateTime) => DateTime;
@@ -280,7 +283,7 @@ export interface SingleDateSelectionProps {
   onDateChange?: (date: DateTime | null) => void;
   allowUnselect?: boolean;
   focused?: boolean;
-  onFocusChange?: (focused: boolean) => void;
+  onFocusChange?: (arguments_: { focused: boolean }) => void;
   onClose?: (arguments_: { date: DateTime | null }) => void;
   keepOpenOnDateSelect?: boolean;
   isOutsideRange?: DatePredicate;
@@ -407,7 +410,7 @@ export type DateRangePickerProps = DateRangePickerBaseProps & MonthRenderer;
 export interface SingleDatePickerBaseProps extends SingleDateSelectionProps, Omit<DayPickerBaseProps, 'onBlur'>, InputPresentationProps {
   id: string;
   onDateChange: (date: DateTime | null) => void;
-  onFocusChange: (focused: boolean) => void;
+  onFocusChange: (arguments_: { focused: boolean }) => void;
   placeholder?: string;
   ariaLabel?: string;
   titleText?: string;

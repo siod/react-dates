@@ -1,28 +1,24 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { forbidExtraProps } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
+import { withStyles } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
 
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  unicode: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  action: PropTypes.string.isRequired,
-  block: PropTypes.bool,
-});
+export interface KeyboardShortcutRowProps {
+  unicode: string;
+  label: string;
+  action: string;
+  block?: boolean;
+}
 
-const defaultProps = {
-  block: false,
-};
+type KeyboardShortcutRowInternalProps = KeyboardShortcutRowProps & WithStylesProps;
 
 function KeyboardShortcutRow({
   unicode,
   label,
   action,
-  block,
+  block = false,
   css,
   styles,
-}) {
+}: KeyboardShortcutRowInternalProps) {
   return (
     <li
       {...css(
@@ -51,9 +47,6 @@ function KeyboardShortcutRow({
     </li>
   );
 }
-
-KeyboardShortcutRow.propTypes = propTypes;
-KeyboardShortcutRow.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { color } }) => ({
   KeyboardShortcutRow: {

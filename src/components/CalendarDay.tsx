@@ -1,41 +1,23 @@
 import React from 'react';
-import noop from '../utils/noop';
-import PropTypes from 'prop-types';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { DateTime } from 'luxon';
-import { forbidExtraProps, nonNegativeInteger } from '../internal/propTypes';
-import { withStyles, withStylesPropTypes } from '../internal/styles';
-import { dateTime, formatDate } from '../internal/date';
-import scheduleAnimationFrame from '../internal/browser/raf';
+import noop from '../utils/noop.js';
+import { withStyles } from '../internal/styles/index.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import { formatDate } from '../internal/date/index.js';
+import scheduleAnimationFrame from '../internal/browser/raf.js';
+import type { AnimationFrameCancel } from '../internal/browser/raf.js';
+import type { CalendarDayPhrases as CalendarDayPhrasesType, CalendarDayProps } from '../types.js';
 
-import { CalendarDayPhrases } from '../defaultPhrases';
-import getPhrasePropTypes from '../utils/getPhrasePropTypes';
-import ModifiersShape from '../shapes/ModifiersShape';
+import { CalendarDayPhrases } from '../defaultPhrases.js';
 
-import { DAY_SIZE } from '../constants';
-
-const propTypes = forbidExtraProps({
-  ...withStylesPropTypes,
-  day: dateTime,
-  daySize: nonNegativeInteger,
-  isOutsideDay: PropTypes.bool,
-  modifiers: ModifiersShape,
-  isFocused: PropTypes.bool,
-  tabIndex: PropTypes.oneOf([0, -1]),
-  onDayClick: PropTypes.func,
-  onDayMouseEnter: PropTypes.func,
-  onDayMouseLeave: PropTypes.func,
-  renderDayContents: PropTypes.func,
-  ariaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-
-  // internationalization
-  phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
-});
+import { DAY_SIZE } from '../constants.js';
 
 const defaultProps = {
   day: DateTime.local(),
   daySize: DAY_SIZE,
   isOutsideDay: false,
-  modifiers: new Set(),
+  modifiers: new Set<string>(),
   isFocused: false,
   tabIndex: -1,
   onDayClick: noop,
@@ -46,9 +28,18 @@ const defaultProps = {
 
   // internationalization
   phrases: CalendarDayPhrases,
-};
+} satisfies CalendarDayProps;
 
-function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, formatOptions) {
+type CalendarDayInternalProps = CalendarDayProps & WithStylesProps;
+
+function getDaySettings(
+  day: DateTime,
+  ariaLabelFormat: NonNullable<CalendarDayProps['ariaLabelFormat']>,
+  daySize: number,
+  modifiers: NonNullable<CalendarDayProps['modifiers']>,
+  phrases: CalendarDayPhrasesType,
+  formatOptions: Intl.DateTimeFormatOptions,
+) {
   const selected = modifiers.has('selected')
     || modifiers.has('selected-span')
     || modifiers.has('selected-start')
@@ -76,14 +67,14 @@ function getDaySettings(day, ariaLabelFormat, daySize, modifiers, phrases, forma
   };
 }
 
-class CalendarDay extends React.PureComponent {
-  constructor(...args) {
-    super(...args);
+class CalendarDay extends React.PureComponent<CalendarDayInternalProps> {
+  static defaultProps = defaultProps;
 
-    this.setButtonRef = this.setButtonRef.bind(this);
-  }
+  private buttonRef: HTMLTableCellElement | null = null;
 
-  componentDidUpdate(prevProps) {
+  private cancelFocus: AnimationFrameCancel | null = null;
+
+  override componentDidUpdate(prevProps: CalendarDayInternalProps) {
     const { isFocused, tabIndex } = this.props;
     if (tabIndex === 0) {
       if (isFocused || tabIndex !== prevProps.tabIndex) {
@@ -97,27 +88,27 @@ class CalendarDay extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     if (this.cancelFocus) this.cancelFocus();
   }
 
-  onDayClick(day, e) {
-    const { onDayClick } = this.props;
+  onDayClick(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayClick = this.props.onDayClick ?? noop;
     onDayClick(day, e);
   }
 
-  onDayMouseEnter(day, e) {
-    const { onDayMouseEnter } = this.props;
+  onDayMouseEnter(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayMouseEnter = this.props.onDayMouseEnter ?? noop;
     onDayMouseEnter(day, e);
   }
 
-  onDayMouseLeave(day, e) {
-    const { onDayMouseLeave } = this.props;
+  onDayMouseLeave(day: DateTime, e: MouseEvent<HTMLElement>) {
+    const onDayMouseLeave = this.props.onDayMouseLeave ?? noop;
     onDayMouseLeave(day, e);
   }
 
-  onKeyDown(day, e) {
-    const { onDayClick } = this.props;
+  onKeyDown(day: DateTime, e: KeyboardEvent<HTMLElement>) {
+    const onDayClick = this.props.onDayClick ?? noop;
 
     const { key } = e;
     if (key === 'Enter' || key === ' ') {
@@ -125,27 +116,27 @@ class CalendarDay extends React.PureComponent {
     }
   }
 
-  setButtonRef(ref) {
+  setButtonRef = (ref: HTMLTableCellElement | null) => {
     this.buttonRef = ref;
-  }
+  };
 
-  render() {
+  override render() {
     const {
-      day,
-      ariaLabelFormat,
-      daySize,
-      isOutsideDay,
-      modifiers,
-      renderDayContents,
-      tabIndex,
+      day = defaultProps.day,
+      ariaLabelFormat = defaultProps.ariaLabelFormat,
+      daySize = defaultProps.daySize,
+      isOutsideDay = defaultProps.isOutsideDay,
+      modifiers = defaultProps.modifiers,
+      renderDayContents = defaultProps.renderDayContents,
+      tabIndex = defaultProps.tabIndex,
       css,
       styles,
-      phrases,
+      phrases = defaultProps.phrases,
     } = this.props;
 
     if (!day) return <td />;
 
-    const formatOptions = {};
+    const formatOptions: Intl.DateTimeFormatOptions = {};
     const {
       daySizeStyles,
       useDefaultCursor,
@@ -205,9 +196,6 @@ class CalendarDay extends React.PureComponent {
     );
   }
 }
-
-CalendarDay.propTypes = propTypes;
-CalendarDay.defaultProps = defaultProps;
 
 export { CalendarDay as PureCalendarDay };
 export default withStyles(({ reactDates: { color, font } }) => ({

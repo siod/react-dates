@@ -1,9 +1,14 @@
 import React from 'react';
-import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import noop from '../utils/noop.js';
 import { withStyles } from '../internal/styles/index.js';
-import type { StyleObject, WithStylesProps } from '../internal/styles/withStyles.js';
-import type { DayPickerPhrases, NavPosition, ScrollableOrientation } from '../types.js';
+import type { WithStylesProps } from '../internal/styles/withStyles.js';
+import type {
+  DayPickerPhrases,
+  NavPosition,
+  NavigationButtonArguments,
+  ScrollableOrientation,
+} from '../types.js';
 
 import { DayPickerNavigationPhrases } from '../defaultPhrases.js';
 import noflip from '../internal/styles/noflip.js';
@@ -24,18 +29,10 @@ type NavigationEvent = KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>;
 type NavigationHandler = (event: NavigationEvent) => void;
 type NavigationPhrases = Required<Pick<DayPickerPhrases, 'jumpToPrevMonth' | 'jumpToNextMonth'>>;
 
-export interface NavigationButtonArguments {
-  ariaLabel: string;
-  disabled: boolean;
-  onClick?: NavigationHandler;
-  onKeyUp?: (event: KeyboardEvent<HTMLElement>) => void;
-  onMouseUp?: (event: MouseEvent<HTMLElement>) => void;
-}
-
 export interface DayPickerNavigationProps {
   disablePrev?: boolean;
   disableNext?: boolean;
-  inlineStyles?: StyleObject | null;
+  inlineStyles?: CSSProperties | null;
   isRTL?: boolean;
   navPosition?: NavPosition;
   navPrev?: ReactNode;

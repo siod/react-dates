@@ -78,16 +78,19 @@ export function withStyles<
 
   return function withStylesHOC<
     Props extends InjectedStyleProps<StylesPropName, ThemePropName, CssPropName>,
+    PublicProps extends object = Omit<
+    Props,
+    keyof InjectedStyleProps<StylesPropName, ThemePropName, CssPropName>
+    >,
   >(WrappedComponent: StyleComponent<Props>) {
-    type PublicProps = Omit<Props, keyof InjectedStyleProps<StylesPropName, ThemePropName, CssPropName>>;
-
     const wrappedDefaultProps = WrappedComponent.defaultProps || EMPTY;
     if (!(WrappedComponent.prototype instanceof React.Component)) {
       delete WrappedComponent.defaultProps;
     }
 
     function StyledComponent(props: PropsWithoutRef<PublicProps>, ref: ForwardedRef<unknown>) {
-      const normalizedProps: Record<string, unknown> = { ...props };
+      const normalizedProps: Record<string, unknown> = {};
+      Object.assign(normalizedProps, props);
       Object.entries(wrappedDefaultProps).forEach(([key, value]) => {
         if (normalizedProps[key] === undefined) normalizedProps[key] = value;
       });

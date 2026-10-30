@@ -24,6 +24,34 @@ export type DayRenderer = (day: DateTime, modifiers: Modifiers) => ReactNode;
 export type InitialVisibleMonth = () => DateTime;
 export type DateOffset = (day: DateTime) => DateTime;
 
+export interface NavigationButtonArguments {
+  ariaLabel: string;
+  disabled: boolean;
+  onClick?: (event: KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>) => void;
+  onKeyUp?: (event: KeyboardEvent<HTMLElement>) => void;
+  onMouseUp?: (event: MouseEvent<HTMLElement>) => void;
+}
+
+export interface KeyboardShortcutsButtonArguments {
+  ref: (element: HTMLButtonElement | null) => void;
+  onClick: () => void;
+  ariaLabel: string;
+}
+
+export interface KeyboardShortcut {
+  unicode: string;
+  label: string;
+  action: string;
+}
+
+export interface KeyboardShortcutsPanelArguments {
+  closeButtonAriaLabel: string;
+  keyboardShortcuts: KeyboardShortcut[];
+  onCloseButtonClick: () => void;
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  title: string;
+}
+
 export interface DatePhraseArguments {
   date: string;
 }
@@ -195,7 +223,7 @@ export interface DayPickerBaseProps {
   numberOfMonths?: number;
   orientation?: ScrollableOrientation;
   withPortal?: boolean;
-  onOutsideClick?: (event: MouseEvent<HTMLElement>) => void;
+  onOutsideClick?: (event: Event) => void;
   hidden?: boolean;
   initialVisibleMonth?: InitialVisibleMonth | null;
   firstDayOfWeek?: DayOfWeek | null;
@@ -209,16 +237,16 @@ export interface DayPickerBaseProps {
   transitionDuration?: number;
   verticalBorderSpacing?: number;
   horizontalMonthPadding?: number;
-  renderKeyboardShortcutsButton?: (() => ReactNode) | null;
-  renderKeyboardShortcutsPanel?: (() => ReactNode) | null;
+  renderKeyboardShortcutsButton?: ((arguments_: KeyboardShortcutsButtonArguments) => ReactNode) | null;
+  renderKeyboardShortcutsPanel?: ((arguments_: KeyboardShortcutsPanelArguments) => ReactNode) | null;
   dayPickerNavigationInlineStyles?: CSSProperties | null;
   disablePrev?: boolean;
   disableNext?: boolean;
   navPosition?: NavPosition;
   navPrev?: ReactNode;
   navNext?: ReactNode;
-  renderNavPrevButton?: (() => ReactNode) | null;
-  renderNavNextButton?: (() => ReactNode) | null;
+  renderNavPrevButton?: ((arguments_: NavigationButtonArguments) => ReactNode) | null;
+  renderNavNextButton?: ((arguments_: NavigationButtonArguments) => ReactNode) | null;
   noNavButtons?: boolean;
   noNavNextButton?: boolean;
   noNavPrevButton?: boolean;
@@ -226,20 +254,24 @@ export interface DayPickerBaseProps {
   onNextMonthClick?: (month: DateTime) => void;
   onMonthChange?: (month: DateTime) => void;
   onYearChange?: (month: DateTime) => void;
-  onGetNextScrollableMonths?: () => void;
-  onGetPrevScrollableMonths?: () => void;
-  renderWeekHeaderElement?: ((day: DayOfWeek) => ReactNode) | null;
-  modifiers?: Record<string, DatePredicate>;
+  onGetNextScrollableMonths?: (
+    event?: KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>,
+  ) => void;
+  onGetPrevScrollableMonths?: (
+    event?: KeyboardEvent<HTMLElement> | MouseEvent<HTMLElement>,
+  ) => void;
+  renderWeekHeaderElement?: ((day: string) => ReactNode) | null;
+  modifiers?: Record<string, Record<string, Modifiers>>;
   renderCalendarDay?: RenderCalendarDay;
   renderDayContents?: DayRenderer | null;
   onDayClick?: DayEventHandler;
   onDayMouseEnter?: DayEventHandler;
   onDayMouseLeave?: DayEventHandler;
   isFocused?: boolean;
-  getFirstFocusableDay?: () => DateTime | null;
-  onBlur?: () => void;
+  getFirstFocusableDay?: ((month: DateTime) => DateTime | null) | null;
+  onBlur?: (event?: KeyboardEvent<HTMLElement>) => void;
   showKeyboardShortcuts?: boolean;
-  onTab?: () => void;
+  onTab?: (event: KeyboardEvent<HTMLElement>) => void;
   onShiftTab?: () => void;
   monthFormat?: DateFormat;
   weekDayFormat?: DateFormat;
@@ -268,7 +300,9 @@ export interface DateRangeSelectionProps {
   isDayHighlighted?: DatePredicate;
 }
 
-export interface DayPickerRangeControllerBaseProps extends DayPickerBaseProps, DateRangeSelectionProps {
+export interface DayPickerRangeControllerBaseProps extends Omit<DayPickerBaseProps, 'modifiers'>, DateRangeSelectionProps {
+  modifiers?: Record<string, DatePredicate>;
+  hoverDate?: DateTime | null;
   getMinNightsForHoverDate?: (day: DateTime) => number;
   daysViolatingMinNightsCanBeClicked?: boolean;
   onEscape?: () => void;
@@ -291,7 +325,10 @@ export interface SingleDateSelectionProps {
   isDayHighlighted?: DatePredicate;
 }
 
-export type DayPickerSingleDateControllerProps = DayPickerBaseProps & SingleDateSelectionProps & MonthRenderer;
+export type DayPickerSingleDateControllerProps = Omit<DayPickerBaseProps, 'modifiers'>
+  & { modifiers?: Record<string, DatePredicate> }
+  & SingleDateSelectionProps
+  & MonthRenderer;
 
 export interface InputPresentationProps {
   children?: ReactNode;

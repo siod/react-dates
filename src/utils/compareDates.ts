@@ -4,6 +4,11 @@ import isDateTime from './isDateTime.js';
 
 export type DateComparison = -1 | 0 | 1;
 
+export default function compareDates(left: DateTime, right: DateTime): DateComparison;
+export default function compareDates(
+  left: DateTime | null | undefined,
+  right: DateTime | null | undefined,
+): DateComparison | null;
 export default function compareDates(
   left: DateTime | null | undefined,
   right: DateTime | null | undefined,

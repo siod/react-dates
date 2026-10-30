@@ -3,7 +3,12 @@ import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import noop from '../utils/noop.js';
 import { withStyles } from '../internal/styles/index.js';
 import type { WithStylesProps } from '../internal/styles/withStyles.js';
-import type { DayPickerPhrases } from '../types.js';
+import type {
+  DayPickerPhrases,
+  KeyboardShortcut,
+  KeyboardShortcutsButtonArguments,
+  KeyboardShortcutsPanelArguments,
+} from '../types.js';
 
 import { DayPickerKeyboardShortcutsPhrases } from '../defaultPhrases.js';
 
@@ -15,26 +20,6 @@ export const TOP_RIGHT = 'top-right';
 export const BOTTOM_RIGHT = 'bottom-right';
 
 export type KeyboardShortcutButtonLocation = typeof TOP_LEFT | typeof TOP_RIGHT | typeof BOTTOM_RIGHT;
-
-export interface KeyboardShortcut {
-  unicode: string;
-  label: string;
-  action: string;
-}
-
-export interface KeyboardShortcutsButtonArguments {
-  ref: (element: HTMLButtonElement | null) => void;
-  onClick: () => void;
-  ariaLabel: string;
-}
-
-export interface KeyboardShortcutsPanelArguments {
-  closeButtonAriaLabel: string;
-  keyboardShortcuts: KeyboardShortcut[];
-  onCloseButtonClick: () => void;
-  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
-  title: string;
-}
 
 type KeyboardShortcutPhrases = Required<Pick<DayPickerPhrases,
   | 'enterKey'

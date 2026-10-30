@@ -1,59 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 
 import DayPickerSingleDateController from '../src/components/DayPickerSingleDateController';
-
-import { dateTime } from '../src/internal/date';
-import { forbidExtraProps } from '../src/internal/propTypes';
-import ScrollableOrientationShape from '../src/shapes/ScrollableOrientationShape';
 
 import { HORIZONTAL_ORIENTATION } from '../src/constants';
 import isInclusivelyAfterDay from '../src/utils/isInclusivelyAfterDay';
 
 const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
-const dateFormatProp = PropTypes.oneOfType([PropTypes.object, PropTypes.func]);
-
-const propTypes = forbidExtraProps({
-  // example props for the demo
-  autoFocus: PropTypes.bool,
-  initialDate: dateTime,
-  showInput: PropTypes.bool,
-
-  allowUnselect: PropTypes.bool,
-  keepOpenOnDateSelect: PropTypes.bool,
-  isOutsideRange: PropTypes.func,
-  isDayBlocked: PropTypes.func,
-  isDayHighlighted: PropTypes.func,
-  minDate: dateTime,
-  maxDate: dateTime,
-
-  // DayPicker props
-  enableOutsideDays: PropTypes.bool,
-  numberOfMonths: PropTypes.number,
-  orientation: ScrollableOrientationShape,
-  verticalHeight: PropTypes.number,
-  withPortal: PropTypes.bool,
-  initialVisibleMonth: PropTypes.func,
-  renderCalendarInfo: PropTypes.func,
-
-  navPrev: PropTypes.node,
-  navNext: PropTypes.node,
-  renderNavPrevButton: PropTypes.func,
-  renderNavNextButton: PropTypes.func,
-
-  onPrevMonthClick: PropTypes.func,
-  onNextMonthClick: PropTypes.func,
-  onOutsideClick: PropTypes.func,
-  renderCalendarDay: PropTypes.func,
-  renderDayContents: PropTypes.func,
-
-  // i18n
-  monthFormat: dateFormatProp,
-
-  isRTL: PropTypes.bool,
-});
-
 const defaultProps = {
   // example props for the demo
   autoFocus: false,
@@ -148,7 +101,6 @@ class DayPickerSingleDateControllerWrapper extends React.Component {
   }
 }
 
-DayPickerSingleDateControllerWrapper.propTypes = propTypes;
 DayPickerSingleDateControllerWrapper.defaultProps = defaultProps;
 
 export default DayPickerSingleDateControllerWrapper;

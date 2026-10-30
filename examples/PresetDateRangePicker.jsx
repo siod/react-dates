@@ -1,40 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
-import { dateTime } from '../src/internal/date';
-import { withStyles, withStylesPropTypes } from '../src/internal/styles';
+import { withStyles } from '../src/internal/styles';
 
 import DateRangePicker from '../src/components/DateRangePicker';
 
 import { DateRangePickerPhrases } from '../src/defaultPhrases';
-import DateRangePickerShape from '../src/shapes/DateRangePickerShape';
 import { START_DATE, END_DATE, HORIZONTAL_ORIENTATION, ANCHOR_LEFT } from '../src/constants';
 import isSameDay from '../src/utils/isSameDay';
 
 const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
-
-const propTypes = {
-  ...withStylesPropTypes,
-
-  // example props for the demo
-  autoFocus: PropTypes.bool,
-  autoFocusEndDate: PropTypes.bool,
-  initialStartDate: dateTime,
-  initialEndDate: dateTime,
-  presets: PropTypes.arrayOf(PropTypes.shape({
-    text: PropTypes.string,
-    start: dateTime,
-    end: dateTime,
-  })),
-
-  ...omit(DateRangePickerShape, [
-    'startDate',
-    'endDate',
-    'onDatesChange',
-    'focusedInput',
-    'onFocusChange',
-  ]),
-};
 
 const defaultProps = {
   // example props for the demo
@@ -180,7 +153,6 @@ class DateRangePickerWrapper extends React.Component {
   }
 }
 
-DateRangePickerWrapper.propTypes = propTypes;
 DateRangePickerWrapper.defaultProps = defaultProps;
 
 export default withStyles(({ reactDates: { color } }) => ({

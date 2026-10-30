@@ -1,4 +1,6 @@
-import { OPEN_UP, ANCHOR_RIGHT } from '../constants';
+import type { CSSProperties } from 'react';
+import type { AnchorDirection, OpenDirection } from '../types.js';
+import { OPEN_UP, ANCHOR_RIGHT } from '../constants.js';
 
 /**
  * Calculate and return a CSS transform style to position a detached element
@@ -20,7 +22,11 @@ import { OPEN_UP, ANCHOR_RIGHT } from '../constants';
  * @param {string} anchorDirection The horizontal position of the popup
  * @param {HTMLElement} referenceEl The reference element
  */
-export default function getDetachedContainerStyles(openDirection, anchorDirection, referenceEl) {
+export default function getDetachedContainerStyles(
+  openDirection: OpenDirection,
+  anchorDirection: AnchorDirection,
+  referenceEl: HTMLElement,
+): CSSProperties {
   const referenceRect = referenceEl.getBoundingClientRect();
   let offsetX = referenceRect.left;
   let offsetY = referenceRect.top;

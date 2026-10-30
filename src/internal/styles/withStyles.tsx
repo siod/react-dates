@@ -7,7 +7,6 @@ import type {
   PropsWithoutRef,
   RefAttributes,
 } from 'react';
-import PropTypes from 'prop-types';
 
 import defaultStyleTokens from './defaultStyleTokens.js';
 import mergeInlineStyles from './inlineStyles.js';
@@ -47,7 +46,6 @@ type InjectedStyleProps<
 
 type StyleComponent<Props> = ComponentType<Props> & {
   defaultProps?: Partial<Props>;
-  propTypes?: Record<string, unknown>;
   prototype?: React.Component;
 };
 
@@ -55,7 +53,6 @@ export type StyledComponent<Props, InjectedProps, Wrapped extends ComponentType<
   ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<unknown>> & {
     WrappedComponent: Wrapped;
     defaultProps?: Partial<Props>;
-    propTypes?: Record<string, unknown>;
   };
 
 function isStyleObject(value: unknown): value is StyleObject {
@@ -154,23 +151,10 @@ export function withStyles<
     const Forwarded = React.forwardRef<unknown, PublicProps>(StyledComponent) as StyledComponent<PublicProps, Props, StyleComponent<Props>>;
     Forwarded.displayName = `withStyles(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
     Forwarded.WrappedComponent = WrappedComponent;
-    const forwardedPropTypes: Record<string, unknown> = {
-      ...(WrappedComponent.propTypes as unknown as Record<string, unknown> | undefined),
-    };
-    delete forwardedPropTypes[stylesPropName];
-    delete forwardedPropTypes[themePropName];
-    delete forwardedPropTypes[cssPropName];
-    Forwarded.propTypes = forwardedPropTypes;
     Forwarded.defaultProps = wrappedDefaultProps;
     return Forwarded;
   };
 }
-
-export const withStylesPropTypes: Record<'styles' | 'theme' | 'css', unknown> = {
-  styles: PropTypes.object,
-  theme: PropTypes.object,
-  css: PropTypes.func,
-};
 
 export const withStylesFunctional = withStyles;
 export default withStyles;

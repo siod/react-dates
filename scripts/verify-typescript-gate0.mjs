@@ -10,6 +10,7 @@ const baseline = JSON.parse(await readFile('docs/typescript/gate-0-baseline.json
 const packageJson = JSON.parse(await readFile('package.json', 'utf8'));
 const api = require('../lib/index.js');
 const constants = require('../lib/constants.js');
+const removedRootExports = new Set(['DateRangePickerShape', 'SingleDatePickerShape']);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -34,8 +35,9 @@ function runtimeTarget(entry, condition) {
 }
 
 assert(
-  JSON.stringify(Object.keys(api).sort()) === JSON.stringify(baseline.rootExports),
-  'Runtime root exports changed from the Gate 0 baseline.',
+  JSON.stringify(Object.keys(api).sort())
+    === JSON.stringify(baseline.rootExports.filter((name) => !removedRootExports.has(name))),
+  'Runtime root exports changed beyond the planned TypeScript shape removals.',
 );
 assert(
   JSON.stringify(normalize(constants)) === JSON.stringify(baseline.constants),

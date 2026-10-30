@@ -27,13 +27,13 @@ const returnFocusToInput = 'Return to the date input field.';
 const keyboardForwardNavigationInstructions = 'Navigate forward to interact with the calendar and select a date. Press the question mark key to get the keyboard shortcuts for changing dates.';
 const keyboardBackwardNavigationInstructions = 'Navigate backward to interact with the calendar and select a date. Press the question mark key to get the keyboard shortcuts for changing dates.';
 
-const chooseAvailableStartDate = ({ date }) => `Choose ${date} as your check-in date. It’s available.`;
-const chooseAvailableEndDate = ({ date }) => `Choose ${date} as your check-out date. It’s available.`;
-const chooseAvailableDate = ({ date }) => date;
-const dateIsUnavailable = ({ date }) => `Not available. ${date}`;
-const dateIsSelected = ({ date }) => `Selected. ${date}`;
-const dateIsSelectedAsStartDate = ({ date }) => `Selected as start date. ${date}`;
-const dateIsSelectedAsEndDate = ({ date }) => `Selected as end date. ${date}`;
+const chooseAvailableStartDate = ({ date }: DatePhraseArguments) => `Choose ${date} as your check-in date. It’s available.`;
+const chooseAvailableEndDate = ({ date }: DatePhraseArguments) => `Choose ${date} as your check-out date. It’s available.`;
+const chooseAvailableDate = ({ date }: DatePhraseArguments) => date;
+const dateIsUnavailable = ({ date }: DatePhraseArguments) => `Not available. ${date}`;
+const dateIsSelected = ({ date }: DatePhraseArguments) => `Selected. ${date}`;
+const dateIsSelectedAsStartDate = ({ date }: DatePhraseArguments) => `Selected as start date. ${date}`;
+const dateIsSelectedAsEndDate = ({ date }: DatePhraseArguments) => `Selected as end date. ${date}`;
 
 export default {
   calendarLabel,
@@ -105,14 +105,14 @@ export const DateRangePickerPhrases = {
   dateIsSelected,
   dateIsSelectedAsStartDate,
   dateIsSelectedAsEndDate,
-};
+} satisfies DateRangePickerPhraseTypes;
 
 export const DateRangePickerInputPhrases = {
   focusStartDate,
   clearDates,
   keyboardForwardNavigationInstructions,
   keyboardBackwardNavigationInstructions,
-};
+} satisfies DateRangePickerInputPhraseTypes;
 
 export const SingleDatePickerPhrases = {
   calendarLabel,
@@ -144,14 +144,14 @@ export const SingleDatePickerPhrases = {
   chooseAvailableDate,
   dateIsUnavailable,
   dateIsSelected,
-};
+} satisfies SingleDatePickerPhraseTypes;
 
 export const SingleDatePickerInputPhrases = {
   focusDate,
   clearDate,
   keyboardForwardNavigationInstructions,
   keyboardBackwardNavigationInstructions,
-};
+} satisfies SingleDatePickerInputPhraseTypes;
 
 export const DayPickerPhrases = {
   calendarLabel,
@@ -182,7 +182,7 @@ export const DayPickerPhrases = {
   dateIsSelected,
   dateIsSelectedAsStartDate,
   dateIsSelectedAsEndDate,
-};
+} satisfies DayPickerPhraseTypes;
 
 export const DayPickerKeyboardShortcutsPhrases = {
   keyboardShortcuts,
@@ -215,4 +215,13 @@ export const CalendarDayPhrases = {
   dateIsSelected,
   dateIsSelectedAsStartDate,
   dateIsSelectedAsEndDate,
-};
+} satisfies CalendarDayPhraseTypes;
+import type {
+  CalendarDayPhrases as CalendarDayPhraseTypes,
+  DatePhraseArguments,
+  DateRangePickerInputPhrases as DateRangePickerInputPhraseTypes,
+  DateRangePickerPhrases as DateRangePickerPhraseTypes,
+  DayPickerPhrases as DayPickerPhraseTypes,
+  SingleDatePickerInputPhrases as SingleDatePickerInputPhraseTypes,
+  SingleDatePickerPhrases as SingleDatePickerPhraseTypes,
+} from './types.js';

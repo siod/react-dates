@@ -1,4 +1,8 @@
-const getScrollingRoot = () => document.scrollingElement || document.documentElement;
+const getScrollingRoot = () => (
+  document.scrollingElement instanceof HTMLElement
+    ? document.scrollingElement
+    : document.documentElement
+);
 
 /**
  * Recursively finds the scroll parent of a node. The scroll parrent of a node
@@ -11,7 +15,7 @@ const getScrollingRoot = () => document.scrollingElement || document.documentEle
  * @param {HTMLElement} node Any DOM element.
  * @return {HTMLElement} The scroll parent element.
  */
-export function getScrollParent(node) {
+export function getScrollParent(node: HTMLElement): HTMLElement {
   const parent = node.parentElement;
 
   if (parent == null) return getScrollingRoot();
@@ -35,7 +39,10 @@ export function getScrollParent(node) {
  * @param {Map<HTMLElement,string>} [acc] Accumulator map.
  * @return {Map<HTMLElement,string>} Map of ancestors with their 'overflow-y' value.
  */
-export function getScrollAncestorsOverflowY(node, acc = new Map()) {
+export function getScrollAncestorsOverflowY(
+  node: HTMLElement,
+  acc: Map<HTMLElement, string> = new Map(),
+): Map<HTMLElement, string> {
   const scrollingRoot = getScrollingRoot();
   const scrollParent = getScrollParent(node);
   acc.set(scrollParent, scrollParent.style.overflowY);
@@ -54,9 +61,9 @@ export function getScrollAncestorsOverflowY(node, acc = new Map()) {
  *
  * @param {HTMLElement} node Any DOM element.
  */
-export default function disableScroll(node) {
+export default function disableScroll(node: HTMLElement) {
   const scrollAncestorsOverflowY = getScrollAncestorsOverflowY(node);
-  const toggle = (on) => scrollAncestorsOverflowY.forEach((overflowY, ancestor) => {
+  const toggle = (on: boolean) => scrollAncestorsOverflowY.forEach((overflowY, ancestor) => {
     ancestor.style.setProperty('overflow-y', on ? 'hidden' : overflowY);
   });
 

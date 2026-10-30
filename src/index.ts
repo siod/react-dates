@@ -12,8 +12,6 @@ import DayPickerRangeControllerComponent from './components/DayPickerRangeContro
 import DayPickerSingleDateControllerComponent from './components/DayPickerSingleDateController';
 import SingleDatePickerComponent from './components/SingleDatePicker';
 import SingleDatePickerInputComponent from './components/SingleDatePickerInput';
-import DateRangePickerShapeValue from './shapes/DateRangePickerShape.js';
-import SingleDatePickerShapeValue from './shapes/SingleDatePickerShape.js';
 
 import type {
   CalendarDayProps,
@@ -43,8 +41,6 @@ export const DayPickerSingleDateController = DayPickerSingleDateControllerCompon
 export const SingleDatePicker = SingleDatePickerComponent as ComponentType<SingleDatePickerProps>;
 export const SingleDatePickerInput = SingleDatePickerInputComponent as ComponentType<SingleDatePickerInputProps>;
 
-export const DateRangePickerShape = DateRangePickerShapeValue as Record<string, unknown>;
-export const SingleDatePickerShape = SingleDatePickerShapeValue as Record<string, unknown>;
 export { default as isInclusivelyAfterDay } from './utils/isInclusivelyAfterDay.js';
 export { default as isInclusivelyBeforeDay } from './utils/isInclusivelyBeforeDay.js';
 export { default as isNextDay } from './utils/isNextDay.js';

@@ -81,6 +81,8 @@ export interface SingleDatePickerInputPhrases {
 }
 
 export interface DayPickerPhrases extends CalendarDayPhrases {
+  chooseAvailableStartDate?: DatePhrase;
+  chooseAvailableEndDate?: DatePhrase;
   calendarLabel?: string;
   roleDescription?: string;
   jumpToPrevMonth?: string;
@@ -342,6 +344,7 @@ export interface InputPresentationProps {
   block?: boolean;
   small?: boolean;
   regular?: boolean;
+  keepFocusOnInput?: boolean;
   verticalSpacing?: number;
   autoComplete?: string;
   required?: boolean;
@@ -430,6 +433,7 @@ export interface DateRangePickerBaseProps extends DateRangeSelectionProps, Omit<
   endDateAriaLabel?: string;
   startDateTitleText?: string;
   endDateTitleText?: string;
+  screenReaderInputMessage?: string;
   showClearDates?: boolean;
   customArrowIcon?: ReactNode;
   withFullScreenPortal?: boolean;
@@ -451,6 +455,7 @@ export interface SingleDatePickerBaseProps extends SingleDateSelectionProps, Omi
   placeholder?: string;
   ariaLabel?: string;
   titleText?: string;
+  screenReaderInputMessage?: string;
   disabled?: boolean;
   showClearDate?: boolean;
   withFullScreenPortal?: boolean;

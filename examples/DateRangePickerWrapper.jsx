@@ -1,12 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 
 import DateRangePicker from '../src/components/DateRangePicker';
 
-import { dateTime } from '../src/internal/date';
 import { DateRangePickerPhrases } from '../src/defaultPhrases';
-import DateRangePickerShape from '../src/shapes/DateRangePickerShape';
 import {
   START_DATE,
   END_DATE,
@@ -18,23 +15,6 @@ import {
 import isInclusivelyAfterDay from '../src/utils/isInclusivelyAfterDay';
 
 const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
-
-const propTypes = {
-  // example props for the demo
-  autoFocus: PropTypes.bool,
-  autoFocusEndDate: PropTypes.bool,
-  stateDateWrapper: PropTypes.func,
-  initialStartDate: dateTime,
-  initialEndDate: dateTime,
-
-  ...omit(DateRangePickerShape, [
-    'startDate',
-    'endDate',
-    'onDatesChange',
-    'focusedInput',
-    'onFocusChange',
-  ]),
-};
 
 const defaultProps = {
   // example props for the demo
@@ -162,7 +142,6 @@ class DateRangePickerWrapper extends React.Component {
   }
 }
 
-DateRangePickerWrapper.propTypes = propTypes;
 DateRangePickerWrapper.defaultProps = defaultProps;
 
 export default DateRangePickerWrapper;

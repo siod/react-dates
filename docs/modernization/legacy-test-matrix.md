@@ -18,7 +18,6 @@ cases were combined or retired after review.
 | `getDetachedContainerStyles_spec.js` | 4 | Combined in `test/utils/layout-legacy.test.js` |
 | `getInputHeight_spec.js` | 2 | Combined in `test/utils/layout-legacy.test.js` |
 | `getNumberOfCalendarMonthWeeks_spec.js` | 4 | Combined in `test/utils/calendar-projection-legacy.test.js` |
-| `getPhrasePropTypes_spec.js` | 1 | Ported in `test/utils/layout-legacy.test.js` |
 | `getPhrase_spec.js` | 4 | Combined in `test/utils/layout-legacy.test.js` |
 | `getPooledMoment_spec.js` | 3 | Obsolete: Moment pooling removed |
 | `getResponsiveContainerStyles_spec.js` | 4 | Combined in `test/utils/layout-legacy.test.js` |

@@ -8,7 +8,7 @@
 
 ![react-dates in action](https://raw.githubusercontent.com/siod/react-dates/HEAD/react-dates-demo.gif)
 
-This is a maintained fork of Airbnb's [`react-dates`](https://github.com/react-dates/react-dates), published as `@siod/react-dates`. Version 22 targets React 18 and React 19 and uses Luxon `DateTime` values instead of Moment. See the [v22 migration guide](docs/migration-v22.md) when upgrading from the original package.
+This is a maintained fork of Airbnb's [`react-dates`](https://github.com/react-dates/react-dates), published as `@siod/react-dates`. Version 22 targets React 18 and React 19 and uses Luxon `DateTime` values instead of Moment. See the [v22 migration guide](docs/migration-v22.md) when upgrading from the original package and the [v23 migration guide](docs/migration-v23.md) for the TypeScript-first API.
 
 ## Live Playground
 
@@ -98,242 +98,77 @@ This would override the background and text colors applied to highlighted calend
 
 ### Make some awesome datepickers
 
-We provide a handful of components for your use. If you supply essential props to each component, you'll get a full featured interactive date picker. With additional optional props, you can customize the look and feel of the inputs, calendar, etc. You can see what each of the props do in the [live demo](https://siod.github.io/react-dates/) or explore
-how to properly wrap the pickers in the [examples folder](examples).
+The public components are controlled React components. Their prop types and shared callback types are exported from the package root, and the [TypeScript example](examples/TypeScriptUsage.tsx) is checked by the repository's `typecheck` script.
 
-#### DateRangePicker
-The `DateRangePicker` is a fully controlled component that allows users to select a date range. You can control the selected
-dates using the `startDate`, `endDate`, and `onDatesChange` props as shown below. The `DateRangePicker` also manages internal
-state for partial dates entered by typing (although `onDatesChange` will not trigger until a date has been entered
-completely in that case). Similarly, you can control which input is focused as well as calendar visibility (the calendar is
-only visible if `focusedInput` is defined) with the `focusedInput` and `onFocusChange` props as shown below.
+#### JavaScript
 
-Here is the minimum *REQUIRED* setup you need to get the `DateRangePicker` working:
+A `DateRangePicker` needs the selected dates, stable input IDs, the focused input, and change handlers:
+
 ```jsx
-<DateRangePicker
-  startDate={this.state.startDate} // Luxon DateTime or null,
-  startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
-  endDate={this.state.endDate} // Luxon DateTime or null,
-  endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
-  onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-  focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-  onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-/>
+import { useState } from 'react';
+import { DateRangePicker } from '@siod/react-dates';
+
+export function BookingDates() {
+  const [dates, setDates] = useState({ startDate: null, endDate: null });
+  const [focusedInput, setFocusedInput] = useState(null);
+
+  return (
+    <DateRangePicker
+      startDate={dates.startDate}
+      startDateId="booking-start-date"
+      endDate={dates.endDate}
+      endDateId="booking-end-date"
+      focusedInput={focusedInput}
+      onDatesChange={setDates}
+      onFocusChange={setFocusedInput}
+    />
+  );
+}
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `DateRangePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
-```js
-// input related props
-startDatePlaceholderText: PropTypes.string,
-endDatePlaceholderText: PropTypes.string,
-startDateAriaLabel: PropTypes.string,
-endDateAriaLabel: PropTypes.string,
-startDateTitleText: PropTypes.string,
-endDateTitleText: PropTypes.string,
-disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.oneOf([START_DATE, END_DATE])]),
-required: PropTypes.bool,
-readOnly: PropTypes.bool,
-screenReaderInputMessage: PropTypes.string,
-showClearDates: PropTypes.bool,
-showDefaultInputIcon: PropTypes.bool,
-customInputIcon: PropTypes.node,
-customArrowIcon: PropTypes.node,
-customCloseIcon: PropTypes.node,
-inputIconPosition: PropTypes.oneOf([ICON_BEFORE_POSITION, ICON_AFTER_POSITION]),
-noBorder: PropTypes.bool,
-block: PropTypes.bool,
-small: PropTypes.bool,
-regular: PropTypes.bool,
-autoComplete: PropTypes.string,
+A `SingleDatePicker` follows the same controlled pattern with `date`, `focused`, `onDateChange`, and `onFocusChange`.
 
-// calendar presentation and interaction related props
-renderMonthText: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'), // (month) => PropTypes.string,
-orientation: PropTypes.oneOf([HORIZONTAL_ORIENTATION, VERTICAL_ORIENTATION]),
-anchorDirection: PropTypes.oneOf([ANCHOR_LEFT, ANCHOR_RIGHT]),
-openDirection: PropTypes.oneOf([OPEN_DOWN, OPEN_UP]),
-horizontalMargin: PropTypes.number,
-withPortal: PropTypes.bool,
-withFullScreenPortal: PropTypes.bool,
-appendToBody: PropTypes.bool,
-disableScroll: PropTypes.bool,
-daySize: nonNegativeInteger,
-isRTL: PropTypes.bool,
-initialVisibleMonth: PropTypes.func,
-firstDayOfWeek: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
-numberOfMonths: PropTypes.number,
-keepOpenOnDateSelect: PropTypes.bool,
-reopenPickerOnClearDates: PropTypes.bool,
-renderCalendarInfo: PropTypes.func,
-renderMonthElement: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'), PropTypes.func, // ({ month, onMonthSelect, onYearSelect, isVisible }) => PropTypes.node,
-hideKeyboardShortcutsPanel: PropTypes.bool,
-verticalSpacing: PropTypes.number,
+#### TypeScript
 
-// navigation related props
-navPrev: PropTypes.node,
-navNext: PropTypes.node,
-onPrevMonthClick: PropTypes.func,
-onNextMonthClick: PropTypes.func,
-onClose: PropTypes.func,
-transitionDuration: nonNegativeInteger, // milliseconds
+Import public types from the package root rather than copying prop shapes:
 
-// day presentation and interaction related props
-renderCalendarDay: PropTypes.func,
-renderDayContents: PropTypes.func,
-minimumNights: PropTypes.number,
-minDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
-maxDate: PropTypes.instanceOf(DateTime), // must be a valid Luxon DateTime
-enableOutsideDays: PropTypes.bool,
-isDayBlocked: PropTypes.func,
-isOutsideRange: PropTypes.func,
-isDayHighlighted: PropTypes.func,
-
-// internationalization props
-displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-phrases: PropTypes.shape(getPhrasePropTypes(DateRangePickerPhrases)),
-dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-```
-
-#### SingleDatePicker
-The `SingleDatePicker` is a fully controlled component that allows users to select a single date. You can control the selected
-date using the `date` and `onDateChange` props as shown below. The `SingleDatePicker` also manages internal
-state for partial dates entered by typing (although `onDateChange` will not trigger until a date has been entered
-completely in that case). Similarly, you can control whether or not the input is focused (calendar visibility is also
-controlled with the same props) with the `focused` and `onFocusChange` props as shown below.
-
-Here is the minimum *REQUIRED* setup you need to get the `SingleDatePicker` working:
-```jsx
-<SingleDatePicker
-  date={this.state.date} // Luxon DateTime or null
-  onDateChange={date => this.setState({ date })} // PropTypes.func.isRequired
-  focused={this.state.focused} // PropTypes.bool
-  onFocusChange={({ focused }) => this.setState({ focused })} // PropTypes.func.isRequired
-  id="your_unique_id" // PropTypes.string.isRequired,
-/>
-```
-
-The following is a list of other *OPTIONAL* props you may provide to the `SingleDatePicker` to customize appearance and behavior to your heart's desire. All constants (indicated by `ALL_CAPS`) are provided as named exports from react-dates' `constants` entrypoint. Please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
-```js
-// input related props
-placeholder: PropTypes.string,
-ariaLabel: PropTypes.string,
-titleText: PropTypes.string,
-disabled: PropTypes.bool,
-required: PropTypes.bool,
-readOnly: PropTypes.bool,
-screenReaderInputMessage: PropTypes.string,
-showClearDate: PropTypes.bool,
-customCloseIcon: PropTypes.node,
-showDefaultInputIcon: PropTypes.bool,
-customInputIcon: PropTypes.node,
-inputIconPosition: PropTypes.oneOf([ICON_BEFORE_POSITION, ICON_AFTER_POSITION]),
-noBorder: PropTypes.bool,
-block: PropTypes.bool,
-small: PropTypes.bool,
-regular: PropTypes.bool,
-autoComplete: PropTypes.string,
-
-// calendar presentation and interaction related props
-renderMonthText: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'), // (month) => PropTypes.string,
-orientation: PropTypes.oneOf([HORIZONTAL_ORIENTATION, VERTICAL_ORIENTATION]),
-anchorDirection: PropTypes.oneOf([ANCHOR_LEFT, ANCHOR_RIGHT]),
-openDirection: PropTypes.oneOf([OPEN_DOWN, OPEN_UP]),
-horizontalMargin: PropTypes.number,
-withPortal: PropTypes.bool,
-withFullScreenPortal: PropTypes.bool,
-appendToBody: PropTypes.bool,
-disableScroll: PropTypes.bool,
-initialVisibleMonth: PropTypes.func,
-firstDayOfWeek: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
-numberOfMonths: PropTypes.number,
-keepOpenOnDateSelect: PropTypes.bool,
-reopenPickerOnClearDate: PropTypes.bool,
-renderCalendarInfo: PropTypes.func,
-renderMonthElement: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'), // ({ month, onMonthSelect, onYearSelect, isVisible }) => PropTypes.node,
-hideKeyboardShortcutsPanel: PropTypes.bool,
-daySize: nonNegativeInteger,
-isRTL: PropTypes.bool,
-verticalSpacing: PropTypes.number,
-
-// navigation related props
-navPrev: PropTypes.node,
-navNext: PropTypes.node,
-onPrevMonthClick: PropTypes.func,
-onNextMonthClick: PropTypes.func,
-onClose: PropTypes.func,
-transitionDuration: nonNegativeInteger, // milliseconds
-
-// day presentation and interaction related props
-renderCalendarDay: PropTypes.func,
-renderDayContents: PropTypes.func,
-enableOutsideDays: PropTypes.bool,
-isDayBlocked: PropTypes.func,
-isOutsideRange: PropTypes.func,
-isDayHighlighted: PropTypes.func,
-
-// internationalization props
-displayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-phrases: PropTypes.shape(getPhrasePropTypes(SingleDatePickerPhrases)),
-dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-```
-
-#### DayPickerRangeController
-The `DayPickerRangeController` is a calendar-only version of the `DateRangePicker`. There are no inputs and the calendar is always visible, but you can select a date range much in the same way you would with the `DateRangePicker`. You can control the selected
-dates using the `startDate`, `endDate`, and `onDatesChange` props as shown below. Similarly, you can control which input is focused with the `focusedInput` and `onFocusChange` props as shown below. The user will only be able to select a date if `focusedInput` is provided.
-
-Here is the minimum *REQUIRED* setup you need to get the `DayPickerRangeController` working:
-```jsx
+```tsx
+import { useState } from 'react';
 import { DateTime } from 'luxon';
+import {
+  SingleDatePicker,
+  type SingleDatePickerProps,
+} from '@siod/react-dates';
 
-<DayPickerRangeController
-  startDate={this.state.startDate} // Luxon DateTime or null,
-  endDate={this.state.endDate} // Luxon DateTime or null,
-  onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-  focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-  onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-  initialVisibleMonth={() => DateTime.local().plus({ months: 2 })} // PropTypes.func or null,
-/>
+export function DepartureDate() {
+  const [date, setDate] = useState<DateTime | null>(null);
+  const [focused, setFocused] = useState(false);
+
+  const handleFocusChange: SingleDatePickerProps['onFocusChange'] = ({
+    focused: nextFocused,
+  }) => setFocused(nextFocused);
+
+  return (
+    <SingleDatePicker
+      id="departure-date"
+      date={date}
+      focused={focused}
+      onDateChange={setDate}
+      onFocusChange={handleFocusChange}
+    />
+  );
+}
 ```
 
-The following is a list of other *OPTIONAL* props you may provide to the `DayPickerRangeController` to customize appearance and behavior to your heart's desire. Again, please explore the [storybook](https://siod.github.io/react-dates/) for more information on what each of these props do.
-```js
-  // calendar presentation and interaction related props
-  enableOutsideDays: PropTypes.bool,
-  numberOfMonths: PropTypes.number,
-  orientation: ScrollableOrientationShape,
-  withPortal: PropTypes.bool,
-  initialVisibleMonth: PropTypes.func,
-  renderCalendarInfo: PropTypes.func,
-  renderMonthElement: mutuallyExclusiveProps(PropTypes.func, 'renderMonthText', 'renderMonthElement'), // ({ month, onMonthSelect, onYearSelect, isVisible }) => PropTypes.node,
-  onOutsideClick: PropTypes.func,
-  keepOpenOnDateSelect: PropTypes.bool,
-  noBorder: PropTypes.bool,
+The main exported prop types are:
 
-  // navigation related props
-  navPrev: PropTypes.node,
-  navNext: PropTypes.node,
-  onPrevMonthClick: PropTypes.func,
-  onNextMonthClick: PropTypes.func,
-  transitionDuration: nonNegativeInteger, // milliseconds
+- `DateRangePickerProps` and `SingleDatePickerProps`
+- `DayPickerRangeControllerProps` and `DayPickerSingleDateControllerProps`
+- `DayPickerProps`, `CalendarDayProps`, `CalendarMonthProps`, and the input component prop types
 
-  // day presentation and interaction related props
-  renderCalendarDay: PropTypes.func,
-  renderDayContents: PropTypes.func,
-  minimumNights: PropTypes.number,
-  isOutsideRange: PropTypes.func,
-  isDayBlocked: PropTypes.func,
-  isDayHighlighted: PropTypes.func,
+Common supporting types include `DateRange`, `FocusedInput`, `DateFormat`, `DatePredicate`, `DayRenderer`, and phrase interfaces. Dates are valid Luxon `DateTime` values or `null`. `FocusedInput` is `'startDate' | 'endDate' | null`. Formatting props accept either `Intl.DateTimeFormatOptions` or a callback receiving a `DateTime`.
 
-  // internationalization props
-  monthFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  weekDayFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
-  dayAriaLabelFormat: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-/>
-```
+Use `renderMonthText` or `renderMonthElement`, not both; the exported picker types model that constraint. See [`src/types.ts`](src/types.ts) for the complete source contract and the [live demo](https://siod.github.io/react-dates/) for component behavior.
 
 ## Localization
 

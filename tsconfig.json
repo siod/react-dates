@@ -17,5 +17,12 @@
     "target": "ES2022",
     "useUnknownInCatchVariables": true
   },
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "examples/TypeScriptUsage.tsx",
+    "stories/TypeScriptUsage.stories.tsx"
+  ]
 }

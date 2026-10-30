@@ -9,6 +9,10 @@ import {
 import * as constants from '@siod/react-dates/constants';
 import '@siod/react-dates/initialize';
 import CalendarWeek from '@siod/react-dates/lib/components/CalendarWeek';
+import { subscribe } from '@siod/react-dates/lib/internal/browser/subscribe.js';
+import { formatDate, parseLocalizedDate } from '@siod/react-dates/esm/internal/date/index.js';
+import throttle from '@siod/react-dates/esm/internal/browser/throttle';
+import ArrowLeft from '@siod/react-dates/esm/svg/arrow-left.js';
 import isSameDay from '@siod/react-dates/esm/utils/isSameDay.js';
 
 const startDate = DateTime.fromISO('2030-06-15');
@@ -39,10 +43,17 @@ const valid = (
     <DateRangePicker {...rangeProps} />
     <SingleDatePicker {...singleProps} />
     <CalendarWeek><td>{constants.START_DATE}</td></CalendarWeek>
+    <ArrowLeft aria-label="Previous month" />
   </>
 );
 
 isSameDay(startDate, startDate);
+const formatted = formatDate(startDate, { locale: 'en-AU', dateStyle: 'short' });
+parseLocalizedDate(formatted, { locale: 'en-AU', dateStyle: 'short' });
+const cleanup = subscribe(new EventTarget(), 'change', (event) => event.type);
+cleanup();
+const throttled = throttle((value: number) => value + 1, 10);
+const throttledResult: number | undefined = throttled(1);
 
 // @ts-expect-error Native Date values are not accepted.
 const invalidDate: DateRangePickerProps = { ...rangeProps, startDate: new Date() };
@@ -53,4 +64,4 @@ const invalidRenderers: DateRangePickerProps = {
   renderMonthElement: () => 'month',
 };
 
-export { invalidDate, invalidRenderers, valid };
+export { invalidDate, invalidRenderers, throttledResult, valid };

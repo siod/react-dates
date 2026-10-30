@@ -1,7 +1,7 @@
-export const DEFAULT_INPUT_FORMAT = Object.freeze({ dateStyle: 'short' });
-export const DEFAULT_MONTH_FORMAT = Object.freeze({ month: 'long', year: 'numeric' });
-export const DEFAULT_WEEKDAY_FORMAT = Object.freeze({ weekday: 'short' });
-export const DEFAULT_DAY_ARIA_FORMAT = Object.freeze({ dateStyle: 'full' });
+export const DEFAULT_INPUT_FORMAT = Object.freeze({ dateStyle: 'short' } as const);
+export const DEFAULT_MONTH_FORMAT = Object.freeze({ month: 'long', year: 'numeric' } as const);
+export const DEFAULT_WEEKDAY_FORMAT = Object.freeze({ weekday: 'short' } as const);
+export const DEFAULT_DAY_ARIA_FORMAT = Object.freeze({ dateStyle: 'full' } as const);
 
 export const START_DATE = 'startDate';
 export const END_DATE = 'endDate';
@@ -29,7 +29,7 @@ export const OPEN_UP = 'up';
 
 export const DAY_SIZE = 39;
 export const BLOCKED_MODIFIER = 'blocked';
-export const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
+export const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
 export const FANG_WIDTH_PX = 20;
 export const FANG_HEIGHT_PX = 10;

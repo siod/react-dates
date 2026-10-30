@@ -1,0 +1,19 @@
+{
+  "name": "siod-react-dates-types-react19-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "test:types": "tsc -p tsconfig.nodenext.json && tsc -p tsconfig.bundler.json"
+  },
+  "dependencies": {
+    "luxon": "3.7.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}

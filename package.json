@@ -7,18 +7,37 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
+  "types": "./lib/index.d.ts",
   "exports": {
     ".": {
-      "import": "./esm/index.js",
-      "require": "./lib/index.js"
+      "import": {
+        "types": "./esm/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
     },
     "./constants": {
-      "import": "./esm/constants.js",
-      "require": "./lib/constants.js"
+      "import": {
+        "types": "./esm/constants.d.ts",
+        "default": "./esm/constants.js"
+      },
+      "require": {
+        "types": "./lib/constants.d.ts",
+        "default": "./lib/constants.js"
+      }
     },
     "./initialize": {
-      "import": "./esm/initialize.js",
-      "require": "./lib/initialize.js"
+      "import": {
+        "types": "./esm/initialize.d.ts",
+        "default": "./esm/initialize.js"
+      },
+      "require": {
+        "types": "./lib/initialize.d.ts",
+        "default": "./lib/initialize.js"
+      }
     },
     "./css": "./lib/css/_datepicker.css",
     "./lib/css/_datepicker.css": "./lib/css/_datepicker.css",
@@ -30,10 +49,22 @@
     "./lib/internal/styles/defaultStyleTokens.js": null,
     "./esm/internal/styles/defaultStyleTokens": null,
     "./esm/internal/styles/defaultStyleTokens.js": null,
-    "./lib/*.js": "./lib/*.js",
-    "./lib/*": "./lib/*.js",
-    "./esm/*.js": "./esm/*.js",
-    "./esm/*": "./esm/*.js",
+    "./lib/*.js": {
+      "types": "./lib/*.d.ts",
+      "default": "./lib/*.js"
+    },
+    "./lib/*": {
+      "types": "./lib/*.d.ts",
+      "default": "./lib/*.js"
+    },
+    "./esm/*.js": {
+      "types": "./esm/*.d.ts",
+      "default": "./esm/*.js"
+    },
+    "./esm/*": {
+      "types": "./esm/*.d.ts",
+      "default": "./esm/*.js"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": [
@@ -55,15 +86,19 @@
   ],
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:metadata && npm run build:css",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:metadata && npm run build:css && npm run build:types",
     "build:cjs": "vite build --mode cjs",
     "build:esm": "vite build --mode esm",
     "build:metadata": "node scripts/write-module-metadata.mjs",
     "build:css": "node scripts/build-css.mjs",
+    "build:types": "tsc -p tsconfig.build.json && node scripts/sync-declarations.mjs",
+    "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:browser": "playwright test",
+    "test:types:packed": "node scripts/test-packed-types.mjs",
+    "verify:typescript-gate0": "node scripts/verify-typescript-gate0.mjs",
     "lint": "eslint .",
     "check:deps": "knip --dependencies --no-config-hints",
     "storybook": "storybook dev -p 6006",
@@ -82,12 +117,19 @@
   },
   "homepage": "https://github.com/siod/react-dates#readme",
   "dependencies": {
+    "@types/luxon": "^3.7.6",
     "prop-types": "^15.8.1"
   },
   "peerDependencies": {
+    "@types/react": "^18.3.1 || ^19.0.0",
     "luxon": "^3.7.2",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -95,9 +137,14 @@
     "@storybook/addon-a11y": "^10.5.8",
     "@storybook/react-vite": "^10.5.8",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.19.2",
+    "@types/prop-types": "^15.7.15",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.5",
+    "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
@@ -110,6 +157,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "storybook": "^10.5.8",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
   },

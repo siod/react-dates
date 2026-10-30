@@ -17,6 +17,28 @@ const config = {
   docs: {
     autodocs: 'tag',
   },
+  viteFinal: (viteConfig) => ({
+    ...viteConfig,
+    optimizeDeps: {
+      ...viteConfig.optimizeDeps,
+      exclude: [
+        ...(viteConfig.optimizeDeps?.exclude || []),
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+      ],
+    },
+    resolve: {
+      ...viteConfig.resolve,
+      dedupe: [
+        ...(viteConfig.resolve?.dedupe || []),
+        'react',
+        'react-dom',
+      ],
+    },
+  }),
 };
 
 export default config;

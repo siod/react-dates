@@ -4,21 +4,21 @@
     "index.js",
     "constants.js",
     "initialize.js",
-    "src/index.js",
-    "src/constants.js",
-    "src/initialize.js",
+    "src/index.{js,ts}",
+    "src/constants.{js,ts}",
+    "src/initialize.{js,ts}",
     "scripts/*.mjs",
-    "test/**/*.test.{js,jsx}",
-    "test/browser-fixtures/**/*.spec.{js,jsx,mjs}",
+    "test/**/*.test.{js,jsx,ts,tsx}",
+    "test/browser-fixtures/**/*.spec.{js,jsx,mjs,ts,tsx}",
     ".storybook/*.{js,mjs}"
   ],
   "project": [
-    "src/**/*.{js,jsx}",
-    "scripts/**/*.{js,jsx,mjs}",
-    "test/**/*.{js,jsx,mjs}",
-    "stories/**/*.{js,jsx,mjs}",
-    "examples/**/*.{js,jsx,mjs}",
-    ".storybook/**/*.{js,jsx,mjs}"
+    "src/**/*.{js,jsx,ts,tsx}",
+    "scripts/**/*.{js,jsx,mjs,ts,tsx}",
+    "test/**/*.{js,jsx,mjs,ts,tsx}",
+    "stories/**/*.{js,jsx,mjs,ts,tsx}",
+    "examples/**/*.{js,jsx,mjs,ts,tsx}",
+    ".storybook/**/*.{js,jsx,mjs,ts,tsx}"
   ],
   "ignoreDependencies": [
     "lightningcss",

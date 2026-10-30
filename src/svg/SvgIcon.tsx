@@ -1,6 +1,10 @@
-import React from 'react';
+import type { ReactNode, SVGProps } from 'react';
 
-export default function SvgIcon({ title, children, ...props }) {
+export interface SvgIconProps extends SVGProps<SVGSVGElement> {
+  title?: ReactNode;
+}
+
+export default function SvgIcon({ title, children, ...props }: SvgIconProps) {
   const labelled = Boolean(title || props['aria-label'] || props['aria-labelledby']);
   return (
     <svg

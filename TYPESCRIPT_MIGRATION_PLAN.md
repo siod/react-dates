@@ -122,25 +122,33 @@ first source file is renamed so converted files cannot silently escape checks.
 
 ### Declarations and exports
 
-Start with one canonical declaration tree beside the CommonJS output:
+Generate parallel declaration trees beside both runtime outputs:
 
 ```text
 lib/index.d.ts
 lib/constants.d.ts
 lib/components/CalendarDay.d.ts
 lib/internal/...
+esm/index.d.ts
+esm/constants.d.ts
+esm/components/CalendarDay.d.ts
+esm/internal/...
 ```
 
 Generate declarations after both Vite runtime builds because each Vite build
-uses `emptyOutDir`. Add `"types": "./lib/index.d.ts"` and put a `types` condition
-before runtime conditions for the root, `constants`, `initialize`, and every
-supported `lib/*` and `esm/*` wildcard form. Map ESM deep imports to the same
-canonical declaration tree unless the Gate 0 resolution spike proves separate
-ESM declarations are required.
+uses `emptyOutDir`. Add `"types": "./lib/index.d.ts"` as the legacy fallback and
+put format-specific `types` conditions before runtime conditions for the root,
+`constants`, `initialize`, and every supported `lib/*` and `esm/*` wildcard form.
+The CommonJS and ESM declarations may contain the same contracts, but must be
+separate files in their corresponding package scopes so NodeNext classifies each
+declaration with the same module kind as its JavaScript entrypoint.
+[The declaration layout note](docs/typescript/declaration-layout.md) explains
+why a shared declaration tree is unsafe and links to the relevant TypeScript and
+Node.js documentation.
 
 Preserve all runtime paths, root CommonJS wrappers, `esm/package.json`, CSS
 exports, and intentional null exports. The declaration build must represent
-default HOC exports, `WrappedComponent`/`Pure*` named exports, root utilities,
+default HOC exports, the `WrappedComponent` static property, `Pure*` named exports, root utilities,
 and both extensionless and `.js` deep imports.
 
 Current relative source imports are mostly extensionless. Gate 0 must choose one

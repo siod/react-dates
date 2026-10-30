@@ -1,0 +1,84 @@
+{
+  "sourceCommit": "0ea5c6b266b98a91bbd1447ddd77f44325b05432",
+  "runtime": {
+    "node": "22.23.2",
+    "npm": "10.9.8"
+  },
+  "rootExports": [
+    "CalendarDay",
+    "CalendarMonth",
+    "CalendarMonthGrid",
+    "CustomizableCalendarDay",
+    "DateRangePicker",
+    "DateRangePickerInput",
+    "DateRangePickerInputController",
+    "DateRangePickerShape",
+    "DayPicker",
+    "DayPickerRangeController",
+    "DayPickerSingleDateController",
+    "SingleDatePicker",
+    "SingleDatePickerInput",
+    "SingleDatePickerShape",
+    "isInclusivelyAfterDay",
+    "isInclusivelyBeforeDay",
+    "isNextDay",
+    "isSameDay",
+    "toISODateString",
+    "toLocalizedDateString"
+  ],
+  "css": {
+    "path": "lib/css/_datepicker.css",
+    "sha256": "e21ea7c8417034c92daa32e4074572e573cd8388738983b4a5630a6e2fa7a957"
+  },
+  "constants": {
+    "ANCHOR_LEFT": "left",
+    "ANCHOR_RIGHT": "right",
+    "BLOCKED_MODIFIER": "blocked",
+    "DAY_SIZE": 39,
+    "DEFAULT_DAY_ARIA_FORMAT": { "dateStyle": "full" },
+    "DEFAULT_INPUT_FORMAT": { "dateStyle": "short" },
+    "DEFAULT_MONTH_FORMAT": { "month": "long", "year": "numeric" },
+    "DEFAULT_VERTICAL_SPACING": 22,
+    "DEFAULT_WEEKDAY_FORMAT": { "weekday": "short" },
+    "END_DATE": "endDate",
+    "FANG_HEIGHT_PX": 10,
+    "FANG_WIDTH_PX": 20,
+    "HORIZONTAL_ORIENTATION": "horizontal",
+    "ICON_AFTER_POSITION": "after",
+    "ICON_BEFORE_POSITION": "before",
+    "INFO_POSITION_AFTER": "after",
+    "INFO_POSITION_BEFORE": "before",
+    "INFO_POSITION_BOTTOM": "bottom",
+    "INFO_POSITION_TOP": "top",
+    "MODIFIER_KEY_NAMES": ["Shift", "Control", "Alt", "Meta"],
+    "NAV_POSITION_BOTTOM": "navPositionBottom",
+    "NAV_POSITION_TOP": "navPositionTop",
+    "OPEN_DOWN": "down",
+    "OPEN_UP": "up",
+    "START_DATE": "startDate",
+    "VERTICAL_ORIENTATION": "vertical",
+    "VERTICAL_SCROLLABLE": "verticalScrollable",
+    "WEEKDAYS": [0, 1, 2, 3, 4, 5, 6]
+  },
+  "runtimeEntrypoints": {
+    "root": { "import": "./esm/index.js", "require": "./lib/index.js" },
+    "constants": { "import": "./esm/constants.js", "require": "./lib/constants.js" },
+    "initialize": { "import": "./esm/initialize.js", "require": "./lib/initialize.js" },
+    "libExtension": "./lib/*.js",
+    "libExtensionless": "./lib/*.js",
+    "esmExtension": "./esm/*.js",
+    "esmExtensionless": "./esm/*.js"
+  },
+  "package": {
+    "fileCount": 443,
+    "packedBytes": 324910,
+    "unpackedBytes": 1603381
+  },
+  "validation": {
+    "build": "passed",
+    "unitTestFiles": 39,
+    "unitTests": 414,
+    "lint": "passed",
+    "dependencyCheck": "passed"
+  }
+}

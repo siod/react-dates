@@ -1,0 +1,19 @@
+{
+  "name": "siod-react-dates-types-react18-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "test:types": "tsc -p tsconfig.nodenext.json && tsc -p tsconfig.bundler.json"
+  },
+  "dependencies": {
+    "luxon": "3.7.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "typescript": "6.0.3"
+  }
+}

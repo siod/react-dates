@@ -1,78 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 
 import DayPickerRangeController from '../src/components/DayPickerRangeController';
-
-import { dateTime } from '../src/internal/date';
-import { forbidExtraProps } from '../src/internal/propTypes';
-import ScrollableOrientationShape from '../src/shapes/ScrollableOrientationShape';
 
 import { START_DATE, END_DATE, HORIZONTAL_ORIENTATION } from '../src/constants';
 import isInclusivelyAfterDay from '../src/utils/isInclusivelyAfterDay';
 
 const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
-const dateFormatProp = PropTypes.oneOfType([PropTypes.object, PropTypes.func]);
-
-const propTypes = forbidExtraProps({
-  // example props for the demo
-  autoFocusEndDate: PropTypes.bool,
-  initialStartDate: dateTime,
-  initialEndDate: dateTime,
-  startDateOffset: PropTypes.func,
-  endDateOffset: PropTypes.func,
-  showInputs: PropTypes.bool,
-  minDate: dateTime,
-  maxDate: dateTime,
-
-  keepOpenOnDateSelect: PropTypes.bool,
-  minimumNights: PropTypes.number,
-  disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.oneOf([START_DATE, END_DATE])]),
-  isOutsideRange: PropTypes.func,
-  isDayBlocked: PropTypes.func,
-  isDayHighlighted: PropTypes.func,
-  daysViolatingMinNightsCanBeClicked: PropTypes.bool,
-
-  // DayPicker props
-  enableOutsideDays: PropTypes.bool,
-  numberOfMonths: PropTypes.number,
-  orientation: ScrollableOrientationShape,
-  verticalHeight: PropTypes.number,
-  withPortal: PropTypes.bool,
-  initialVisibleMonth: PropTypes.func,
-  firstDayOfWeek: PropTypes.number,
-  renderCalendarInfo: PropTypes.func,
-  calendarInfoPosition: PropTypes.string,
-  renderMonthElement: PropTypes.func,
-  renderMonthText: PropTypes.func,
-  renderWeekHeaderElement: PropTypes.func,
-
-  navPosition: PropTypes.string,
-  navPrev: PropTypes.node,
-  navNext: PropTypes.node,
-  renderNavPrevButton: PropTypes.func,
-  renderNavNextButton: PropTypes.func,
-  noNavButtons: PropTypes.bool,
-  noNavNextButton: PropTypes.bool,
-  noNavPrevButton: PropTypes.bool,
-
-  onPrevMonthClick: PropTypes.func,
-  onNextMonthClick: PropTypes.func,
-  onOutsideClick: PropTypes.func,
-  renderCalendarDay: PropTypes.func,
-  renderDayContents: PropTypes.func,
-  renderKeyboardShortcutsButton: PropTypes.func,
-  renderKeyboardShortcutsPanel: PropTypes.func,
-  hideKeyboardShortcutsPanel: PropTypes.bool,
-  transitionDuration: PropTypes.number,
-  noBorder: PropTypes.bool,
-
-  // i18n
-  monthFormat: dateFormatProp,
-
-  isRTL: PropTypes.bool,
-});
-
 const defaultProps = {
   // example props for the demo
   autoFocusEndDate: false,
@@ -214,7 +148,6 @@ class DayPickerRangeControllerWrapper extends React.Component {
   }
 }
 
-DayPickerRangeControllerWrapper.propTypes = propTypes;
 DayPickerRangeControllerWrapper.defaultProps = defaultProps;
 
 export default DayPickerRangeControllerWrapper;

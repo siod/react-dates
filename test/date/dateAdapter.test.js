@@ -8,7 +8,6 @@ import {
   parseLocalizedDate,
   startOfWeek,
 } from '../../src/internal/date';
-import { dateTime as dateTimePropType } from '../../src/internal/date/dateTimePropType';
 import compareDates from '../../src/utils/compareDates';
 import getCalendarMonthWeeks from '../../src/utils/getCalendarMonthWeeks';
 import isDateTime from '../../src/utils/isDateTime';
@@ -88,13 +87,5 @@ describe('Luxon DateTime foundation', () => {
         .some((dayValue) => dayValue.hasSame(zoned, 'day'))).toBe(true);
       expect(formatDate(zoned, { locale: 'en-CA', dateStyle: 'short' })).not.toBe('');
     });
-  });
-
-  it('provides optional and required DateTime PropTypes', () => {
-    expect(dateTimePropType({ date: undefined }, 'date', 'Example')).toBeNull();
-    expect(dateTimePropType({ date: date('2024-02-29') }, 'date', 'Example')).toBeNull();
-    expect(dateTimePropType({ date: '2024-02-29' }, 'date', 'Example')).toBeInstanceOf(TypeError);
-    expect(dateTimePropType.isRequired({ date: null }, 'date', 'Example')).toBeInstanceOf(TypeError);
-    expect(dateTimePropType.isRequired({ date: date('2024-02-29') }, 'date', 'Example')).toBeNull();
   });
 });

@@ -4,8 +4,7 @@ import calculateDimension from '../../src/utils/calculateDimension';
 import getCalendarMonthWidth from '../../src/utils/getCalendarMonthWidth';
 import getDetachedContainerStyles from '../../src/utils/getDetachedContainerStyles';
 import getInputHeight from '../../src/utils/getInputHeight';
-import getPhrase from '../../src/utils/getPhrase.jsx';
-import getPhrasePropTypes from '../../src/utils/getPhrasePropTypes';
+import getPhrase from '../../src/utils/getPhrase';
 import getResponsiveContainerStyles from '../../src/utils/getResponsiveContainerStyles';
 import getTransformStyles from '../../src/utils/getTransformStyles';
 import noflip from '../../src/utils/noflip';
@@ -175,12 +174,6 @@ describe('layout and presentation utilities', () => {
       expect(getPhrase(phrase, args)).toBe('computed phrase');
       expect(phrase).toHaveBeenCalledWith(args);
       expect(getPhrase()).toBe('');
-    });
-
-    it('creates a prop type entry for every default phrase key', () => {
-      const propTypes = getPhrasePropTypes({ first: 'First', second: 'Second' });
-
-      expect(Object.keys(propTypes)).toEqual(['first', 'second']);
     });
   });
 });

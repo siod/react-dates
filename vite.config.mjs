@@ -3,6 +3,7 @@ import { extname, relative, resolve } from 'node:path';
 
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import resolveSourceJs from './scripts/resolve-source-js.mjs';
 
 const packageJson = JSON.parse(readFileSync(
   new URL('./package.json', import.meta.url),
@@ -14,17 +15,19 @@ const external = [
 ];
 
 const sourceEntries = Object.fromEntries(
-  globSync(['src/**/*.js', 'src/**/*.jsx']).map((file) => {
+  globSync(['src/**/*.js', 'src/**/*.jsx', 'src/**/*.ts', 'src/**/*.tsx'])
+    .filter((file) => file !== 'src/types.ts')
+    .map((file) => {
     const name = relative('src', file).slice(0, -extname(file).length);
     return [name, resolve(import.meta.dirname, file)];
-  }),
+    }),
 );
 
 export default defineConfig(({ mode }) => {
   const isCommonJS = mode === 'cjs';
 
   return {
-    plugins: [react()],
+    plugins: [resolveSourceJs(), react()],
     build: {
       emptyOutDir: true,
       lib: {

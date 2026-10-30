@@ -35,6 +35,7 @@ jobs:
       - run: npm ci
       - run: npm install --no-save --package-lock=false react@${{ matrix.react }} react-dom@${{ matrix.react }}
       - run: npm run lint
+      - run: npm run typecheck
       - run: npm test -- --reporter=dot
       - run: npm run check:deps
 
@@ -114,6 +115,7 @@ jobs:
           cp -R fixtures/esm "$RUNNER_TEMP/react-dates-esm-consumer"
           REACT_DATES_TARBALL="$TARBALL" npm --prefix "$RUNNER_TEMP/react-dates-cjs-consumer" run test:packed
           REACT_DATES_TARBALL="$TARBALL" npm --prefix "$RUNNER_TEMP/react-dates-esm-consumer" run test:packed
+          REACT_DATES_TARBALL="$TARBALL" npm run test:types:packed
 
   browser:
     name: Browser · Node ${{ matrix.node }} · React ${{ matrix.react }}

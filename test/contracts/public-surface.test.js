@@ -1,16 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import * as constants from '../../src/constants';
-import DateRangePickerShape from '../../src/shapes/DateRangePickerShape';
-import SingleDatePickerShape from '../../src/shapes/SingleDatePickerShape';
+import * as publicApi from '../../src/index';
 
 describe('v22 public surface', () => {
-  it('keeps locale, calendar, and numbering-system overrides out of picker props', () => {
-    [DateRangePickerShape, SingleDatePickerShape].forEach((shape) => {
-      expect(shape).not.toHaveProperty('locale');
-      expect(shape).not.toHaveProperty('calendar');
-      expect(shape).not.toHaveProperty('numberingSystem');
-    });
+  it('removes the legacy runtime shape exports in favor of TypeScript props', () => {
+    expect(publicApi).not.toHaveProperty('DateRangePickerShape');
+    expect(publicApi).not.toHaveProperty('SingleDatePickerShape');
   });
 
   it('uses frozen Intl formatting options instead of date-library tokens', () => {

@@ -5,8 +5,9 @@ These interfaces are owned by the Sol lead. Workers may implement them but must 
 ## Date adapter
 
 Inputs and outputs are valid Luxon `DateTime` instances or `null`. Components use
-Luxon values directly; this module centralizes only public PropType validation,
-locale week rules, and localized input/output behavior.
+Luxon values directly; this module centralizes locale week rules and localized
+input/output behavior. TypeScript owns public date-value validation at compile time,
+while `isDateTime` remains the defensive runtime guard.
 
 - `startOfWeek(date, options): DateTime | null`
 - `endOfWeek(date, options): DateTime | null`

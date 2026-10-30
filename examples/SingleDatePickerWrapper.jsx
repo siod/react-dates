@@ -1,29 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 
 import SingleDatePicker from '../src/components/SingleDatePicker';
 
-import { dateTime } from '../src/internal/date';
 import { SingleDatePickerPhrases } from '../src/defaultPhrases';
-import SingleDatePickerShape from '../src/shapes/SingleDatePickerShape';
 import { HORIZONTAL_ORIENTATION, ANCHOR_LEFT, OPEN_DOWN } from '../src/constants';
 import isInclusivelyAfterDay from '../src/utils/isInclusivelyAfterDay';
 
 const omit = (object, keys) => Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key)));
-
-const propTypes = {
-  // example props for the demo
-  autoFocus: PropTypes.bool,
-  initialDate: dateTime,
-
-  ...omit(SingleDatePickerShape, [
-    'date',
-    'onDateChange',
-    'focused',
-    'onFocusChange',
-  ]),
-};
 
 const defaultProps = {
   // example props for the demo
@@ -124,7 +108,6 @@ class SingleDatePickerWrapper extends React.Component {
   }
 }
 
-SingleDatePickerWrapper.propTypes = propTypes;
 SingleDatePickerWrapper.defaultProps = defaultProps;
 
 export default SingleDatePickerWrapper;
